@@ -1,0 +1,8 @@
+metric,value,year,description
+total_countries_latest,181.0,2025.0,Countries in migration network (latest)
+total_corridors_latest,6975.0,2025.0,Active migration corridors (latest)
+total_migrant_stock_latest,132207032.53666872,2025.0,Total migrant stock (latest)
+stock_growth_pct,108.8,,% growth in global migrant stock 1990-latest
+best_louvain_modularity,0.5595,1990.0,Best Louvain modularity Q (peak year)
+n_communities_latest,8.0,2025.0,Louvain communities detected (latest year)
+n_boundary_nodes,181.0,,Countries that changed community in 50%+ of periods

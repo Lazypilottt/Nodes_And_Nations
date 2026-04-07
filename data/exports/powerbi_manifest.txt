@@ -1,0 +1,40 @@
+======================================================================
+NODES AND NATIONS — POWER BI DATA MANIFEST
+======================================================================
+
+DATA MODEL RELATIONSHIPS
+  All tables join on [iso3] and/or [year] fields.
+  Primary key: [iso3] in country_metadata.csv
+  Foreign keys: [iso3] in all other tables
+
+DASHBOARD ↔ TABLE MAPPING
+  Dashboard 1 (Global Overview):  network_summary.csv, network_edges.csv, country_metadata.csv
+  Dashboard 2 (Centrality):       centrality_metrics.csv, country_metadata.csv
+  Dashboard 3 (Communities):      community_memberships.csv, community_labels.csv, modularity_scores.csv
+  Dashboard 4 (Factors):          regression_coefficients.csv, factors (from factors_panel)
+  Dashboard 5 (Regression):       regression_model_comparison.csv, regression_coefficients.csv, vif_analysis.csv
+
+FILE LIST
+  [✓] centrality_metrics.csv                           1,448 rows
+  [✓] network_edges.csv                                4,000 rows
+  [✓] network_summary.csv                                  8 rows
+  [✓] community_memberships.csv                        1,448 rows
+  [✓] modularity_scores.csv                               24 rows
+  [✓] boundary_nodes.csv                                 181 rows
+  [✓] temporal_drift.csv                                   7 rows
+  [✓] regression_coefficients.csv                          8 rows
+  [✓] regression_model_comparison.csv                      2 rows
+  [✓] vif_analysis.csv                                     0 rows
+
+NOTES FOR POWER BI
+  • Load files via: Home > Get Data > Text/CSV
+  • Set year fields as Whole Number type
+  • Set iso3/origin_iso3/dest_iso3 as Text (not auto-detected as number)
+  • For choropleth maps: use [iso3] as Location field (ISO 3166-1 alpha-3)
+  • Network graph: use Force-Directed Graph custom visual from AppSource
+  • Filter network_edges.csv to one year at a time for performance
+  • is_extrapolated=True rows in migration_long.csv = 2025 projections
+
+RECOMMENDED DAX MEASURES
+  Migration Growth Rate = DIVIDE([Stock Latest] - [Stock Previous], [Stock Previous])
+  Modularity Trend = CALCULATE(AVERAGE(modularity_scores[modularity_q]), ...)
