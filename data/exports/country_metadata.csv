@@ -1,0 +1,184 @@
+iso3,country_name,continent,un_region,income_group
+AFG,Afghanistan,Asia,South Asia,Low income
+ALB,Albania,Europe,Eastern Europe,Upper middle income
+DZA,Algeria,Africa,Northern Africa,Lower middle income
+AGO,Angola,Africa,Sub-Saharan Africa,Lower middle income
+ARG,Argentina,Americas,Latin America,Upper middle income
+ARM,Armenia,Asia,Western Asia,Upper middle income
+AUS,Australia,Oceania,Australia/NZ,High income
+AUT,Austria,Europe,Western Europe,High income
+AZE,Azerbaijan,Asia,Western Asia,Upper middle income
+BGD,Bangladesh,Asia,South Asia,Lower middle income
+BLR,Belarus,Europe,Eastern Europe,Upper middle income
+BEL,Belgium,Europe,Western Europe,High income
+BEN,Benin,Africa,Sub-Saharan Africa,Low income
+BOL,Bolivia,Americas,Latin America,Lower middle income
+BIH,Bosnia and Herzegovina,Europe,Eastern Europe,Upper middle income
+BWA,Botswana,Africa,Sub-Saharan Africa,Upper middle income
+BRA,Brazil,Americas,Latin America,Upper middle income
+BGR,Bulgaria,Europe,Eastern Europe,Upper middle income
+BFA,Burkina Faso,Africa,Sub-Saharan Africa,Low income
+BDI,Burundi,Africa,Sub-Saharan Africa,Low income
+KHM,Cambodia,Asia,South-Eastern Asia,Lower middle income
+CMR,Cameroon,Africa,Sub-Saharan Africa,Lower middle income
+CAN,Canada,Americas,Northern America,High income
+CAF,Central African Republic,Africa,Sub-Saharan Africa,Low income
+TCD,Chad,Africa,Sub-Saharan Africa,Low income
+CHL,Chile,Americas,Latin America,High income
+CHN,China,Asia,Eastern Asia,Upper middle income
+COL,Colombia,Americas,Latin America,Upper middle income
+COG,Congo,Africa,Sub-Saharan Africa,Lower middle income
+COD,DR Congo,Africa,Sub-Saharan Africa,Low income
+CRI,Costa Rica,Americas,Latin America,Upper middle income
+HRV,Croatia,Europe,Eastern Europe,High income
+CUB,Cuba,Americas,Latin America,Upper middle income
+CYP,Cyprus,Europe,Western Asia,High income
+CZE,Czechia,Europe,Eastern Europe,High income
+DNK,Denmark,Europe,Northern Europe,High income
+DOM,Dominican Republic,Americas,Latin America,Upper middle income
+ECU,Ecuador,Americas,Latin America,Upper middle income
+EGY,Egypt,Africa,Northern Africa,Lower middle income
+SLV,El Salvador,Americas,Latin America,Lower middle income
+ETH,Ethiopia,Africa,Sub-Saharan Africa,Low income
+FIN,Finland,Europe,Northern Europe,High income
+FRA,France,Europe,Western Europe,High income
+GAB,Gabon,Africa,Sub-Saharan Africa,Upper middle income
+GMB,Gambia,Africa,Sub-Saharan Africa,Low income
+GEO,Georgia,Asia,Western Asia,Upper middle income
+DEU,Germany,Europe,Western Europe,High income
+GHA,Ghana,Africa,Sub-Saharan Africa,Lower middle income
+GRC,Greece,Europe,Southern Europe,High income
+GTM,Guatemala,Americas,Latin America,Upper middle income
+GIN,Guinea,Africa,Sub-Saharan Africa,Low income
+HND,Honduras,Americas,Latin America,Lower middle income
+HUN,Hungary,Europe,Eastern Europe,High income
+IND,India,Asia,South Asia,Lower middle income
+IDN,Indonesia,Asia,South-Eastern Asia,Upper middle income
+IRN,Iran,Asia,Western Asia,Lower middle income
+IRQ,Iraq,Asia,Western Asia,Upper middle income
+IRL,Ireland,Europe,Northern Europe,High income
+ISR,Israel,Asia,Western Asia,High income
+ITA,Italy,Europe,Southern Europe,High income
+JAM,Jamaica,Americas,Latin America,Upper middle income
+JPN,Japan,Asia,Eastern Asia,High income
+JOR,Jordan,Asia,Western Asia,Upper middle income
+KAZ,Kazakhstan,Asia,Central Asia,Upper middle income
+KEN,Kenya,Africa,Sub-Saharan Africa,Lower middle income
+PRK,North Korea,Asia,Eastern Asia,Low income
+KOR,South Korea,Asia,Eastern Asia,High income
+KWT,Kuwait,Asia,Western Asia,High income
+KGZ,Kyrgyzstan,Asia,Central Asia,Lower middle income
+LAO,Laos,Asia,South-Eastern Asia,Lower middle income
+LBN,Lebanon,Asia,Western Asia,Lower middle income
+LSO,Lesotho,Africa,Sub-Saharan Africa,Lower middle income
+LBR,Liberia,Africa,Sub-Saharan Africa,Low income
+LBY,Libya,Africa,Northern Africa,Upper middle income
+LTU,Lithuania,Europe,Northern Europe,High income
+LUX,Luxembourg,Europe,Western Europe,High income
+MDG,Madagascar,Africa,Sub-Saharan Africa,Low income
+MWI,Malawi,Africa,Sub-Saharan Africa,Low income
+MYS,Malaysia,Asia,South-Eastern Asia,Upper middle income
+MLI,Mali,Africa,Sub-Saharan Africa,Low income
+MLT,Malta,Europe,Southern Europe,High income
+MRT,Mauritania,Africa,Sub-Saharan Africa,Lower middle income
+MUS,Mauritius,Africa,Sub-Saharan Africa,High income
+MEX,Mexico,Americas,Latin America,Upper middle income
+MDA,Moldova,Europe,Eastern Europe,Lower middle income
+MNG,Mongolia,Asia,Eastern Asia,Lower middle income
+MAR,Morocco,Africa,Northern Africa,Lower middle income
+MOZ,Mozambique,Africa,Sub-Saharan Africa,Low income
+NAM,Namibia,Africa,Sub-Saharan Africa,Upper middle income
+NPL,Nepal,Asia,South Asia,Lower middle income
+NLD,Netherlands,Europe,Western Europe,High income
+NZL,New Zealand,Oceania,Australia/NZ,High income
+NIC,Nicaragua,Americas,Latin America,Lower middle income
+NER,Niger,Africa,Sub-Saharan Africa,Low income
+NGA,Nigeria,Africa,Sub-Saharan Africa,Lower middle income
+NOR,Norway,Europe,Northern Europe,High income
+OMN,Oman,Asia,Western Asia,High income
+PAK,Pakistan,Asia,South Asia,Lower middle income
+PAN,Panama,Americas,Latin America,High income
+PNG,Papua New Guinea,Oceania,Melanesia,Lower middle income
+PRY,Paraguay,Americas,Latin America,Upper middle income
+PER,Peru,Americas,Latin America,Upper middle income
+PHL,Philippines,Asia,South-Eastern Asia,Lower middle income
+POL,Poland,Europe,Eastern Europe,High income
+PRT,Portugal,Europe,Southern Europe,High income
+QAT,Qatar,Asia,Western Asia,High income
+ROU,Romania,Europe,Eastern Europe,High income
+RUS,Russia,Europe,Eastern Europe,Upper middle income
+RWA,Rwanda,Africa,Sub-Saharan Africa,Low income
+SAU,Saudi Arabia,Asia,Western Asia,High income
+SEN,Senegal,Africa,Sub-Saharan Africa,Lower middle income
+SLE,Sierra Leone,Africa,Sub-Saharan Africa,Low income
+SOM,Somalia,Africa,Sub-Saharan Africa,Low income
+ZAF,South Africa,Africa,Sub-Saharan Africa,Upper middle income
+SSD,South Sudan,Africa,Sub-Saharan Africa,Low income
+ESP,Spain,Europe,Southern Europe,High income
+LKA,Sri Lanka,Asia,South Asia,Lower middle income
+SDN,Sudan,Africa,Sub-Saharan Africa,Low income
+SWE,Sweden,Europe,Northern Europe,High income
+CHE,Switzerland,Europe,Western Europe,High income
+SYR,Syria,Asia,Western Asia,Low income
+TJK,Tajikistan,Asia,Central Asia,Low income
+THA,Thailand,Asia,South-Eastern Asia,Upper middle income
+TLS,Timor-Leste,Asia,South-Eastern Asia,Lower middle income
+TGO,Togo,Africa,Sub-Saharan Africa,Low income
+TTO,Trinidad and Tobago,Americas,Latin America,High income
+TUN,Tunisia,Africa,Northern Africa,Lower middle income
+TUR,Turkey,Asia,Western Asia,Upper middle income
+TKM,Turkmenistan,Asia,Central Asia,Upper middle income
+UGA,Uganda,Africa,Sub-Saharan Africa,Low income
+UKR,Ukraine,Europe,Eastern Europe,Lower middle income
+ARE,United Arab Emirates,Asia,Western Asia,High income
+GBR,United Kingdom,Europe,Northern Europe,High income
+USA,United States,Americas,Northern America,High income
+URY,Uruguay,Americas,Latin America,High income
+UZB,Uzbekistan,Asia,Central Asia,Lower middle income
+VNM,Vietnam,Asia,South-Eastern Asia,Lower middle income
+YEM,Yemen,Asia,Western Asia,Low income
+ZMB,Zambia,Africa,Sub-Saharan Africa,Lower middle income
+ZWE,Zimbabwe,Africa,Sub-Saharan Africa,Low income
+SRB,Serbia,Europe,Eastern Europe,Upper middle income
+MNE,Montenegro,Europe,Eastern Europe,Upper middle income
+MKD,North Macedonia,Europe,Eastern Europe,Upper middle income
+LVA,Latvia,Europe,Northern Europe,High income
+EST,Estonia,Europe,Northern Europe,High income
+SVK,Slovakia,Europe,Eastern Europe,High income
+SVN,Slovenia,Europe,Eastern Europe,High income
+ERI,Eritrea,Africa,Sub-Saharan Africa,Low income
+TZA,Tanzania,Africa,Sub-Saharan Africa,Lower middle income
+GNQ,Equatorial Guinea,Africa,Sub-Saharan Africa,Upper middle income
+PSE,Palestine,Asia,Western Asia,Lower middle income
+KNA,Saint Kitts and Nevis,Americas,Latin America,High income
+LCA,Saint Lucia,Americas,Latin America,Upper middle income
+WSM,Samoa,Oceania,Polynesia,Lower middle income
+STP,Sao Tome and Principe,Africa,Sub-Saharan Africa,Lower middle income
+MDV,Maldives,Asia,South Asia,Upper middle income
+SWZ,SWZ,Unknown,Unknown,Unknown
+SLB,SLB,Unknown,Unknown,Unknown
+GUY,GUY,Unknown,Unknown,Unknown
+BHR,BHR,Unknown,Unknown,Unknown
+AND,AND,Unknown,Unknown,Unknown
+BRN,BRN,Unknown,Unknown,Unknown
+PLW,PLW,Unknown,Unknown,Unknown
+COM,COM,Unknown,Unknown,Unknown
+SUR,SUR,Unknown,Unknown,Unknown
+DMA,DMA,Unknown,Unknown,Unknown
+TON,TON,Unknown,Unknown,Unknown
+CPV,CPV,Unknown,Unknown,Unknown
+VUT,VUT,Unknown,Unknown,Unknown
+DJI,DJI,Unknown,Unknown,Unknown
+VCT,VCT,Unknown,Unknown,Unknown
+FJI,FJI,Unknown,Unknown,Unknown
+KIR,KIR,Unknown,Unknown,Unknown
+BHS,BHS,Unknown,Unknown,Unknown
+BRB,BRB,Unknown,Unknown,Unknown
+GRD,GRD,Unknown,Unknown,Unknown
+ATG,ATG,Unknown,Unknown,Unknown
+ASM,ASM,Unknown,Unknown,Unknown
+BTN,BTN,Unknown,Unknown,Unknown
+MHL,MHL,Unknown,Unknown,Unknown
+FSM,FSM,Unknown,Unknown,Unknown
+HTI,HTI,Unknown,Unknown,Unknown
+BLZ,BLZ,Unknown,Unknown,Unknown
