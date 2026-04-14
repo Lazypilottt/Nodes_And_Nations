@@ -24,7 +24,7 @@ import pandas as pd
 import networkx as nx
 import community as community_louvain   # python-louvain
 import igraph as ig
-import leidenalg
+import leidenalg 
 
 from sklearn.metrics import normalized_mutual_info_score, adjusted_rand_score
 from networkx.algorithms.community import girvan_newman
@@ -102,6 +102,7 @@ def run_louvain(G_und: nx.Graph, year: int) -> tuple[dict, float]:
 
 # ══════════════════════════════════════════════════════════════════════════════
 # 2. LEIDEN ALGORITHM
+
 # ══════════════════════════════════════════════════════════════════════════════
 
 def nx_to_igraph(G_und: nx.Graph) -> tuple[ig.Graph, dict]:
