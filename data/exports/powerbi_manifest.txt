@@ -22,9 +22,9 @@ FILE LIST
   [✓] modularity_scores.csv                               24 rows
   [✓] boundary_nodes.csv                                 181 rows
   [✓] temporal_drift.csv                                   7 rows
-  [✓] regression_coefficients.csv                          8 rows
-  [✓] regression_model_comparison.csv                      2 rows
-  [✓] vif_analysis.csv                                     0 rows
+  [✓] regression_coefficients.csv                         22 rows
+  [✓] regression_model_comparison.csv                      4 rows
+  [✓] vif_analysis.csv                                     7 rows
 
 NOTES FOR POWER BI
   • Load files via: Home > Get Data > Text/CSV

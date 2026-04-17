@@ -166,10 +166,16 @@ def fit_model_pair(
     baseline_preds = [c for c in ["log_population", "log_gdp_per_capita", "conflict_intensity"]
                       if c in df.columns]
     # Full predictor set
-    full_preds = baseline_preds + [
+    raw_full_preds = baseline_preds + [
         c for c in ["unemployment", "education_index", "visa_openness_index", "climate_vulnerability"]
         if c in df.columns
     ]
+    
+    # Filter out predictors that have virtually no data
+    full_preds = [c for c in raw_full_preds if df[c].notna().sum() > 30]
+    dropped = set(raw_full_preds) - set(full_preds)
+    if dropped:
+        print(f"  Note: Dropping predictors due to insufficient data: {dropped}")
 
     coef_dfs = []
     summary_rows = []
@@ -268,7 +274,7 @@ def main():
     all_preds_full = [c for c in [
         "log_population", "log_gdp_per_capita", "conflict_intensity",
         "unemployment", "education_index", "visa_openness_index", "climate_vulnerability"
-    ] if c in df.columns]
+    ] if c in df.columns and df[c].notna().sum() > 30]
 
     # ── Pooled regressions (all years) ───────────────────────────────────────
     print("\n[2/5] Fitting pooled OLS models (baseline + full, inflows + outflows)...")

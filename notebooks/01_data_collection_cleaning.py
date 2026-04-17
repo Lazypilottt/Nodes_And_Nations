@@ -318,15 +318,24 @@ def fetch_undp_education() -> pd.DataFrame:
     try:
         url = ("https://hdr.undp.org/sites/default/files/2023-24_HDR/"
                "HDR23-24_Composite_indices_complete_time_series.csv")
-        df = pd.read_csv(url, encoding="latin-1")
-        edu_cols = [c for c in df.columns if str(c).startswith("edi_")]
+        import time
+        df = None
+        for attempt in range(3):
+            try:
+                df = pd.read_csv(url, encoding="latin-1", storage_options={"User-Agent": "Mozilla/5.0"})
+                break
+            except Exception as e:
+                if attempt == 2: raise
+                time.sleep(2)
+        
+        edu_cols = [c for c in df.columns if str(c).startswith("mys_") and len(str(c)) == 8]
         if not edu_cols:
-            raise ValueError("No edi_* columns")
+            raise ValueError("No mys_* columns found")
         df_long = df[["iso3"] + edu_cols].melt(
             id_vars="iso3", value_vars=edu_cols,
             var_name="year_str", value_name="education_index"
         )
-        df_long["year"] = df_long["year_str"].str.replace("edi_", "").astype(int)
+        df_long["year"] = df_long["year_str"].str.replace("mys_", "").astype(int)
         df_long = df_long[["iso3", "year", "education_index"]].dropna()
         df_long.to_csv(cache_path, index=False)
         print(f"  UNDP Education Index: {len(df_long):,} rows")
@@ -374,12 +383,9 @@ def fetch_ucdp_conflict() -> pd.DataFrame:
         850:"IDN",900:"AUS",920:"PNG",940:"NZL",
     }
     try:
-        # UCDP/PRIO Armed Conflict Dataset v24.1 — publicly available CSV
-        url = "https://ucdp.uu.se/downloads/ucdpprio/ucdp-prio-acd-241.csv"
-        r = requests.get(url, timeout=API_TIMEOUT)
-        r.raise_for_status()
-        from io import StringIO
-        df = pd.read_csv(StringIO(r.text))
+        # UCDP/PRIO Armed Conflict Dataset v25.1 — publicly available ZIP
+        url = "https://ucdp.uu.se/downloads/ucdpprio/ucdp-prio-acd-251-csv.zip"
+        df = pd.read_csv(url)
         # Relevant columns: gwno_a (GW code of side A), year, intensity_level
         df = df[["gwno_a", "year", "intensity_level"]].copy()
         df = df.rename(columns={"gwno_a": "gwno", "intensity_level": "conflict_intensity"})
