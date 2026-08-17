@@ -1,0 +1,9 @@
+# Additional ML + serving requirements
+scikit-learn>=1.1
+xgboost>=1.7
+joblib>=1.2
+fastapi>=0.95
+uvicorn[standard]>=0.20
+matplotlib>=3.4
+pandas
+numpy
