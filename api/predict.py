@@ -24,17 +24,22 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import joblib
 import os
+import sys
+from pathlib import Path
 import numpy as np
 import pandas as pd
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MODELS_DIR = os.path.join(ROOT, "models")
-EXPORTS_DIR = os.path.join(ROOT, "data", "exports")
-PROCESSED = os.path.join(ROOT, "data", "processed")
+ROOT_DIR = str(Path(__file__).resolve().parents[1])
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
+from data.loader import paths, load_factors, load_country_metadata, load_edges
+ROOT = paths["ROOT"]
+MODELS_DIR = paths["MODELS_DIR"]
+EXPORTS_DIR = paths["EXPORTS_DIR"]
+PROCESSED = paths["PROCESSED_DIR"]
 
 MODEL_PATH = os.path.join(MODELS_DIR, "edge_weight_predictor.joblib")
-FACTORS_PATH = os.path.join(PROCESSED, "factors_panel.csv")
-COUNTRY_META_PATH = os.path.join(EXPORTS_DIR, "country_metadata.csv")
 
 if not os.path.exists(MODEL_PATH):
     raise RuntimeError("Model not found. Run notebooks/06_edge_weight_predictor.py first to train and save the model.")
@@ -44,8 +49,8 @@ MODEL = saved["model"]
 FEATURES = saved["features"]
 
 # Load lookup tables to build features from origin/dest/year
-FACTORS = pd.read_csv(FACTORS_PATH)
-COUNTRY_META = pd.read_csv(COUNTRY_META_PATH) if os.path.exists(COUNTRY_META_PATH) else None
+FACTORS = load_factors()
+COUNTRY_META = load_country_metadata()
 
 app = FastAPI(title="Nodes & Nations Edge Predictor")
 

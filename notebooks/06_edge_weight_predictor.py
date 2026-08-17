@@ -35,16 +35,22 @@ import matplotlib.pyplot as plt
 
 warnings.filterwarnings("ignore")
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-EXPORTS_DIR = os.path.join(ROOT, "data", "exports")
-PROCESSED = os.path.join(ROOT, "data", "processed")
-MODELS_DIR = os.path.join(ROOT, "models")
+import sys
+ROOT_DIR = str(Path(__file__).resolve().parents[1])
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
+from data.loader import paths, load_factors, load_edges, load_country_metadata
+ROOT = paths["ROOT"]
+EXPORTS_DIR = paths["EXPORTS_DIR"]
+PROCESSED = paths["PROCESSED_DIR"]
+MODELS_DIR = paths["MODELS_DIR"]
 os.makedirs(MODELS_DIR, exist_ok=True)
 os.makedirs(EXPORTS_DIR, exist_ok=True)
 
+# Paths for expected input files (used as a quick existence check)
 EDGE_CSV = os.path.join(EXPORTS_DIR, "network_edges.csv")
 FACTORS_CSV = os.path.join(PROCESSED, "factors_panel.csv")
-COUNTRY_META_CSV = os.path.join(EXPORTS_DIR, "country_metadata.csv")
 
 if not os.path.exists(EDGE_CSV) or not os.path.exists(FACTORS_CSV):
     raise FileNotFoundError("Required input files missing. Run earlier pipeline steps to produce network_edges.csv and factors_panel.csv")
@@ -58,9 +64,9 @@ except Exception:
 
 
 def load_and_build_features():
-    edges = pd.read_csv(EDGE_CSV)
-    factors = pd.read_csv(FACTORS_CSV)
-    country_meta = pd.read_csv(COUNTRY_META_CSV) if os.path.exists(COUNTRY_META_CSV) else None
+    edges = load_edges()
+    factors = load_factors()
+    country_meta = load_country_metadata()
 
     # Basic renaming: origin_iso3, dest_iso3, year, weight
     if "origin_iso3" not in edges.columns or "dest_iso3" not in edges.columns:
@@ -183,7 +189,8 @@ def build_and_train(df, feature_cols):
     # Evaluate
     best = search.best_estimator_
     y_pred = best.predict(X_test)
-    rmse = mean_squared_error(y_test, y_pred, squared=False)
+    # mean_squared_error in some sklearn versions does not accept `squared` kwarg — take sqrt of MSE for RMSE
+    rmse = mean_squared_error(y_test, y_pred) ** 0.5
     r2 = r2_score(y_test, y_pred)
 
     print(f"Test RMSE (log-weight): {rmse:.4f}")

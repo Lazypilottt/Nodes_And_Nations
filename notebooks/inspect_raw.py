@@ -1,8 +1,11 @@
 # After downloading manually, inspect the file:
 import pandas as pd
 
+from pathlib import Path
+
 # The Excel has one sheet per year (1990, 1995 ... 2020)
-xl = pd.ExcelFile("/Users/lazypilot/Desktop/Lazypilot/IIT Bhilai/Acad/SEM6/NS/Nodes and Nations/data/raw/undesa_pd_2024_ims_stock_by_sex_destination_and_origin.xlsx")
+RAW_DIR = Path(__file__).resolve().parents[1] / "data" / "raw"
+xl = pd.ExcelFile(RAW_DIR / "undesa_pd_2024_ims_stock_by_sex_destination_and_origin.xlsx")
 print("Sheet names:", xl.sheet_names)  # should see years as sheet names
 
 # Read one table to understand the structure

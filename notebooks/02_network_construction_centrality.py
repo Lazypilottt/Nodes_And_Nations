@@ -107,9 +107,10 @@ def compute_centralities(G: nx.DiGraph, year: int) -> pd.DataFrame:
     # Use weight as distance (lower weight = harder to traverse)
     # Invert weights for shortest-path-based betweenness
     G_inv = G.copy()
+    weights = [dd["weight"] for _, _, dd in G.edges(data=True)]
+    max_w = max(weights) if weights else 1.0
     for u, v, d in G_inv.edges(data=True):
-        max_w = max(dd["weight"] for _, _, dd in G.edges(data=True))
-        G_inv[u][v]["inv_weight"] = max_w / max(d["weight"], 1)
+        G_inv[u][v]["inv_weight"] = max_w / max(d["weight"], 1.0)
 
     betweenness = nx.betweenness_centrality(
         G_inv,
