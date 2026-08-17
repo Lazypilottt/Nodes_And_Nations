@@ -1,0 +1,368 @@
+Built feature frame: 3,906 rows, 19 features
+Starting randomized CV search (this may take a few minutes)...
+Fitting 3 folds for each of 20 candidates, totalling 60 fits
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1101: RuntimeWarning: invalid value encountered in divide
+  updated_mean = (last_sum + new_sum) / updated_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1106: RuntimeWarning: invalid value encountered in divide
+  T = new_sum / new_sample_count
+/Users/lazypilot/.pyenv/versions/3.9.5/lib/python3.9/site-packages/sklearn/utils/extmath.py:1126: RuntimeWarning: invalid value encountered in divide
+  new_unnormalized_variance -= correction**2 / new_sample_count
+Best params (histgb): {'estimator__max_leaf_nodes': None, 'estimator__max_iter': 400, 'estimator__learning_rate': 0.1}
+Test RMSE (log-weight): 0.5701
+Test R²: 0.6783
+Saved model: /Users/lazypilot/Desktop/Lazypilot/Projects/Nodes_and_Nations/Nodes_And_Nations/models/edge_weight_predictor.joblib
+Done.
