@@ -26,8 +26,12 @@ env/
 # Data — raw cache (re-downloaded automatically)
 data/raw/cache/
 
-# Don't commit large raw Excel (already in repo, but ignore future large files)
-# data/raw/*.xlsx   ← Commented out: we DO want to track the primary dataset
+# Ignore processed exports and persisted models
+data/exports/
+models/
+
+# Ignore large raw files by default (uncomment if you want to track specific ones)
+# data/raw/*.xlsx
 
 # IDE
 .vscode/

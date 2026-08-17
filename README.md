@@ -57,3 +57,35 @@ Notes from the run
 The data suggests an interesting systemic truth: the network's Louvain modularity score drops from 0.560 in 1990 down to 0.474 projected for 2025. The graph is becoming less compartmentalized and more structurally integrated over time.
 
 - Codebase finalized 2026.
+
+
+Phase 6: Machine-Learning Edge Predictor
+---------------------------------------
+A full ML pipeline has been added to demonstrate an applied data-science deliverable suitable for a resume. It trains a gradient-boosting regressor to predict bilateral migrant stock (edge weight) from origin/destination socioeconomic features and relational signals.
+
+New files:
+- notebooks/06_edge_weight_predictor.py  # full training + CV, feature importances, model persistence
+- models/edge_weight_predictor.joblib     # (created after running the training script)
+- api/predict.py                          # FastAPI demo to serve predictions
+- requirements-ml.txt                     # ML + serving dependencies to install in the project venv
+
+Quickstart (recommended)
+
+    source venv/bin/activate
+    pip install -r requirements-ml.txt
+    python notebooks/06_edge_weight_predictor.py
+
+After training, run the demo server:
+
+    source venv/bin/activate
+    uvicorn api.predict:app --reload --port 8001
+
+POST /predict (JSON)
+- Provide either `features` (precomputed feature map) or `origin_iso3`, `dest_iso3`, and `year` to let the server compute features and return a prediction.
+
+What this demonstrates for your resume
+- End-to-end ML workflow: feature engineering, model selection with randomized CV, evaluation (RMSE/R²), feature-importance visualization, model persistence
+- Production demo: simple REST endpoint for fast validation and screenshots
+- Use this in a portfolio entry alongside a short write-up and a ROC/importance figure to show measurable impact
+
+If you'd like, the next step is to: run the training script here, save the artifacts, and start the demo server so sample predictions and screenshots can be produced for the portfolio. Reply "Run training" to proceed.
