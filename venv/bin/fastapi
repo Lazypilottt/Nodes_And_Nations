@@ -1,0 +1,6 @@
+#!/Users/lazypilot/Desktop/Lazypilot/Projects/Nodes_and_Nations/Nodes_And_Nations/venv/bin/python
+import sys
+from fastapi.cli import main
+if __name__ == '__main__':
+    sys.argv[0] = sys.argv[0].removesuffix('.exe')
+    sys.exit(main())
