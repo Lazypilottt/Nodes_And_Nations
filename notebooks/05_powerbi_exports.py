@@ -84,195 +84,42 @@ def validate_exports() -> dict:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# 2. COUNTRY METADATA
-# ══════════════════════════════════════════════════════════════════════════════
+import sys
+from pathlib import Path
 
-# World Bank income groups and UN regions — compact reference table
-COUNTRY_META_STATIC = [
-    ("AFG","Afghanistan","Asia","South Asia","Low income"),
-    ("ALB","Albania","Europe","Eastern Europe","Upper middle income"),
-    ("DZA","Algeria","Africa","Northern Africa","Lower middle income"),
-    ("AGO","Angola","Africa","Sub-Saharan Africa","Lower middle income"),
-    ("ARG","Argentina","Americas","Latin America","Upper middle income"),
-    ("ARM","Armenia","Asia","Western Asia","Upper middle income"),
-    ("AUS","Australia","Oceania","Australia/NZ","High income"),
-    ("AUT","Austria","Europe","Western Europe","High income"),
-    ("AZE","Azerbaijan","Asia","Western Asia","Upper middle income"),
-    ("BGD","Bangladesh","Asia","South Asia","Lower middle income"),
-    ("BLR","Belarus","Europe","Eastern Europe","Upper middle income"),
-    ("BEL","Belgium","Europe","Western Europe","High income"),
-    ("BEN","Benin","Africa","Sub-Saharan Africa","Low income"),
-    ("BOL","Bolivia","Americas","Latin America","Lower middle income"),
-    ("BIH","Bosnia and Herzegovina","Europe","Eastern Europe","Upper middle income"),
-    ("BWA","Botswana","Africa","Sub-Saharan Africa","Upper middle income"),
-    ("BRA","Brazil","Americas","Latin America","Upper middle income"),
-    ("BGR","Bulgaria","Europe","Eastern Europe","Upper middle income"),
-    ("BFA","Burkina Faso","Africa","Sub-Saharan Africa","Low income"),
-    ("BDI","Burundi","Africa","Sub-Saharan Africa","Low income"),
-    ("KHM","Cambodia","Asia","South-Eastern Asia","Lower middle income"),
-    ("CMR","Cameroon","Africa","Sub-Saharan Africa","Lower middle income"),
-    ("CAN","Canada","Americas","Northern America","High income"),
-    ("CAF","Central African Republic","Africa","Sub-Saharan Africa","Low income"),
-    ("TCD","Chad","Africa","Sub-Saharan Africa","Low income"),
-    ("CHL","Chile","Americas","Latin America","High income"),
-    ("CHN","China","Asia","Eastern Asia","Upper middle income"),
-    ("COL","Colombia","Americas","Latin America","Upper middle income"),
-    ("COG","Congo","Africa","Sub-Saharan Africa","Lower middle income"),
-    ("COD","DR Congo","Africa","Sub-Saharan Africa","Low income"),
-    ("CRI","Costa Rica","Americas","Latin America","Upper middle income"),
-    ("HRV","Croatia","Europe","Eastern Europe","High income"),
-    ("CUB","Cuba","Americas","Latin America","Upper middle income"),
-    ("CYP","Cyprus","Europe","Western Asia","High income"),
-    ("CZE","Czechia","Europe","Eastern Europe","High income"),
-    ("DNK","Denmark","Europe","Northern Europe","High income"),
-    ("DOM","Dominican Republic","Americas","Latin America","Upper middle income"),
-    ("ECU","Ecuador","Americas","Latin America","Upper middle income"),
-    ("EGY","Egypt","Africa","Northern Africa","Lower middle income"),
-    ("SLV","El Salvador","Americas","Latin America","Lower middle income"),
-    ("ETH","Ethiopia","Africa","Sub-Saharan Africa","Low income"),
-    ("FIN","Finland","Europe","Northern Europe","High income"),
-    ("FRA","France","Europe","Western Europe","High income"),
-    ("GAB","Gabon","Africa","Sub-Saharan Africa","Upper middle income"),
-    ("GMB","Gambia","Africa","Sub-Saharan Africa","Low income"),
-    ("GEO","Georgia","Asia","Western Asia","Upper middle income"),
-    ("DEU","Germany","Europe","Western Europe","High income"),
-    ("GHA","Ghana","Africa","Sub-Saharan Africa","Lower middle income"),
-    ("GRC","Greece","Europe","Southern Europe","High income"),
-    ("GTM","Guatemala","Americas","Latin America","Upper middle income"),
-    ("GIN","Guinea","Africa","Sub-Saharan Africa","Low income"),
-    ("HND","Honduras","Americas","Latin America","Lower middle income"),
-    ("HUN","Hungary","Europe","Eastern Europe","High income"),
-    ("IND","India","Asia","South Asia","Lower middle income"),
-    ("IDN","Indonesia","Asia","South-Eastern Asia","Upper middle income"),
-    ("IRN","Iran","Asia","Western Asia","Lower middle income"),
-    ("IRQ","Iraq","Asia","Western Asia","Upper middle income"),
-    ("IRL","Ireland","Europe","Northern Europe","High income"),
-    ("ISR","Israel","Asia","Western Asia","High income"),
-    ("ITA","Italy","Europe","Southern Europe","High income"),
-    ("JAM","Jamaica","Americas","Latin America","Upper middle income"),
-    ("JPN","Japan","Asia","Eastern Asia","High income"),
-    ("JOR","Jordan","Asia","Western Asia","Upper middle income"),
-    ("KAZ","Kazakhstan","Asia","Central Asia","Upper middle income"),
-    ("KEN","Kenya","Africa","Sub-Saharan Africa","Lower middle income"),
-    ("PRK","North Korea","Asia","Eastern Asia","Low income"),
-    ("KOR","South Korea","Asia","Eastern Asia","High income"),
-    ("KWT","Kuwait","Asia","Western Asia","High income"),
-    ("KGZ","Kyrgyzstan","Asia","Central Asia","Lower middle income"),
-    ("LAO","Laos","Asia","South-Eastern Asia","Lower middle income"),
-    ("LBN","Lebanon","Asia","Western Asia","Lower middle income"),
-    ("LSO","Lesotho","Africa","Sub-Saharan Africa","Lower middle income"),
-    ("LBR","Liberia","Africa","Sub-Saharan Africa","Low income"),
-    ("LBY","Libya","Africa","Northern Africa","Upper middle income"),
-    ("LTU","Lithuania","Europe","Northern Europe","High income"),
-    ("LUX","Luxembourg","Europe","Western Europe","High income"),
-    ("MDG","Madagascar","Africa","Sub-Saharan Africa","Low income"),
-    ("MWI","Malawi","Africa","Sub-Saharan Africa","Low income"),
-    ("MYS","Malaysia","Asia","South-Eastern Asia","Upper middle income"),
-    ("MLI","Mali","Africa","Sub-Saharan Africa","Low income"),
-    ("MLT","Malta","Europe","Southern Europe","High income"),
-    ("MRT","Mauritania","Africa","Sub-Saharan Africa","Lower middle income"),
-    ("MUS","Mauritius","Africa","Sub-Saharan Africa","High income"),
-    ("MEX","Mexico","Americas","Latin America","Upper middle income"),
-    ("MDA","Moldova","Europe","Eastern Europe","Lower middle income"),
-    ("MNG","Mongolia","Asia","Eastern Asia","Lower middle income"),
-    ("MAR","Morocco","Africa","Northern Africa","Lower middle income"),
-    ("MOZ","Mozambique","Africa","Sub-Saharan Africa","Low income"),
-    ("NAM","Namibia","Africa","Sub-Saharan Africa","Upper middle income"),
-    ("NPL","Nepal","Asia","South Asia","Lower middle income"),
-    ("NLD","Netherlands","Europe","Western Europe","High income"),
-    ("NZL","New Zealand","Oceania","Australia/NZ","High income"),
-    ("NIC","Nicaragua","Americas","Latin America","Lower middle income"),
-    ("NER","Niger","Africa","Sub-Saharan Africa","Low income"),
-    ("NGA","Nigeria","Africa","Sub-Saharan Africa","Lower middle income"),
-    ("NOR","Norway","Europe","Northern Europe","High income"),
-    ("OMN","Oman","Asia","Western Asia","High income"),
-    ("PAK","Pakistan","Asia","South Asia","Lower middle income"),
-    ("PAN","Panama","Americas","Latin America","High income"),
-    ("PNG","Papua New Guinea","Oceania","Melanesia","Lower middle income"),
-    ("PRY","Paraguay","Americas","Latin America","Upper middle income"),
-    ("PER","Peru","Americas","Latin America","Upper middle income"),
-    ("PHL","Philippines","Asia","South-Eastern Asia","Lower middle income"),
-    ("POL","Poland","Europe","Eastern Europe","High income"),
-    ("PRT","Portugal","Europe","Southern Europe","High income"),
-    ("QAT","Qatar","Asia","Western Asia","High income"),
-    ("ROU","Romania","Europe","Eastern Europe","High income"),
-    ("RUS","Russia","Europe","Eastern Europe","Upper middle income"),
-    ("RWA","Rwanda","Africa","Sub-Saharan Africa","Low income"),
-    ("SAU","Saudi Arabia","Asia","Western Asia","High income"),
-    ("SEN","Senegal","Africa","Sub-Saharan Africa","Lower middle income"),
-    ("SLE","Sierra Leone","Africa","Sub-Saharan Africa","Low income"),
-    ("SOM","Somalia","Africa","Sub-Saharan Africa","Low income"),
-    ("ZAF","South Africa","Africa","Sub-Saharan Africa","Upper middle income"),
-    ("SSD","South Sudan","Africa","Sub-Saharan Africa","Low income"),
-    ("ESP","Spain","Europe","Southern Europe","High income"),
-    ("LKA","Sri Lanka","Asia","South Asia","Lower middle income"),
-    ("SDN","Sudan","Africa","Sub-Saharan Africa","Low income"),
-    ("SWE","Sweden","Europe","Northern Europe","High income"),
-    ("CHE","Switzerland","Europe","Western Europe","High income"),
-    ("SYR","Syria","Asia","Western Asia","Low income"),
-    ("TJK","Tajikistan","Asia","Central Asia","Low income"),
-    ("THA","Thailand","Asia","South-Eastern Asia","Upper middle income"),
-    ("TLS","Timor-Leste","Asia","South-Eastern Asia","Lower middle income"),
-    ("TGO","Togo","Africa","Sub-Saharan Africa","Low income"),
-    ("TTO","Trinidad and Tobago","Americas","Latin America","High income"),
-    ("TUN","Tunisia","Africa","Northern Africa","Lower middle income"),
-    ("TUR","Turkey","Asia","Western Asia","Upper middle income"),
-    ("TKM","Turkmenistan","Asia","Central Asia","Upper middle income"),
-    ("UGA","Uganda","Africa","Sub-Saharan Africa","Low income"),
-    ("UKR","Ukraine","Europe","Eastern Europe","Lower middle income"),
-    ("ARE","United Arab Emirates","Asia","Western Asia","High income"),
-    ("GBR","United Kingdom","Europe","Northern Europe","High income"),
-    ("USA","United States","Americas","Northern America","High income"),
-    ("URY","Uruguay","Americas","Latin America","High income"),
-    ("UZB","Uzbekistan","Asia","Central Asia","Lower middle income"),
-    ("VNM","Vietnam","Asia","South-Eastern Asia","Lower middle income"),
-    ("YEM","Yemen","Asia","Western Asia","Low income"),
-    ("ZMB","Zambia","Africa","Sub-Saharan Africa","Lower middle income"),
-    ("ZWE","Zimbabwe","Africa","Sub-Saharan Africa","Low income"),
-    ("SRB","Serbia","Europe","Eastern Europe","Upper middle income"),
-    ("MNE","Montenegro","Europe","Eastern Europe","Upper middle income"),
-    ("MKD","North Macedonia","Europe","Eastern Europe","Upper middle income"),
-    ("LVA","Latvia","Europe","Northern Europe","High income"),
-    ("EST","Estonia","Europe","Northern Europe","High income"),
-    ("SVK","Slovakia","Europe","Eastern Europe","High income"),
-    ("SVN","Slovenia","Europe","Eastern Europe","High income"),
-    ("ERI","Eritrea","Africa","Sub-Saharan Africa","Low income"),
-    ("TZA","Tanzania","Africa","Sub-Saharan Africa","Lower middle income"),
-    ("GNQ","Equatorial Guinea","Africa","Sub-Saharan Africa","Upper middle income"),
-    ("PSE","Palestine","Asia","Western Asia","Lower middle income"),
-    ("KNA","Saint Kitts and Nevis","Americas","Latin America","High income"),
-    ("LCA","Saint Lucia","Americas","Latin America","Upper middle income"),
-    ("WSM","Samoa","Oceania","Polynesia","Lower middle income"),
-    ("STP","Sao Tome and Principe","Africa","Sub-Saharan Africa","Lower middle income"),
-    ("MDV","Maldives","Asia","South Asia","Upper middle income"),
-]
+ROOT_DIR = str(Path(__file__).resolve().parents[1])
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
+from data.loader import COUNTRY_METADATA_TABLE
 
 
 def build_country_metadata() -> pd.DataFrame:
-    """Build country metadata DataFrame from static table + any ISO3 seen in exports."""
-    df_meta = pd.DataFrame(COUNTRY_META_STATIC,
-                           columns=["iso3", "country_name", "continent",
-                                    "un_region", "income_group"])
+    """Build country metadata DataFrame with complete coverage of all 235 country entities."""
+    records = [
+        {"iso3": iso3, "country_name": name, "continent": cont, "un_region": reg, "income_group": inc}
+        for iso3, (name, cont, reg, inc) in COUNTRY_METADATA_TABLE.items()
+    ]
+    df_meta = pd.DataFrame(records)
 
-    # Supplement with any ISO3 codes found in migration data but not in static table
+    # Supplement with any ISO3 codes found in migration data if any extra exist
     migration_path = os.path.join(PROCESSED, "migration_long.csv")
     if os.path.exists(migration_path):
         df_mig = pd.read_csv(migration_path, usecols=["dest_iso3", "origin_iso3"])
         all_iso3 = set(df_mig["dest_iso3"].tolist() + df_mig["origin_iso3"].tolist())
-        known    = set(df_meta["iso3"].tolist())
-        missing  = all_iso3 - known
+        known = set(df_meta["iso3"].tolist())
+        missing = all_iso3 - known
         if missing:
             extra = pd.DataFrame({
-                "iso3":         list(missing),
-                "country_name": list(missing),   # fallback: use ISO3 as name
-                "continent":    "Unknown",
-                "un_region":    "Unknown",
+                "iso3": list(missing),
+                "country_name": list(missing),
+                "continent": "Unknown",
+                "un_region": "Unknown",
                 "income_group": "Unknown",
             })
             df_meta = pd.concat([df_meta, extra], ignore_index=True)
-            print(f"  Added {len(missing)} unknown ISO3 codes with placeholder metadata: {sorted(missing)[:10]}")
 
-    df_meta = df_meta.drop_duplicates(subset=["iso3"])
+    df_meta = df_meta.drop_duplicates(subset=["iso3"]).sort_values("iso3").reset_index(drop=True)
     return df_meta
 
 
@@ -282,8 +129,8 @@ def build_country_metadata() -> pd.DataFrame:
 
 def label_communities(meta_df: pd.DataFrame) -> pd.DataFrame:
     """
-    Attach community memberships to country metadata for the latest year.
-    Derives human-readable community names based on the dominant region per cluster.
+    Attach community memberships to country metadata for each snapshot year.
+    Derives human-readable community names based on the dominant geographic region per cluster per year.
     """
     mem_path = os.path.join(EXPORTS_DIR, "community_memberships.csv")
     if not os.path.exists(mem_path):
@@ -291,29 +138,50 @@ def label_communities(meta_df: pd.DataFrame) -> pd.DataFrame:
         return pd.DataFrame()
 
     df_mem = pd.read_csv(mem_path)
-    latest = df_mem["year"].max()
-    df_latest = df_mem[df_mem["year"] == latest].copy()
+    # Merge with metadata to get un_region and continent
+    df_merged = df_mem.merge(meta_df[["iso3", "un_region", "continent"]], on="iso3", how="left")
 
-    # Merge with metadata to get regions
-    df_merged = df_latest.merge(meta_df[["iso3", "un_region"]], on="iso3", how="left")
+    def get_cluster_label(grp: pd.DataFrame) -> str:
+        reg_counts = grp["un_region"].dropna().value_counts()
+        cont_counts = grp["continent"].dropna().value_counts()
+        if reg_counts.empty:
+            return "Global"
 
-    # For each Louvain community, find the dominant region
-    def dominant_region(group):
-        return group["un_region"].value_counts().idxmax() if not group.empty else "Unknown"
+        top_reg = reg_counts.index[0]
+        top_pct = reg_counts.iloc[0] / max(len(grp), 1)
 
-    community_labels = (
-        df_merged.groupby("louvain_community")
-        .apply(dominant_region)
-        .reset_index()
-    )
-    community_labels.columns = ["louvain_community", "dominant_region"]
-    community_labels["community_label"] = (
-        "Cluster " + community_labels["louvain_community"].astype(str)
-        + ": " + community_labels["dominant_region"]
-    )
+        if top_pct >= 0.55:
+            return top_reg
+        elif len(reg_counts) > 1:
+            top1 = reg_counts.index[0]
+            top2 = reg_counts.index[1]
+            if "Latin America" in [top1, top2] and "Caribbean" in [top1, top2]:
+                return "Latin America & Caribbean"
+            elif "South Asia" in [top1, top2] and "Western Asia" in [top1, top2]:
+                return "South & Western Asia"
+            elif "South Asia" in [top1, top2] and "South-Eastern Asia" in [top1, top2]:
+                return "South & South-East Asia"
+            elif ("Eastern Europe" in [top1, top2] or "Northern Europe" in [top1, top2] or "Western Europe" in [top1, top2]) and ("Europe" in cont_counts.head(2).index.tolist()):
+                return "Pan-Europe"
+            else:
+                return f"{top1} & {top2}"
+        else:
+            return top_reg
 
-    df_labeled = df_mem.merge(community_labels, on="louvain_community", how="left")
+    labels = []
+    for (year, comm_id), grp in df_merged.groupby(["year", "louvain_community"]):
+        dom = get_cluster_label(grp)
+        labels.append({
+            "year": year,
+            "louvain_community": comm_id,
+            "dominant_region": dom,
+            "community_label": f"Cluster {comm_id}: {dom}",
+        })
+
+    comm_df = pd.DataFrame(labels)
+    df_labeled = df_mem.merge(comm_df, on=["year", "louvain_community"], how="left")
     return df_labeled
+
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -394,7 +262,69 @@ def build_summary_stats() -> pd.DataFrame:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# 5. POWER BI MANIFEST
+# 5. UNIFIED ALL-IN-ONE EXPORT TABLES
+# ══════════════════════════════════════════════════════════════════════════════
+
+def build_unified_tables(meta_df: pd.DataFrame, comm_labeled: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Build single all-in-one unified export tables:
+    1. nodes_master.csv: all node-level metadata, centrality metrics, communities, boundary scores, and socioeconomic factors
+    2. migration_full_flat.csv: all-in-one bilateral corridor table with origin and destination node metrics pre-joined
+    """
+    print("\n[5/6] Building unified master datasets (nodes_master.csv & migration_full_flat.csv)...")
+
+    cent_path = os.path.join(EXPORTS_DIR, "centrality_metrics.csv")
+    bnd_path = os.path.join(EXPORTS_DIR, "boundary_nodes.csv")
+    fac_path = os.path.join(PROCESSED, "factors_panel.csv")
+    edges_path = os.path.join(EXPORTS_DIR, "network_edges.csv")
+
+    cent_df = pd.read_csv(cent_path) if os.path.exists(cent_path) else pd.DataFrame()
+    bnd_df = pd.read_csv(bnd_path) if os.path.exists(bnd_path) else pd.DataFrame()
+    fac_df = pd.read_csv(fac_path) if os.path.exists(fac_path) else pd.DataFrame()
+    edges_df = pd.read_csv(edges_path) if os.path.exists(edges_path) else pd.DataFrame()
+
+    # 1. Node Master Table
+    node_df = cent_df.copy()
+    if not node_df.empty:
+        node_df = node_df.merge(meta_df, on="iso3", how="left")
+        if not comm_labeled.empty and "community_label" in comm_labeled.columns:
+            comm_sub = comm_labeled[["iso3", "year", "louvain_community", "leiden_community", "gn_community", "dominant_region", "community_label"]]
+            node_df = node_df.merge(comm_sub, on=["iso3", "year"], how="left")
+        if not bnd_df.empty and "boundary_score" in bnd_df.columns:
+            node_df = node_df.merge(bnd_df[["iso3", "boundary_score", "is_boundary_node"]], on="iso3", how="left")
+        if not fac_df.empty:
+            node_df = node_df.merge(fac_df, on=["iso3", "year"], how="left")
+
+        out_node = os.path.join(EXPORTS_DIR, "nodes_master.csv")
+        node_df.to_csv(out_node, index=False)
+        print(f"  ✓ Saved: {out_node}  ({len(node_df):,} rows, {len(node_df.columns)} columns)")
+
+    # 2. Migration Full Flat Table (Bilateral Corridors with Origin & Dest Attributes)
+    if not edges_df.empty and not node_df.empty:
+        origin_nodes = node_df.rename(columns=lambda c: f"origin_{c}" if c not in ["year"] else c)
+        dest_nodes = node_df.rename(columns=lambda c: f"dest_{c}" if c not in ["year"] else c)
+
+        flat_df = edges_df.merge(origin_nodes, on=["origin_iso3", "year"], how="left")
+        flat_df = flat_df.merge(dest_nodes, on=["dest_iso3", "year"], how="left")
+
+        flat_df["log_weight"] = np.log1p(flat_df["weight"])
+        if "origin_continent" in flat_df.columns and "dest_continent" in flat_df.columns:
+            flat_df["same_continent"] = (flat_df["origin_continent"] == flat_df["dest_continent"]).astype(int)
+        if "origin_income_group" in flat_df.columns and "dest_income_group" in flat_df.columns:
+            flat_df["same_income_group"] = (flat_df["origin_income_group"] == flat_df["dest_income_group"]).astype(int)
+        if "origin_louvain_community" in flat_df.columns and "dest_louvain_community" in flat_df.columns:
+            flat_df["same_community"] = (flat_df["origin_louvain_community"] == flat_df["dest_louvain_community"]).astype(int)
+
+        out_flat = os.path.join(EXPORTS_DIR, "migration_full_flat.csv")
+        flat_df.to_csv(out_flat, index=False)
+        print(f"  ✓ Saved: {out_flat}  ({len(flat_df):,} rows, {len(flat_df.columns)} columns)")
+        return node_df, flat_df
+
+    return node_df, pd.DataFrame()
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 6. POWER BI MANIFEST
 # ══════════════════════════════════════════════════════════════════════════════
 
 def write_manifest(validation_status: dict):
@@ -404,7 +334,11 @@ def write_manifest(validation_status: dict):
         "NODES AND NATIONS — POWER BI DATA MANIFEST",
         "=" * 70,
         "",
-        "DATA MODEL RELATIONSHIPS",
+        "UNIFIED ALL-IN-ONE TABLES (EASIEST / DRAG-AND-DROP)",
+        "  1. migration_full_flat.csv: Comprehensive bilateral edge table with origin and destination metrics",
+        "  2. nodes_master.csv: Complete country-year panel with metadata, centrality, communities, & factors",
+        "",
+        "DATA MODEL RELATIONSHIPS (FOR RELATIONAL STAR SCHEMA)",
         "  All tables join on [iso3] and/or [year] fields.",
         "  Primary key: [iso3] in country_metadata.csv",
         "  Foreign keys: [iso3] in all other tables",
@@ -464,14 +398,14 @@ def main():
     validation = validate_exports()
 
     # ── 2. Country metadata ───────────────────────────────────────────────────
-    print("\n[2/5] Building country metadata table...")
+    print("\n[2/6] Building country metadata table...")
     meta_df = build_country_metadata()
     out_meta = os.path.join(EXPORTS_DIR, "country_metadata.csv")
     meta_df.to_csv(out_meta, index=False)
     print(f"  ✓ Saved: {out_meta}  ({len(meta_df)} countries)")
 
     # ── 3. Community labels ───────────────────────────────────────────────────
-    print("\n[3/5] Building community labels for latest year...")
+    print("\n[3/6] Building community labels for latest year...")
     comm_labeled = label_communities(meta_df)
     if not comm_labeled.empty:
         out_cl = os.path.join(EXPORTS_DIR, "community_labels.csv")
@@ -479,15 +413,18 @@ def main():
         print(f"  ✓ Saved: {out_cl}  ({len(comm_labeled):,} rows)")
 
     # ── 4. Summary statistics ──────────────────────────────────────────────────
-    print("\n[4/5] Building Power BI KPI summary statistics...")
+    print("\n[4/6] Building Power BI KPI summary statistics...")
     summary_df = build_summary_stats()
     out_summ   = os.path.join(EXPORTS_DIR, "summary_stats.csv")
     summary_df.to_csv(out_summ, index=False)
     print(f"  ✓ Saved: {out_summ}")
     print(summary_df.to_string(index=False))
 
-    # ── 5. Manifest ───────────────────────────────────────────────────────────
-    print("\n[5/5] Writing Power BI manifest...")
+    # ── 5. Unified Master Tables ───────────────────────────────────────────────
+    build_unified_tables(meta_df, comm_labeled)
+
+    # ── 6. Manifest ───────────────────────────────────────────────────────────
+    print("\n[6/6] Writing Power BI manifest...")
     write_manifest(validation)
 
     # ── Final file listing ────────────────────────────────────────────────────
@@ -504,9 +441,10 @@ def main():
     print("=" * 70)
     print("\nNext steps:")
     print("  1. Open Power BI Desktop")
-    print("  2. Load all CSVs from data/exports/")
+    print("  2. Load all CSVs from data/exports/ (or migration_full_flat.csv for single-table setup)")
     print("  3. Follow powerbi_manifest.txt for table relationships and dashboard setup")
 
 
 if __name__ == "__main__":
     main()
+

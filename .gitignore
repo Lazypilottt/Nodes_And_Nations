@@ -1,43 +1,5 @@
-# Python
-__pycache__/
-*.py[cod]
-*.pyo
-*.pyd
-.Python
-*.egg
-*.egg-info/
-dist/
-build/
 
-# Virtual environment
-venv/
-.venv/
-env/
-
-# macOS
 .DS_Store
-.AppleDouble
-.LSOverride
-
-# Jupyter
-.ipynb_checkpoints/
-*.ipynb
-
-# Data — raw cache (re-downloaded automatically)
-data/raw/cache/
-
-# Ignore processed exports and persisted models
-data/exports/
-models/
-
-# Ignore large raw files by default (uncomment if you want to track specific ones)
-# data/raw/*.xlsx
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Logs
-*.log
+**/.DS_Store
+.next/
+node_modules/
