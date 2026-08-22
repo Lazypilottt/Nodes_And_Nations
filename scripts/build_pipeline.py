@@ -27,7 +27,7 @@ NB01 = ROOT / 'notebooks' / '01_data_collection_cleaning.py'
 NB02 = ROOT / 'notebooks' / '02_network_construction_centrality.py'
 NB03 = ROOT / 'notebooks' / '03_community_detection.py'
 NB04 = ROOT / 'notebooks' / '04_regression_analysis.py'
-NB05 = ROOT / 'notebooks' / '05_powerbi_exports.py'
+NB05 = ROOT / 'notebooks' / '05_export_finalization.py'
 NB06 = ROOT / 'notebooks' / '06_edge_weight_predictor.py'
 
 DEFAULT_ENV = os.environ.copy()

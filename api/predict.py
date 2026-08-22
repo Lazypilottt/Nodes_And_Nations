@@ -24,22 +24,17 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import joblib
 import os
-import sys
-from pathlib import Path
 import numpy as np
 import pandas as pd
 
-ROOT_DIR = str(Path(__file__).resolve().parents[1])
-if ROOT_DIR not in sys.path:
-    sys.path.insert(0, ROOT_DIR)
-
-from data.loader import paths, load_factors, load_country_metadata, load_edges
-ROOT = paths["ROOT"]
-MODELS_DIR = paths["MODELS_DIR"]
-EXPORTS_DIR = paths["EXPORTS_DIR"]
-PROCESSED = paths["PROCESSED_DIR"]
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MODELS_DIR = os.path.join(ROOT, "models")
+EXPORTS_DIR = os.path.join(ROOT, "data", "exports")
+PROCESSED = os.path.join(ROOT, "data", "processed")
 
 MODEL_PATH = os.path.join(MODELS_DIR, "edge_weight_predictor.joblib")
+FACTORS_PATH = os.path.join(PROCESSED, "factors_panel.csv")
+COUNTRY_META_PATH = os.path.join(EXPORTS_DIR, "country_metadata.csv")
 
 if not os.path.exists(MODEL_PATH):
     raise RuntimeError("Model not found. Run notebooks/06_edge_weight_predictor.py first to train and save the model.")
@@ -49,8 +44,8 @@ MODEL = saved["model"]
 FEATURES = saved["features"]
 
 # Load lookup tables to build features from origin/dest/year
-FACTORS = load_factors()
-COUNTRY_META = load_country_metadata()
+FACTORS = pd.read_csv(FACTORS_PATH)
+COUNTRY_META = pd.read_csv(COUNTRY_META_PATH) if os.path.exists(COUNTRY_META_PATH) else None
 
 app = FastAPI(title="Nodes & Nations Edge Predictor")
 
@@ -106,7 +101,6 @@ def predict(req: PredictRequest):
                 else:
                     row[f] = None
             else:
-                # relational features
                 if f == "gdp_log_diff":
                     o_gdp = np.log(fo["gdp_per_capita"]) if fo["gdp_per_capita"] > 0 else 0.0
                     d_gdp = np.log(fd["gdp_per_capita"]) if fd["gdp_per_capita"] > 0 else 0.0
@@ -129,6 +123,14 @@ def predict(req: PredictRequest):
                         row[f] = 1.0 if o_inc == d_inc else 0.0
                     else:
                         row[f] = 0.0
+                elif f == "same_dominant_religion":
+                    o_rel = fo.get("dominant_religion", "Unknown")
+                    d_rel = fd.get("dominant_religion", "Unknown")
+                    row[f] = 1.0 if (o_rel is not None and o_rel == d_rel) else 0.0
+                elif f == "cultural_openness_diff":
+                    o_open = float(fo.get("cultural_openness_index", 0.5)) if pd.notna(fo.get("cultural_openness_index")) else 0.5
+                    d_open = float(fd.get("cultural_openness_index", 0.5)) if pd.notna(fd.get("cultural_openness_index")) else 0.5
+                    row[f] = abs(o_open - d_open)
                 elif f == "year":
                     row[f] = y
                 else:

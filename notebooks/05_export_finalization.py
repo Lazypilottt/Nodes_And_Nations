@@ -1,20 +1,23 @@
 """
-Phase 5: Power BI Export Finalization & Validation
-====================================================
+Phase 5: Unified Dataset Finalization & Validation
+===================================================
 Nodes and Nations: A Complex Network Study of Global Migration
 
 Steps:
   1. Validate all export CSVs for completeness and schema
   2. Generate country_metadata.csv (ISO3, name, region, income group)
-  3. Generate summary_stats.csv for dashboard KPI cards
-  4. Generate community_labels.csv with human-readable community names
-  5. Print a final manifest of all exported files
+  3. Generate community_labels.csv with human-readable community names
+  4. Generate summary_stats.csv for system KPI metrics
+  5. Generate unified master datasets:
+     - nodes_master.csv (complete country-year panel with centrality, community, socioeconomics, culture, & religion)
+     - migration_full_flat.csv (bilateral corridor table with origin/dest attributes and dyadic indicators)
 
 Inputs:  All files in data/exports/ and data/processed/
 Outputs: data/exports/country_metadata.csv
-         data/exports/summary_stats.csv
          data/exports/community_labels.csv
-         data/exports/powerbi_manifest.txt
+         data/exports/summary_stats.csv
+         data/exports/nodes_master.csv
+         data/exports/migration_full_flat.csv
 """
 
 import os
@@ -22,13 +25,21 @@ import json
 import warnings
 import numpy as np
 import pandas as pd
+import sys
+from pathlib import Path
 
 warnings.filterwarnings("ignore")
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
-ROOT        = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PROCESSED   = os.path.join(ROOT, "data", "processed")
-EXPORTS_DIR = os.path.join(ROOT, "data", "exports")
+ROOT_DIR = str(Path(__file__).resolve().parents[1])
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
+from data.loader import paths, COUNTRY_METADATA_TABLE
+
+ROOT        = paths["ROOT"]
+PROCESSED   = paths["PROCESSED_DIR"]
+EXPORTS_DIR = paths["EXPORTS_DIR"]
 os.makedirs(EXPORTS_DIR, exist_ok=True)
 
 SNAPSHOT_YEARS = [1990, 1995, 2000, 2005, 2010, 2015, 2020, 2025]
@@ -84,15 +95,8 @@ def validate_exports() -> dict:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-import sys
-from pathlib import Path
-
-ROOT_DIR = str(Path(__file__).resolve().parents[1])
-if ROOT_DIR not in sys.path:
-    sys.path.insert(0, ROOT_DIR)
-
-from data.loader import COUNTRY_METADATA_TABLE
-
+# 2. COUNTRY METADATA
+# ══════════════════════════════════════════════════════════════════════════════
 
 def build_country_metadata() -> pd.DataFrame:
     """Build country metadata DataFrame with complete coverage of all 235 country entities."""
@@ -138,7 +142,6 @@ def label_communities(meta_df: pd.DataFrame) -> pd.DataFrame:
         return pd.DataFrame()
 
     df_mem = pd.read_csv(mem_path)
-    # Merge with metadata to get un_region and continent
     df_merged = df_mem.merge(meta_df[["iso3", "un_region", "continent"]], on="iso3", how="left")
 
     def get_cluster_label(grp: pd.DataFrame) -> str:
@@ -183,13 +186,12 @@ def label_communities(meta_df: pd.DataFrame) -> pd.DataFrame:
     return df_labeled
 
 
-
 # ══════════════════════════════════════════════════════════════════════════════
-# 4. SUMMARY STATISTICS (Power BI KPI cards)
+# 4. SUMMARY STATISTICS
 # ══════════════════════════════════════════════════════════════════════════════
 
 def build_summary_stats() -> pd.DataFrame:
-    """Compute top-level dashboard KPI metrics."""
+    """Compute top-level KPI metrics across the full time series."""
     rows = []
 
     # From network summary
@@ -211,7 +213,7 @@ def build_summary_stats() -> pd.DataFrame:
              "year": None, "description": "% growth in global migrant stock 1990-latest"},
         ])
 
-    # From modulariy scores
+    # From modularity scores
     mod_path = os.path.join(EXPORTS_DIR, "modularity_scores.csv")
     if os.path.exists(mod_path):
         mod = pd.read_csv(mod_path)
@@ -237,13 +239,15 @@ def build_summary_stats() -> pd.DataFrame:
     reg_path = os.path.join(EXPORTS_DIR, "regression_model_comparison.csv")
     if os.path.exists(reg_path):
         reg = pd.read_csv(reg_path)
+        cult_model = reg[reg["model"].str.startswith("cultural_gravity_inflows")]
         full_model = reg[reg["model"].str.startswith("full_inflows")]
-        if not full_model.empty:
+        target_model = cult_model if not cult_model.empty else full_model
+        if not target_model.empty:
             rows.append({
-                "metric": "full_model_r2_inflows",
-                "value":  round(float(full_model["r_squared"].values[0]), 4),
+                "metric": "cultural_gravity_r2_inflows",
+                "value":  round(float(target_model["r_squared"].values[0]), 4),
                 "year":   None,
-                "description": "R² of full 7-factor model (inflows)",
+                "description": "R² of cultural & integration gravity model (inflows)",
             })
 
     # From boundary nodes
@@ -268,10 +272,11 @@ def build_summary_stats() -> pd.DataFrame:
 def build_unified_tables(meta_df: pd.DataFrame, comm_labeled: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Build single all-in-one unified export tables:
-    1. nodes_master.csv: all node-level metadata, centrality metrics, communities, boundary scores, and socioeconomic factors
-    2. migration_full_flat.csv: all-in-one bilateral corridor table with origin and destination node metrics pre-joined
+    1. nodes_master.csv: all node-level metadata, centrality metrics, communities, boundary scores,
+       socioeconomic factors, cultural integration indicators, and world religion demographics.
+    2. migration_full_flat.csv: all-in-one bilateral corridor table with origin and destination node metrics pre-joined.
     """
-    print("\n[5/6] Building unified master datasets (nodes_master.csv & migration_full_flat.csv)...")
+    print("\n[5/5] Building unified master datasets (nodes_master.csv & migration_full_flat.csv)...")
 
     cent_path = os.path.join(EXPORTS_DIR, "centrality_metrics.csv")
     bnd_path = os.path.join(EXPORTS_DIR, "boundary_nodes.csv")
@@ -314,6 +319,12 @@ def build_unified_tables(meta_df: pd.DataFrame, comm_labeled: pd.DataFrame) -> t
             flat_df["same_income_group"] = (flat_df["origin_income_group"] == flat_df["dest_income_group"]).astype(int)
         if "origin_louvain_community" in flat_df.columns and "dest_louvain_community" in flat_df.columns:
             flat_df["same_community"] = (flat_df["origin_louvain_community"] == flat_df["dest_louvain_community"]).astype(int)
+        if "origin_dominant_religion" in flat_df.columns and "dest_dominant_religion" in flat_df.columns:
+            flat_df["same_religion"] = (flat_df["origin_dominant_religion"] == flat_df["dest_dominant_religion"]).astype(int)
+        if "origin_cultural_openness_index" in flat_df.columns and "dest_cultural_openness_index" in flat_df.columns:
+            flat_df["cultural_distance"] = (flat_df["origin_cultural_openness_index"] - flat_df["dest_cultural_openness_index"]).abs().round(3)
+        if "dest_integration_policy_index" in flat_df.columns:
+            flat_df["integration_attraction"] = flat_df["dest_integration_policy_index"]
 
         out_flat = os.path.join(EXPORTS_DIR, "migration_full_flat.csv")
         flat_df.to_csv(out_flat, index=False)
@@ -324,88 +335,26 @@ def build_unified_tables(meta_df: pd.DataFrame, comm_labeled: pd.DataFrame) -> t
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# 6. POWER BI MANIFEST
-# ══════════════════════════════════════════════════════════════════════════════
-
-def write_manifest(validation_status: dict):
-    """Write a plain-text manifest describing all export files for Power BI setup."""
-    manifest_lines = [
-        "=" * 70,
-        "NODES AND NATIONS — POWER BI DATA MANIFEST",
-        "=" * 70,
-        "",
-        "UNIFIED ALL-IN-ONE TABLES (EASIEST / DRAG-AND-DROP)",
-        "  1. migration_full_flat.csv: Comprehensive bilateral edge table with origin and destination metrics",
-        "  2. nodes_master.csv: Complete country-year panel with metadata, centrality, communities, & factors",
-        "",
-        "DATA MODEL RELATIONSHIPS (FOR RELATIONAL STAR SCHEMA)",
-        "  All tables join on [iso3] and/or [year] fields.",
-        "  Primary key: [iso3] in country_metadata.csv",
-        "  Foreign keys: [iso3] in all other tables",
-        "",
-        "DASHBOARD ↔ TABLE MAPPING",
-        "  Dashboard 1 (Global Overview):  network_summary.csv, network_edges.csv, country_metadata.csv",
-        "  Dashboard 2 (Centrality):       centrality_metrics.csv, country_metadata.csv",
-        "  Dashboard 3 (Communities):      community_memberships.csv, community_labels.csv, modularity_scores.csv",
-        "  Dashboard 4 (Factors):          regression_coefficients.csv, factors (from factors_panel)",
-        "  Dashboard 5 (Regression):       regression_model_comparison.csv, regression_coefficients.csv, vif_analysis.csv",
-        "",
-        "FILE LIST",
-    ]
-
-    for filename, status in validation_status.items():
-        exists = status.get("exists", False)
-        rows   = status.get("rows", 0)
-        missing_cols = status.get("missing_cols", [])
-        flag = "✓" if exists and not missing_cols else ("⚠" if exists else "✗")
-        manifest_lines.append(f"  [{flag}] {filename:<45} {rows:>8,} rows")
-        if missing_cols:
-            manifest_lines.append(f"       MISSING COLUMNS: {missing_cols}")
-
-    manifest_lines += [
-        "",
-        "NOTES FOR POWER BI",
-        "  • Load files via: Home > Get Data > Text/CSV",
-        "  • Set year fields as Whole Number type",
-        "  • Set iso3/origin_iso3/dest_iso3 as Text (not auto-detected as number)",
-        "  • For choropleth maps: use [iso3] as Location field (ISO 3166-1 alpha-3)",
-        "  • Network graph: use Force-Directed Graph custom visual from AppSource",
-        "  • Filter network_edges.csv to one year at a time for performance",
-        "  • is_extrapolated=True rows in migration_long.csv = 2025 projections",
-        "",
-        "RECOMMENDED DAX MEASURES",
-        "  Migration Growth Rate = DIVIDE([Stock Latest] - [Stock Previous], [Stock Previous])",
-        "  Modularity Trend = CALCULATE(AVERAGE(modularity_scores[modularity_q]), ...)",
-        "",
-    ]
-
-    manifest_path = os.path.join(EXPORTS_DIR, "powerbi_manifest.txt")
-    with open(manifest_path, "w") as f:
-        f.write("\n".join(manifest_lines))
-    print(f"  ✓ Saved: {manifest_path}")
-
-
-# ══════════════════════════════════════════════════════════════════════════════
 # MAIN
 # ══════════════════════════════════════════════════════════════════════════════
 
 def main():
     print("=" * 70)
-    print("PHASE 5: POWER BI EXPORT FINALIZATION & VALIDATION")
+    print("PHASE 5: UNIFIED DATASET FINALIZATION & VALIDATION")
     print("=" * 70)
 
     # ── 1. Validate ───────────────────────────────────────────────────────────
     validation = validate_exports()
 
     # ── 2. Country metadata ───────────────────────────────────────────────────
-    print("\n[2/6] Building country metadata table...")
+    print("\n[2/5] Building country metadata table...")
     meta_df = build_country_metadata()
     out_meta = os.path.join(EXPORTS_DIR, "country_metadata.csv")
     meta_df.to_csv(out_meta, index=False)
     print(f"  ✓ Saved: {out_meta}  ({len(meta_df)} countries)")
 
     # ── 3. Community labels ───────────────────────────────────────────────────
-    print("\n[3/6] Building community labels for latest year...")
+    print("\n[3/5] Building community labels for latest year...")
     comm_labeled = label_communities(meta_df)
     if not comm_labeled.empty:
         out_cl = os.path.join(EXPORTS_DIR, "community_labels.csv")
@@ -413,7 +362,7 @@ def main():
         print(f"  ✓ Saved: {out_cl}  ({len(comm_labeled):,} rows)")
 
     # ── 4. Summary statistics ──────────────────────────────────────────────────
-    print("\n[4/6] Building Power BI KPI summary statistics...")
+    print("\n[4/5] Building KPI summary statistics...")
     summary_df = build_summary_stats()
     out_summ   = os.path.join(EXPORTS_DIR, "summary_stats.csv")
     summary_df.to_csv(out_summ, index=False)
@@ -423,28 +372,21 @@ def main():
     # ── 5. Unified Master Tables ───────────────────────────────────────────────
     build_unified_tables(meta_df, comm_labeled)
 
-    # ── 6. Manifest ───────────────────────────────────────────────────────────
-    print("\n[6/6] Writing Power BI manifest...")
-    write_manifest(validation)
-
     # ── Final file listing ────────────────────────────────────────────────────
     print("\n" + "=" * 70)
     print("ALL EXPORT FILES:")
     print("=" * 70)
     for f in sorted(os.listdir(EXPORTS_DIR)):
+        if f.startswith("."):
+            continue
         path = os.path.join(EXPORTS_DIR, f)
         size = os.path.getsize(path)
         print(f"  {f:<50} {size:>10,} bytes")
 
     print("\n" + "=" * 70)
-    print("PHASE 5 COMPLETE — PROJECT PIPELINE DONE")
+    print("PHASE 5 COMPLETE — UNIFIED DATASETS READY")
     print("=" * 70)
-    print("\nNext steps:")
-    print("  1. Open Power BI Desktop")
-    print("  2. Load all CSVs from data/exports/ (or migration_full_flat.csv for single-table setup)")
-    print("  3. Follow powerbi_manifest.txt for table relationships and dashboard setup")
 
 
 if __name__ == "__main__":
     main()
-

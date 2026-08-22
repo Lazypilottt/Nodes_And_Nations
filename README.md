@@ -6,14 +6,14 @@ There is a quiet structure to how the world moves. Migration isn't just a ledger
 
 This repository models 35 years of global migration using UN DESA bilateral stock data. We treat countries as nodes and mass human movement as weighted, directed edges. The pipeline parses the raw data, constructs temporal graph snapshots, evaluates systemic routing changes via centrality and community detection heuristics, and performs ordinary least squares regression to isolate the macro-drivers of movement.
 
-Everything ultimately collapses into a relational schema engineered for Power BI.
+Everything collapses into clean, unified master exports (`nodes_master.csv` and `migration_full_flat.csv`) and powers an interactive full-stack Next.js / React analytics platform and crisis simulator.
 
 
 Architecture & Execution
 ------------------------
-The analysis runs as a linear pipeline. Heavy notebooks have been avoided in favor of functional scripts that get straight to the math. Run them sequentially.
+The analysis runs as a linear, reproducible pipeline. Heavy notebooks have been replaced with modular scripts that get straight to the math. Run them sequentially or with `scripts/build_pipeline.py`.
 
-Dependencies: networkx, python-louvain, leidenalg, igraph, statsmodels, scikit-learn, openpyxl, requests, pandas, numpy.
+Dependencies: networkx, python-louvain, leidenalg, igraph, statsmodels, scikit-learn, xgboost, openpyxl, requests, pandas, numpy, fastapi, uvicorn.
 
     source venv/bin/activate
     
@@ -21,20 +21,26 @@ Dependencies: networkx, python-louvain, leidenalg, igraph, statsmodels, scikit-l
     python notebooks/02_network_construction_centrality.py
     python notebooks/03_community_detection.py
     python notebooks/04_regression_analysis.py
-    python notebooks/05_powerbi_exports.py
+    python notebooks/05_export_finalization.py
+    python notebooks/06_edge_weight_predictor.py
+
+Or build all phases in one command:
+
+    python scripts/build_pipeline.py
 
 Note: Script 01 reads the initial UN matrix into memory and reaches out to the World Bank and UCDP endpoints for socioeconomic covariates. Local caching is implemented; the API heavy lifting only happens on the first run. The 2025 vectors are extrapolated geometrically from recent momentum.
 
 
-Data Provenance
----------------
-* Bilateral migrant stock (1990-2020): UN DESA IMS 2024
+Data Provenance & Indices
+-------------------------
+* Bilateral migrant stock (1990-2025): UN DESA IMS 2024
 * GDP, Population, Unemployment: World Bank WDI (API)
 * Education Index: UNDP HDR (Static CSV)
 * Conflict intensity: UCDP/PRIO ACD (Static CSV)
-
-Optional manual vectors:
-To expand the regression matrix, you can place `henley_passport_index.csv` and `ndgain_country_index.csv` in the `data/raw/` directory. The ingestion scripts will automatically merge them into the panel sequence if present.
+* Cultural Integration Index (`cultural_integration_index.csv`): MIPEX-aligned metrics (1990–2025) including `integration_policy_index`, `cultural_openness_index`, `labour_market_integration`, `anti_discrimination_score`, `naturalization_access_score`.
+* World Religion Demographics (`world_religions_demographics.csv`): 235 sovereign states with percentage shares across Christianity, Islam, Hinduism, Buddhism, Judaism, and Unaffiliated, alongside Herfindahl fractionalization and diversity indices.
+* Visa Openness: Henley Passport Index (Static CSV)
+* Climate Vulnerability: ND-GAIN Index (Static CSV)
 
 
 Analytical Modules
@@ -45,11 +51,29 @@ We build 8 directed graphs (Nx). Edge weights dictate the calculations. The scri
 Phase 3: Structural Fault Lines 
 As global alliances and borders shift, so does the network density. We apply Louvain, Leiden, and Girvan-Newman algorithms to partition the graph. By measuring Modularity (Q) alongside temporal Jaccard drift, the pipeline identifies "boundary nodes"—states acting as bridges between shifting geo-political clusters.
 
-Phase 4: Regression 
-We fit pooled OLS models against the structural data to determine if capital variance, demographic mass, or localized instability form the root causality of the edge weights modeled in Phase 2. A baseline three-factor model consistently explains over 60% of the variance in edge weight.
+Phase 4: Cultural & Econometric Gravity Regression 
+We fit pooled and year-by-year OLS models against structural and cultural data to determine how capital variance, cultural openness, shared dominant religion, and demographic mass govern corridor edge weights. Cultural gravity models achieve high explanatory power ($R^2 > 0.62$).
 
-Phase 5: Aggregation
-Network scale limits visualization rendering. The terminal script limits the graph to the top 500 edges by weight per year. All outputs are written to `data/exports/`, ready for direct insertion into a star-schema dashboard. See `powerbi_manifest.txt` for relationship mapping.
+Phase 5: Unified Dataset Finalization & Validation
+Outputs are written to `data/exports/`, producing unified datasets (`nodes_master.csv` with 42 features per sovereign country-year, and `migration_full_flat.csv` with 91 dyadic features).
+
+Phase 6: Machine-Learning Edge Predictor
+A full ML pipeline training gradient-boosted regressors (Histogram Gradient Boosting / XGBoost) with 31 features (R² ~ 0.70) to predict bilateral corridor migrant stock.
+
+
+Interactive Web Platform (Next.js / React)
+------------------------------------------
+Launch the interactive dashboard:
+
+    cd dashboard
+    npm run dev
+
+Features:
+* Planetary Vector Surface: Interactive Mercator SVG map supporting Bilateral Corridors, Centrality Topography, Alliance Clusters, and Dominant Religion Demographics.
+* Crisis Displacement Cockpit: Real-time gravity routing simulations across armed conflict, cultural kinship displacement, climate surges, and border policy shocks.
+* Macro-Flow Distribution Analytics: Interactive doughnut and pie visualizers for destination continents, income tiers, dominant religions, and MIPEX policy tiers.
+* Dyadic Corridor Comparator: Side-by-side socioeconomic, cultural, and religious affinity comparison between sovereign states.
+* Network Topology & Econometric Determinants: Centrality rankings, modularity drift (Q) trends, boundary node switchers, and OLS regression tables.
 
 
 Notes from the run

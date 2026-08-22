@@ -32,7 +32,7 @@ os.makedirs(EXPORTS_DIR, exist_ok=True)
 
 SNAPSHOT_YEARS = [1990, 1995, 2000, 2005, 2010, 2015, 2020, 2025]
 
-# Number of top edges to keep per year for Power BI performance
+# Number of top edges to keep per year for network visualization
 TOP_EDGES_PER_YEAR = 500
 
 
@@ -193,12 +193,12 @@ def compute_network_summary(graphs: dict) -> pd.DataFrame:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# 4. EDGE EXPORT (TOP-N per year for Power BI)
+# 4. EDGE EXPORT (TOP-N per year for network visualization)
 # ══════════════════════════════════════════════════════════════════════════════
 
 def export_top_edges(graphs: dict, top_n: int = TOP_EDGES_PER_YEAR) -> pd.DataFrame:
     """
-    Export top N edges by weight per year for Power BI network visualization.
+    Export top N edges by weight per year for network visualization.
     """
     all_edges = []
     for year, G in sorted(graphs.items()):
@@ -262,8 +262,8 @@ def main():
     print(f"  ✓ Saved: {out_s}")
     print(summary_df[["year", "n_nodes", "n_edges", "density", "total_migrant_stock"]].to_string(index=False))
 
-    # ── 4. Export top edges for Power BI ─────────────────────────────────────
-    print(f"\n[4/4] Exporting top {TOP_EDGES_PER_YEAR} edges per year for Power BI...")
+    # ── 4. Export top edges ──────────────────────────────────────────────────
+    print(f"\n[4/4] Exporting top {TOP_EDGES_PER_YEAR} edges per year...")
     edges_df = export_top_edges(graphs, TOP_EDGES_PER_YEAR)
     out_e = os.path.join(EXPORTS_DIR, "network_edges.csv")
     edges_df.to_csv(out_e, index=False)

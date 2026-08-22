@@ -91,24 +91,24 @@ export default function Header({
   };
 
   return (
-    <header className="bg-[#080c14] border-b border-slate-800 sticky top-0 z-50 shadow-md">
-      <div className="max-w-7xl mx-auto px-4 lg:px-8 py-3 space-y-3">
+    <header className="bg-[#f4efe6] border-b border-[#ded3be] relative shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 lg:px-8 py-3.5 space-y-3.5">
         {/* Top Branding & KPI Row */}
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400 font-bold text-sm">
+            <div className="w-9 h-9 rounded-lg bg-[#1e3a5f] border border-[#14253e] flex items-center justify-center text-[#fbf9f4] font-serif font-bold text-base shadow-sm">
               NN
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="font-bold text-slate-100 text-base tracking-tight">
+                <h1 className="font-bold text-[#1a202c] text-base tracking-tight font-serif">
                   NODES & NATIONS
                 </h1>
-                <span className="text-[10px] bg-slate-800 text-slate-300 border border-slate-700 px-2 py-0.5 rounded font-mono font-medium uppercase">
+                <span className="text-[10px] bg-[#ece4d4] text-[#6d5c46] border border-[#d8ccb8] px-2 py-0.5 rounded font-mono font-semibold uppercase tracking-wider">
                   Global Topology Platform
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 font-sans">
+              <p className="text-[11.5px] text-[#635a4d]">
                 Topological Analysis and Crisis Displacement Simulator (1990–2025)
               </p>
             </div>
@@ -116,35 +116,35 @@ export default function Header({
 
           {/* Dynamic Key Metric Chips for Current Year */}
           <div className="flex items-center gap-2 text-xs">
-            <div className="bg-[#0f1624] border border-slate-800 px-3 py-1.5 rounded-lg">
-              <div className="text-[10px] text-slate-500 font-mono uppercase">Global Migrant Stock ({currentYear})</div>
-              <div className="font-semibold text-slate-200 font-mono text-xs">
+            <div className="bg-[#ece5d6] border border-[#ded3be] px-3 py-1.5 rounded-lg shadow-sm">
+              <div className="text-[10px] text-[#786b59] font-mono uppercase font-semibold">Global Migrant Stock ({currentYear})</div>
+              <div className="font-bold text-[#1e293b] font-mono text-xs mt-0.5">
                 {totalStockStr}{' '}
-                <span className="text-[10px] text-emerald-400 font-normal">
+                <span className="text-[10px] text-[#28534b] font-semibold">
                   ({stockGrowthPct >= 0 ? `+${stockGrowthPct}%` : `${stockGrowthPct}%`})
                 </span>
               </div>
             </div>
 
-            <div className="bg-[#0f1624] border border-slate-800 px-3 py-1.5 rounded-lg">
-              <div className="text-[10px] text-slate-500 font-mono uppercase">Active Corridors</div>
-              <div className="font-semibold text-blue-400 font-mono text-xs">{activeCorridorsStr}</div>
+            <div className="bg-[#ece5d6] border border-[#ded3be] px-3 py-1.5 rounded-lg shadow-sm">
+              <div className="text-[10px] text-[#786b59] font-mono uppercase font-semibold">Active Corridors</div>
+              <div className="font-bold text-[#1e3a5f] font-mono text-xs mt-0.5">{activeCorridorsStr}</div>
             </div>
 
-            <div className="bg-[#0f1624] border border-slate-800 px-3 py-1.5 rounded-lg">
-              <div className="text-[10px] text-slate-500 font-mono uppercase">Network Modularity Q</div>
-              <div className="font-semibold text-amber-400 font-mono text-xs">
+            <div className="bg-[#ece5d6] border border-[#ded3be] px-3 py-1.5 rounded-lg shadow-sm">
+              <div className="text-[10px] text-[#786b59] font-mono uppercase font-semibold">Network Modularity Q</div>
+              <div className="font-bold text-[#945920] font-mono text-xs mt-0.5">
                 {modularityQ}{' '}
-                <span className="text-[10px] text-slate-400 font-normal">({modularityDesc})</span>
+                <span className="text-[10px] text-[#786b59] font-normal">({modularityDesc})</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Navigation Tabs & Time-Travel Scrubber */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-800/80">
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-2.5 border-t border-[#ded3be]">
           {/* Main Navigation Tabs */}
-          <nav className="flex items-center gap-1 bg-[#0b101b] border border-slate-800 p-1 rounded-lg text-xs">
+          <nav className="flex items-center gap-1 bg-[#e8e0cf] border border-[#d8ccb8] p-1 rounded-lg text-xs">
             {[
               { id: 'map', label: 'Overview & Corridors' },
               { id: 'simulator', label: 'Crisis Simulator', badge: 'Active' },
@@ -159,15 +159,15 @@ export default function Header({
                   onClick={() => onViewChange(tab.id as any)}
                   className={`px-3 py-1.5 rounded-md font-medium text-xs transition flex items-center gap-1.5 ${
                     isActive
-                      ? 'bg-blue-600 text-white font-semibold shadow-sm'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                      ? 'bg-[#1e3a5f] text-white font-semibold shadow-sm'
+                      : 'text-[#5a5043] hover:text-[#1a202c] hover:bg-[#dfd5c2]'
                   }`}
                 >
                   <span>{tab.label}</span>
                   {tab.badge && (
                     <span
                       className={`text-[9px] px-1 py-0.2 rounded font-mono ${
-                        isActive ? 'bg-blue-800 text-blue-100' : 'bg-red-950 text-red-400 border border-red-800/60'
+                        isActive ? 'bg-[#2d5282] text-white' : 'bg-[#f4dede] text-[#8b2626] border border-[#e6b8b8]'
                       }`}
                     >
                       {tab.badge}
@@ -179,12 +179,12 @@ export default function Header({
           </nav>
 
           {/* Timeline Player (1990 - 2025) */}
-          <div className="flex items-center gap-2 bg-[#0b101b] border border-slate-800 px-3 py-1 rounded-lg text-xs">
-            <span className="text-[10px] text-slate-500 font-mono uppercase mr-1">Period:</span>
+          <div className="flex items-center gap-2 bg-[#e8e0cf] border border-[#d8ccb8] px-3 py-1 rounded-lg text-xs">
+            <span className="text-[10px] text-[#786b59] font-mono uppercase font-semibold mr-1">Period:</span>
 
             <button
               onClick={() => stepYear('prev')}
-              className="px-1.5 py-0.5 hover:bg-slate-800 rounded text-slate-400 hover:text-slate-200 transition"
+              className="px-1.5 py-0.5 hover:bg-[#dfd5c2] rounded text-[#5a5043] hover:text-[#1a202c] transition"
               title="Previous Snapshot"
             >
               ◀
@@ -192,10 +192,10 @@ export default function Header({
 
             <button
               onClick={() => setIsPlaying(!isPlaying)}
-              className={`px-2.5 py-1 rounded font-medium text-xs transition ${
+              className={`px-2.5 py-1 rounded font-medium text-xs transition shadow-sm ${
                 isPlaying
-                  ? 'bg-amber-600 text-white'
-                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                  ? 'bg-[#945920] text-white'
+                  : 'bg-[#f4efe6] text-[#4a3d2e] border border-[#d8ccb8] hover:bg-[#eae1cf]'
               }`}
             >
               {isPlaying ? 'Pause' : 'Play Timeline'}
@@ -203,7 +203,7 @@ export default function Header({
 
             <button
               onClick={() => stepYear('next')}
-              className="px-1.5 py-0.5 hover:bg-slate-800 rounded text-slate-400 hover:text-slate-200 transition"
+              className="px-1.5 py-0.5 hover:bg-[#dfd5c2] rounded text-[#5a5043] hover:text-[#1a202c] transition"
               title="Next Snapshot"
             >
               ▶
@@ -220,8 +220,8 @@ export default function Header({
                   }}
                   className={`px-2 py-0.5 rounded text-[11px] font-mono transition ${
                     currentYear === yr
-                      ? 'bg-slate-200 text-slate-950 font-bold'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                      ? 'bg-[#1e3a5f] text-white font-bold shadow-sm'
+                      : 'text-[#5a5043] hover:text-[#1a202c] hover:bg-[#dfd5c2]'
                   }`}
                 >
                   {yr}

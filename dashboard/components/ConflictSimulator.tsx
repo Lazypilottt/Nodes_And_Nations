@@ -29,7 +29,16 @@ const PRESET_SCENARIOS = [
     scenario: 'conflict',
     intensity: 90,
     displaced: 5200000,
-    policy: 'kinship_first',
+    policy: 'cultural_kinship',
+  },
+  {
+    id: 'myanmar_2017',
+    title: '🇲🇲 Myanmar (2017)',
+    epicenter: 'MMR',
+    scenario: 'cultural_kinship',
+    intensity: 90,
+    displaced: 1200000,
+    policy: 'cultural_kinship',
   },
   {
     id: 'sudan_2023',
@@ -41,22 +50,13 @@ const PRESET_SCENARIOS = [
     policy: 'universal',
   },
   {
-    id: 'afghanistan_2021',
-    title: '🇦🇫 Afghanistan (2021)',
-    epicenter: 'AFG',
-    scenario: 'conflict',
-    intensity: 85,
-    displaced: 2800000,
-    policy: 'kinship_first',
-  },
-  {
     id: 'climate_bangladesh',
     title: '🇧🇩 Bangladesh Climate',
     epicenter: 'BGD',
     scenario: 'climate',
     intensity: 75,
     displaced: 2500000,
-    policy: 'universal',
+    policy: 'integration_havens',
   },
   {
     id: 'venezuela_economic',
@@ -76,13 +76,13 @@ export default function ConflictSimulator({
   selectedEpicenter,
 }: ConflictSimulatorProps) {
   const [epicenter, setEpicenter] = useState(selectedEpicenter || 'UKR');
-  const [scenarioType, setScenarioType] = useState<'conflict' | 'climate' | 'visa' | 'economic'>('conflict');
+  const [scenarioType, setScenarioType] = useState<'conflict' | 'climate' | 'visa' | 'economic' | 'cultural_kinship'>('conflict');
   const [intensity, setIntensity] = useState(85);
   const [displacedScale, setDisplacedScale] = useState(2500000);
-  const [borderPolicy, setBorderPolicy] = useState<'universal' | 'kinship_first' | 'strict_border'>('universal');
+  const [borderPolicy, setBorderPolicy] = useState<'universal' | 'kinship_first' | 'cultural_kinship' | 'integration_havens' | 'strict_border'>('universal');
   const [loading, setLoading] = useState(false);
   const [simulationData, setSimulationData] = useState<any>(null);
-  const [activeChartTab, setActiveChartTab] = useState<'continent' | 'region' | 'income'>('continent');
+  const [activeChartTab, setActiveChartTab] = useState<'continent' | 'region' | 'income' | 'religion' | 'integration'>('continent');
   
   // Track last executed parameters to detect staged changes
   const [lastExecuted, setLastExecuted] = useState<{
@@ -171,15 +171,15 @@ export default function ConflictSimulator({
     if (!simulationData?.continent_breakdown) return null;
     const labels = Object.keys(simulationData.continent_breakdown);
     const data = Object.values(simulationData.continent_breakdown) as number[];
-    const colors = ['#2563eb', '#d97706', '#059669', '#dc2626', '#7c3aed', '#64748b'];
+    const heritageColors = ['#1e3a5f', '#945920', '#28534b', '#8b2626', '#5c3858', '#4f5d30'];
 
     return {
       labels,
       datasets: [
         {
           data,
-          backgroundColor: colors.slice(0, labels.length),
-          borderColor: '#080c14',
+          backgroundColor: heritageColors.slice(0, labels.length),
+          borderColor: '#fbf9f4',
           borderWidth: 1.5,
         },
       ],
@@ -188,21 +188,17 @@ export default function ConflictSimulator({
 
   const regionChartData = React.useMemo(() => {
     if (!simulationData?.region_breakdown) return null;
-    const entries = Object.entries(simulationData.region_breakdown).sort(
-      (a: any, b: any) => b[1] - a[1]
-    );
-    const topEntries = entries.slice(0, 5);
-    const labels = topEntries.map((e) => e[0]);
-    const data = topEntries.map((e) => e[1] as number);
-    const colors = ['#3b82f6', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6'];
+    const labels = Object.keys(simulationData.region_breakdown).slice(0, 6);
+    const data = labels.map((k) => simulationData.region_breakdown[k]);
+    const heritageColors = ['#1e3a5f', '#28534b', '#945920', '#5c3858', '#8b2626', '#3b5266'];
 
     return {
       labels,
       datasets: [
         {
           data,
-          backgroundColor: colors.slice(0, labels.length),
-          borderColor: '#080c14',
+          backgroundColor: heritageColors.slice(0, labels.length),
+          borderColor: '#fbf9f4',
           borderWidth: 1.5,
         },
       ],
@@ -213,15 +209,67 @@ export default function ConflictSimulator({
     if (!simulationData?.income_breakdown) return null;
     const labels = Object.keys(simulationData.income_breakdown);
     const data = Object.values(simulationData.income_breakdown) as number[];
-    const colors = ['#059669', '#2563eb', '#d97706', '#dc2626'];
+    const colorMap: Record<string, string> = {
+      'High income': '#28534b',
+      'Upper middle income': '#1e3a5f',
+      'Lower middle income': '#945920',
+      'Low income': '#8b2626',
+    };
+    const colors = labels.map((l) => colorMap[l] || '#786b59');
 
     return {
       labels,
       datasets: [
         {
           data,
-          backgroundColor: colors.slice(0, labels.length),
-          borderColor: '#080c14',
+          backgroundColor: colors,
+          borderColor: '#fbf9f4',
+          borderWidth: 1.5,
+        },
+      ],
+    };
+  }, [simulationData]);
+
+  const religionChartData = React.useMemo(() => {
+    if (!simulationData?.religion_breakdown) return null;
+    const labels = Object.keys(simulationData.religion_breakdown);
+    const data = Object.values(simulationData.religion_breakdown) as number[];
+    const colorMap: Record<string, string> = {
+      'Christianity': '#1e3a5f',
+      'Islam': '#28534b',
+      'Hinduism': '#945920',
+      'Buddhism': '#8c6d23',
+      'Judaism': '#5c3858',
+      'Unaffiliated': '#556270',
+    };
+    const colors = labels.map((l) => colorMap[l] || '#786b59');
+
+    return {
+      labels,
+      datasets: [
+        {
+          data,
+          backgroundColor: colors,
+          borderColor: '#fbf9f4',
+          borderWidth: 1.5,
+        },
+      ],
+    };
+  }, [simulationData]);
+
+  const integrationChartData = React.useMemo(() => {
+    if (!simulationData?.integration_breakdown) return null;
+    const labels = Object.keys(simulationData.integration_breakdown);
+    const data = Object.values(simulationData.integration_breakdown) as number[];
+    const colors = ['#28534b', '#1e3a5f', '#8b2626'];
+
+    return {
+      labels,
+      datasets: [
+        {
+          data,
+          backgroundColor: colors,
+          borderColor: '#fbf9f4',
           borderWidth: 1.5,
         },
       ],
@@ -235,23 +283,23 @@ export default function ConflictSimulator({
       legend: {
         position: 'right' as const,
         labels: {
-          color: '#cbd5e1',
-          font: { size: 10 },
+          color: '#4a3d2e',
+          font: { size: 10, family: 'ui-sans-serif, system-ui' },
           boxWidth: 8,
           padding: 6,
         },
       },
       tooltip: {
-        backgroundColor: '#0f172a',
-        borderColor: '#334155',
+        backgroundColor: '#ffffff',
+        borderColor: '#d8ccb8',
         borderWidth: 1,
-        titleColor: '#93c5fd',
-        bodyColor: '#f1f5f9',
+        titleColor: '#1e3a5f',
+        bodyColor: '#1e293b',
         callbacks: {
           label: function (ctx: any) {
             const val = ctx.raw || 0;
             const total = ctx.dataset.data.reduce((a: number, b: number) => a + b, 0);
-            const pct = ((val / total) * 100).toFixed(1);
+            const pct = ((val / Math.max(1, total)) * 100).toFixed(1);
             return ` ${val.toLocaleString()} (${pct}%)`;
           },
         },
@@ -265,10 +313,10 @@ export default function ConflictSimulator({
   return (
     <div className="space-y-3">
       {/* 1. Preset Crisis Scenarios (Compact 6-grid) */}
-      <div className="bg-[#0b101b] border border-slate-800 p-2.5 rounded-lg shadow-sm">
-        <div className="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+      <div className="bg-[#fbf9f4] border border-[#d8ccb8] p-3 rounded-lg shadow-sm">
+        <div className="text-[10.5px] font-semibold text-[#786b59] uppercase tracking-wider mb-2 flex items-center justify-between font-mono">
           <span>Crisis Shock Presets</span>
-          <span className="text-[10px] text-slate-500 font-mono">Select to simulate</span>
+          <span className="text-[10px] text-[#948064]">Select to simulate</span>
         </div>
         <div className="grid grid-cols-3 md:grid-cols-6 gap-1.5">
           {PRESET_SCENARIOS.map((p) => {
@@ -277,14 +325,14 @@ export default function ConflictSimulator({
               <button
                 key={p.id}
                 onClick={() => loadPreset(p)}
-                className={`text-left p-1.5 rounded border text-[11px] transition ${
+                className={`text-left p-2 rounded-lg border text-[11px] transition shadow-xs ${
                   isSelected
-                    ? 'bg-[#101827] border-blue-500 text-slate-100 font-semibold'
-                    : 'bg-[#080c14] border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                    ? 'bg-[#1e3a5f] border-[#14253e] text-white font-semibold'
+                    : 'bg-[#f4efe6] border-[#ded3be] text-[#5a5043] hover:border-[#b8a589] hover:text-[#1a202c]'
                 }`}
               >
-                <div className="truncate">{p.title}</div>
-                <div className="text-[9.5px] text-slate-500 font-mono">
+                <div className="truncate font-medium">{p.title}</div>
+                <div className={`text-[9.5px] font-mono mt-0.5 ${isSelected ? 'text-blue-100' : 'text-[#786b59]'}`}>
                   {(p.displaced / 1000000).toFixed(1)}M
                 </div>
               </button>
@@ -294,29 +342,29 @@ export default function ConflictSimulator({
       </div>
 
       {/* 2. Simulation Parameter Inputs Deck */}
-      <div className={`bg-[#0b101b] border ${isParametersChanged ? 'border-blue-500/60 ring-1 ring-blue-500/30' : 'border-slate-800'} p-3 rounded-lg shadow-sm space-y-2.5 transition-colors`}>
-        <div className="flex items-center justify-between border-b border-slate-800 pb-1.5">
+      <div className={`bg-[#fbf9f4] border ${isParametersChanged ? 'border-[#945920] ring-1 ring-[#945920]/30' : 'border-[#d8ccb8]'} p-3.5 rounded-lg shadow-sm space-y-3 transition-colors`}>
+        <div className="flex items-center justify-between border-b border-[#ded3be] pb-2">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-slate-100">Displacement Parameter Cockpit</span>
+            <span className="text-xs font-bold text-[#1a202c] font-serif">Displacement Parameter Cockpit</span>
             {isParametersChanged && (
-              <span className="text-[9.5px] bg-blue-950 text-blue-300 border border-blue-800/80 px-1.5 py-0.2 rounded font-mono animate-pulse">
+              <span className="text-[9.5px] bg-[#fcf4e8] text-[#945920] border border-[#e8d5bc] px-1.5 py-0.2 rounded font-mono font-semibold animate-pulse">
                 ● Staged Changes
               </span>
             )}
           </div>
-          <span className="text-[9.5px] bg-red-950 text-red-400 border border-red-800/80 px-1.5 py-0.2 rounded font-mono font-medium">
+          <span className="text-[9.5px] bg-[#fcf4e8] text-[#945920] border border-[#e8d5bc] px-1.5 py-0.2 rounded font-mono font-bold">
             Gravity Engine
           </span>
         </div>
 
         {/* Epicenter & Scenario Row */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
           <div>
-            <label className="block text-[10.5px] text-slate-400 mb-0.5">Epicenter (Origin):</label>
+            <label className="block text-[10.5px] text-[#645d52] font-medium mb-1">Epicenter (Origin):</label>
             <select
               value={epicenter}
               onChange={(e) => setEpicenter(e.target.value)}
-              className="w-full bg-[#080c14] border border-slate-700 text-slate-200 px-2 py-1 rounded text-xs focus:outline-none focus:border-blue-500"
+              className="w-full bg-[#ffffff] border border-[#ded3be] text-[#1e293b] px-2.5 py-1.5 rounded-lg text-xs focus:outline-none focus:border-[#1e3a5f]"
             >
               {Object.values(COUNTRY_GEO_MAP).map((c) => (
                 <option key={c.iso3} value={c.iso3}>
@@ -327,13 +375,14 @@ export default function ConflictSimulator({
           </div>
 
           <div>
-            <label className="block text-[10.5px] text-slate-400 mb-0.5">Crisis Catalyst:</label>
+            <label className="block text-[10.5px] text-[#645d52] font-medium mb-1">Crisis Catalyst:</label>
             <select
               value={scenarioType}
               onChange={(e) => setScenarioType(e.target.value as any)}
-              className="w-full bg-[#080c14] border border-slate-700 text-slate-200 px-2 py-1 rounded text-xs focus:outline-none focus:border-blue-500"
+              className="w-full bg-[#ffffff] border border-[#ded3be] text-[#1e293b] px-2.5 py-1.5 rounded-lg text-xs focus:outline-none focus:border-[#1e3a5f]"
             >
               <option value="conflict">Armed Conflict / War</option>
+              <option value="cultural_kinship">Cultural & Religious Kinship</option>
               <option value="climate">Climate / Sea-Level Surge</option>
               <option value="visa">Border / Visa Policy Shift</option>
               <option value="economic">Economic / Hyperinflation</option>
@@ -342,11 +391,11 @@ export default function ConflictSimulator({
         </div>
 
         {/* Sliders: Displaced Population & Intensity */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-          <div className="space-y-0.5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-xs">
+          <div className="space-y-1">
             <div className="flex items-center justify-between text-[10.5px]">
-              <span className="text-slate-400">Displaced Mass:</span>
-              <span className="font-mono text-blue-400 font-semibold">
+              <span className="text-[#645d52] font-medium">Displaced Mass:</span>
+              <span className="font-mono text-[#1e3a5f] font-bold">
                 {displacedScale >= 1000000
                   ? `${(displacedScale / 1000000).toFixed(2)}M`
                   : `${(displacedScale / 1000).toFixed(0)}k`}
@@ -359,14 +408,14 @@ export default function ConflictSimulator({
               step={100000}
               value={displacedScale}
               onChange={(e) => setDisplacedScale(Number(e.target.value))}
-              className="w-full h-1 bg-slate-800 rounded appearance-none cursor-pointer accent-blue-500"
+              className="w-full h-1.5 bg-[#e0d6c4] rounded appearance-none cursor-pointer accent-[#1e3a5f]"
             />
           </div>
 
-          <div className="space-y-0.5">
+          <div className="space-y-1">
             <div className="flex items-center justify-between text-[10.5px]">
-              <span className="text-slate-400">Shock Severity:</span>
-              <span className="font-mono text-amber-400 font-semibold">{intensity}%</span>
+              <span className="text-[#645d52] font-medium">Shock Severity:</span>
+              <span className="font-mono text-[#945920] font-bold">{intensity}%</span>
             </div>
             <input
               type="range"
@@ -375,26 +424,28 @@ export default function ConflictSimulator({
               step={5}
               value={intensity}
               onChange={(e) => setIntensity(Number(e.target.value))}
-              className="w-full h-1 bg-slate-800 rounded appearance-none cursor-pointer accent-amber-500"
+              className="w-full h-1.5 bg-[#e0d6c4] rounded appearance-none cursor-pointer accent-[#945920]"
             />
           </div>
         </div>
 
         {/* Border Absorption Policy & Execute Button */}
-        <div className="flex items-center gap-2 pt-0.5">
-          <div className="flex flex-1 bg-[#080c14] border border-slate-800 p-0.5 rounded text-[10.5px]">
+        <div className="flex flex-wrap items-center gap-2.5 pt-1">
+          <div className="flex flex-1 flex-wrap bg-[#e8e0cf] border border-[#d8ccb8] p-0.5 rounded-lg text-[10px]">
             {[
               { id: 'universal', label: 'Universal' },
-              { id: 'kinship_first', label: 'Kinship' },
+              { id: 'kinship_first', label: 'Diaspora' },
+              { id: 'cultural_kinship', label: 'Religion Kin' },
+              { id: 'integration_havens', label: 'MIPEX Havens' },
               { id: 'strict_border', label: 'Strict' },
             ].map((pol) => (
               <button
                 key={pol.id}
                 onClick={() => setBorderPolicy(pol.id as any)}
-                className={`flex-1 py-1 rounded text-center transition ${
+                className={`flex-1 min-w-[50px] py-1 px-1.5 rounded text-center transition ${
                   borderPolicy === pol.id
-                    ? 'bg-slate-200 text-slate-950 font-semibold'
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-[#1e3a5f] text-white font-semibold shadow-xs'
+                    : 'text-[#5a5043] hover:text-[#1a202c]'
                 }`}
               >
                 {pol.label}
@@ -405,10 +456,10 @@ export default function ConflictSimulator({
           <button
             onClick={() => runSimulation(epicenter, scenarioType, intensity, displacedScale, borderPolicy)}
             disabled={loading}
-            className={`px-4 py-1.5 font-medium rounded text-xs transition flex items-center gap-1.5 shadow-sm ${
+            className={`px-4 py-2 font-medium rounded-lg text-xs transition flex items-center gap-1.5 shadow-sm ${
               isParametersChanged
-                ? 'bg-blue-600 hover:bg-blue-500 text-white font-semibold ring-2 ring-blue-400/50 shadow-blue-500/20'
-                : 'bg-slate-800 hover:bg-slate-700 text-slate-200'
+                ? 'bg-[#945920] hover:bg-[#7e4d2a] text-white font-bold ring-2 ring-[#945920]/40'
+                : 'bg-[#1e3a5f] hover:bg-[#162c46] text-white'
             }`}
           >
             {loading ? (
@@ -422,23 +473,23 @@ export default function ConflictSimulator({
       </div>
 
       {/* 3. Absorption Forecast Distribution Chart */}
-      <div className="bg-[#0b101b] border border-slate-800 p-2.5 rounded-lg shadow-sm space-y-1.5">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-1">
-          <span className="text-[11px] font-semibold text-slate-200">
+      <div className="bg-[#fbf9f4] border border-[#d8ccb8] p-3 rounded-lg shadow-sm space-y-2">
+        <div className="flex items-center justify-between border-b border-[#ded3be] pb-1.5">
+          <span className="text-xs font-bold text-[#1a202c] font-serif">
             Absorption Distribution ({epicGeo.name})
           </span>
-          <div className="flex bg-[#080c14] border border-slate-800 p-0.5 rounded text-[10px]">
-            {(['continent', 'region', 'income'] as const).map((tab) => (
+          <div className="flex bg-[#e8e0cf] border border-[#d8ccb8] p-0.5 rounded text-[10px]">
+            {(['continent', 'region', 'income', 'religion', 'integration'] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveChartTab(tab)}
-                className={`px-1.5 py-0.2 rounded capitalize transition ${
+                className={`px-1.5 py-0.5 rounded capitalize transition ${
                   activeChartTab === tab
-                    ? 'bg-slate-200 text-slate-950 font-bold'
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-[#1e3a5f] text-white font-bold shadow-xs'
+                    : 'text-[#5a5043] hover:text-[#1a202c]'
                 }`}
               >
-                {tab}
+                {tab === 'integration' ? 'MIPEX' : tab}
               </button>
             ))}
           </div>
@@ -454,51 +505,57 @@ export default function ConflictSimulator({
           {activeChartTab === 'income' && incomeChartData && (
             <Pie data={incomeChartData} options={chartOptions} />
           )}
+          {activeChartTab === 'religion' && religionChartData && (
+            <Doughnut data={religionChartData} options={chartOptions} />
+          )}
+          {activeChartTab === 'integration' && integrationChartData && (
+            <Pie data={integrationChartData} options={chartOptions} />
+          )}
         </div>
       </div>
 
       {/* 4. Top Recipient States Table */}
-      <div className="bg-[#0b101b] border border-slate-800 p-2.5 rounded-lg shadow-sm space-y-1.5">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-1">
-          <span className="text-[11px] font-semibold text-slate-200">
+      <div className="bg-[#fbf9f4] border border-[#d8ccb8] p-3 rounded-lg shadow-sm space-y-2">
+        <div className="flex items-center justify-between border-b border-[#ded3be] pb-1.5">
+          <span className="text-xs font-bold text-[#1a202c] font-serif">
             Top Projected Recipient States
           </span>
-          <span className="text-[9.5px] text-slate-500 font-mono">
+          <span className="text-[10px] text-[#786b59] font-mono font-semibold">
             {displacedScale.toLocaleString()} Displaced
           </span>
         </div>
 
-        <div className="overflow-x-auto max-h-48 overflow-y-auto">
-          <table className="w-full text-left text-xs">
+        <div className="overflow-x-auto max-h-48 overflow-y-auto border border-[#ded3be] rounded-lg">
+          <table className="w-full text-left text-xs bg-[#ffffff]">
             <thead>
-              <tr className="text-[10px] text-slate-400 border-b border-slate-800 font-mono">
-                <th className="py-1 px-1.5">#</th>
-                <th className="py-1 px-1.5">State</th>
-                <th className="py-1 px-1.5">Projected Influx</th>
-                <th className="py-1 px-1.5">Distance</th>
-                <th className="py-1 px-1.5">Strain</th>
+              <tr className="text-[10px] text-[#6d5c46] border-b border-[#ded3be] font-mono bg-[#f4efe6]">
+                <th className="py-1.5 px-2">#</th>
+                <th className="py-1.5 px-2">State</th>
+                <th className="py-1.5 px-2">Projected Influx</th>
+                <th className="py-1.5 px-2">Distance</th>
+                <th className="py-1.5 px-2">Strain</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800 text-slate-300">
+            <tbody className="divide-y divide-[#f0e9dc] text-[#1e293b]">
               {simulationData?.top_recipients?.slice(0, 8).map((r: any, idx: number) => (
-                <tr key={r.iso3} className="hover:bg-slate-800/40 transition">
-                  <td className="py-1 px-1.5 text-slate-500 font-mono text-[10px]">{idx + 1}</td>
-                  <td className="py-1 px-1.5 font-medium text-slate-100 flex items-center gap-1 text-[11px]">
+                <tr key={r.iso3} className="hover:bg-[#fbf7f0] transition">
+                  <td className="py-1.5 px-2 text-[#8a7c6a] font-mono text-[10px]">#{idx + 1}</td>
+                  <td className="py-1.5 px-2 font-semibold text-[#1a202c] flex items-center gap-1.5 text-[11px]">
                     <span>{r.flag}</span>
                     <span className="truncate max-w-[90px]">{r.country_name}</span>
                   </td>
-                  <td className="py-1 px-1.5 font-mono font-semibold text-blue-400 text-[11px]">
+                  <td className="py-1.5 px-2 font-mono font-bold text-[#1e3a5f] text-[11px]">
                     {r.predicted_influx.toLocaleString()}
                   </td>
-                  <td className="py-1 px-1.5 text-slate-400 font-mono text-[10px]">
+                  <td className="py-1.5 px-2 text-[#645d52] font-mono text-[10px]">
                     {r.dist_km.toLocaleString()} km
                   </td>
-                  <td className="py-1 px-1.5">
+                  <td className="py-1.5 px-2">
                     <span
-                      className="px-1.5 py-0.2 rounded text-[9.5px] font-semibold"
+                      className="px-1.5 py-0.5 rounded text-[10px] font-bold"
                       style={{
-                        backgroundColor: `${r.strain_color}20`,
-                        color: r.strain_color,
+                        backgroundColor: `${r.strain_color}18`,
+                        color: r.strain_color === '#ef4444' ? '#8b2626' : r.strain_color,
                         border: `1px solid ${r.strain_color}40`,
                       }}
                     >

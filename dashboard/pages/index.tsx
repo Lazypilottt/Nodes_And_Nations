@@ -13,7 +13,7 @@ export default function Home() {
   const [year, setYear] = useState<number>(2025);
   const [activeView, setActiveView] = useState<'map' | 'simulator' | 'charts' | 'topology' | 'comparator'>('map');
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
-  const [mapMode, setMapMode] = useState<'corridors' | 'centrality' | 'communities' | 'simulation'>('corridors');
+  const [mapMode, setMapMode] = useState<'corridors' | 'centrality' | 'communities' | 'simulation' | 'religion'>('corridors');
 
   // Crisis Simulator State
   const [simulationEpicenter, setSimulationEpicenter] = useState<string | null>('UKR');
@@ -60,7 +60,7 @@ export default function Home() {
   }, [activeView, mapMode, simulationCorridors, data, year]);
 
   return (
-    <div className="min-h-screen bg-[#06090e] text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#f8f5ee] text-[#1e293b] flex flex-col font-sans">
       <Head>
         <title>Nodes & Nations // Global Migration Topology & Simulation Platform</title>
         <meta
@@ -77,6 +77,7 @@ export default function Home() {
         onViewChange={(v) => {
           setActiveView(v);
           if (v === 'simulator') setMapMode('simulation');
+          else if (v === 'topology') setMapMode('centrality');
           else if (mapMode === 'simulation') setMapMode('corridors');
         }}
         summaryStats={data?.summary_stats || []}
@@ -86,32 +87,41 @@ export default function Home() {
 
       <main className="max-w-7xl w-full mx-auto px-4 lg:px-8 py-5 space-y-5 flex-1">
         {loading ? (
-          <div className="h-[520px] bg-[#0b101b] border border-slate-800 rounded-xl flex flex-col items-center justify-center space-y-3">
-            <div className="w-8 h-8 border-3 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-            <div className="text-xs font-mono text-slate-400">Loading Global Migration Topology Engine...</div>
+          <div className="h-[520px] bg-[#fbf9f4] border border-[#d8ccb8] rounded-xl flex flex-col items-center justify-center space-y-3 shadow-sm">
+            <div className="w-9 h-9 border-3 border-[#1e3a5f] border-t-transparent rounded-full animate-spin"></div>
+            <div className="text-xs font-mono font-medium text-[#786b59]">Loading Global Migration Topology Engine...</div>
           </div>
         ) : (
           <>
             {activeView === 'simulator' ? (
-              /* Stock Market / Financial Terminal Layout for Crisis Simulator */
+              /* Financial Terminal / Executive Cockpit Layout for Crisis Simulator */
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
                 {/* Left Column (7 cols): Map + Crisis Vectors Telemetry Bar */}
                 <div className="lg:col-span-7 space-y-3">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
-                      <h2 className="font-semibold text-slate-200 text-xs uppercase tracking-wider">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#8b2626] animate-pulse"></span>
+                      <h2 className="font-bold text-[#1a202c] text-xs uppercase tracking-wider font-serif">
                         Crisis Displacement Surface
                       </h2>
-                      <span className="text-xs text-slate-400 font-mono">
-                        (Shock Epicenter: <strong className="text-red-400">{simulationEpicenter || 'UKR'}</strong>)
+                      <span className="text-xs text-[#645d52] font-mono">
+                        (Shock Epicenter: <strong className="text-[#8b2626]">{simulationEpicenter || 'UKR'}</strong>)
                       </span>
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] bg-red-950 text-red-300 border border-red-800/80 px-2 py-0.5 rounded font-mono font-medium">
+                      <span className="text-[10.5px] bg-[#fcf4e8] text-[#945920] border border-[#e8d5bc] px-2 py-0.5 rounded font-mono font-semibold">
                         Gravity Displacement Routing
                       </span>
+                      <button
+                        onClick={() => {
+                          setActiveView('map');
+                          setMapMode('corridors');
+                        }}
+                        className="text-[10.5px] text-[#5a5043] hover:text-[#1a202c] bg-[#eae1cf] hover:bg-[#dfd5c2] px-2.5 py-0.5 rounded font-medium transition"
+                      >
+                        Exit to Overview ↗
+                      </button>
                     </div>
                   </div>
 
@@ -132,60 +142,60 @@ export default function Home() {
                     heightClass="h-[460px] xl:h-[490px]"
                   />
 
-                  {/* Live Shock Telemetry Ticker Card (Stock Market Terminal Style) */}
-                  <div className="bg-[#0b101b] border border-slate-800 p-3 rounded-xl shadow-md space-y-2">
-                    <div className="flex items-center justify-between border-b border-slate-800/80 pb-1.5">
+                  {/* Live Shock Telemetry Ticker Card */}
+                  <div className="bg-[#fbf9f4] border border-[#d8ccb8] p-3.5 rounded-xl shadow-sm space-y-2.5">
+                    <div className="flex items-center justify-between border-b border-[#ded3be] pb-2">
                       <div className="flex items-center gap-2">
-                        <span className="text-[10.5px] font-semibold text-blue-400 uppercase tracking-wide">
+                        <span className="text-[11px] font-bold text-[#1e3a5f] uppercase tracking-wide font-mono">
                           Live Displacement Telemetry
                         </span>
-                        <span className="text-slate-600">|</span>
-                        <span className="text-[11px] text-slate-300 font-medium">
+                        <span className="text-[#baa990]">|</span>
+                        <span className="text-[11.5px] text-[#1a202c] font-semibold">
                           {simulationResults?.epicenter_name || 'Ukraine'} ({simulationEpicenter})
                         </span>
                       </div>
-                      <span className="text-[10px] text-slate-400 font-mono">
+                      <span className="text-[10px] text-[#786b59] font-mono font-semibold uppercase">
                         {simulationResults?.scenario?.toUpperCase() || 'CONFLICT'} SHOCK
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                      <div className="p-2 bg-[#080c14] border border-slate-800/80 rounded-lg">
-                        <div className="text-[10px] text-slate-500 uppercase font-mono">Displaced Mass</div>
-                        <div className="text-sm font-semibold font-mono text-blue-400 mt-0.5">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                      <div className="p-2.5 bg-[#f4efe6] border border-[#ded3be] rounded-lg">
+                        <div className="text-[10px] text-[#786b59] uppercase font-mono font-semibold">Displaced Mass</div>
+                        <div className="text-sm font-bold font-mono text-[#1e3a5f] mt-0.5">
                           {simulationResults?.displaced_total ? (simulationResults.displaced_total / 1000000).toFixed(2) + 'M' : '3.50M'}
                         </div>
-                        <div className="text-[9.5px] text-slate-400 mt-0.5">
+                        <div className="text-[9.5px] text-[#645d52] mt-0.5">
                           {simulationResults?.intensity || 90}% Severity
                         </div>
                       </div>
 
-                      <div className="p-2 bg-[#080c14] border border-slate-800/80 rounded-lg">
-                        <div className="text-[10px] text-slate-500 uppercase font-mono">Primary Sink</div>
-                        <div className="text-xs font-semibold font-mono text-slate-200 mt-0.5 truncate">
+                      <div className="p-2.5 bg-[#f4efe6] border border-[#ded3be] rounded-lg">
+                        <div className="text-[10px] text-[#786b59] uppercase font-mono font-semibold">Primary Sink</div>
+                        <div className="text-xs font-bold font-mono text-[#1a202c] mt-0.5 truncate">
                           {simulationResults?.top_recipients?.[0]?.country_name || 'Poland'}
                         </div>
-                        <div className="text-[9.5px] text-red-400 font-mono mt-0.5">
+                        <div className="text-[10px] text-[#8b2626] font-mono font-bold mt-0.5">
                           {simulationResults?.top_recipients?.[0]?.predicted_influx?.toLocaleString() || '1,820,000'}
                         </div>
                       </div>
 
-                      <div className="p-2 bg-[#080c14] border border-slate-800/80 rounded-lg">
-                        <div className="text-[10px] text-slate-500 uppercase font-mono">Mean Distance</div>
-                        <div className="text-xs font-semibold font-mono text-amber-400 mt-0.5">
+                      <div className="p-2.5 bg-[#f4efe6] border border-[#ded3be] rounded-lg">
+                        <div className="text-[10px] text-[#786b59] uppercase font-mono font-semibold">Mean Distance</div>
+                        <div className="text-xs font-bold font-mono text-[#945920] mt-0.5">
                           {simulationResults?.top_recipients?.[0]?.dist_km ? Math.round(simulationResults.top_recipients.reduce((acc: number, r: any) => acc + r.dist_km, 0) / simulationResults.top_recipients.length).toLocaleString() + ' km' : '1,420 km'}
                         </div>
-                        <div className="text-[9.5px] text-slate-400 mt-0.5">
+                        <div className="text-[9.5px] text-[#645d52] mt-0.5">
                           Decay Gradient
                         </div>
                       </div>
 
-                      <div className="p-2 bg-[#080c14] border border-slate-800/80 rounded-lg">
-                        <div className="text-[10px] text-slate-500 uppercase font-mono">Policy Filter</div>
-                        <div className="text-xs font-semibold font-mono text-emerald-400 mt-0.5 capitalize truncate">
+                      <div className="p-2.5 bg-[#f4efe6] border border-[#ded3be] rounded-lg">
+                        <div className="text-[10px] text-[#786b59] uppercase font-mono font-semibold">Policy Filter</div>
+                        <div className="text-xs font-bold font-mono text-[#28534b] mt-0.5 capitalize truncate">
                           {simulationResults?.policy?.replace('_', ' ') || 'Universal'}
                         </div>
-                        <div className="text-[9.5px] text-slate-400 mt-0.5">
+                        <div className="text-[9.5px] text-[#645d52] mt-0.5">
                           Border Regimes
                         </div>
                       </div>
@@ -204,42 +214,46 @@ export default function Home() {
                 </div>
               </div>
             ) : (
-              /* Standard Full-Width Layout for Map, Topology, Charts, Comparator */
+              /* Standard Layout for Map, Topology, Charts, Comparator */
               <>
-                {/* World Map Section with Clean Layer Toggle */}
+                {/* World Map Section with Map Mode Switcher */}
                 <section className="space-y-2.5">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
-                      <h2 className="font-semibold text-slate-200 text-xs uppercase tracking-wider">
-                        Planetary Vector Surface ({year})
+                      <h2 className="font-bold text-[#1a202c] text-xs uppercase tracking-wider font-serif">
+                        Planetary Vector Surface
                       </h2>
-                      <span className="text-xs text-slate-500 font-mono">
-                        ({data?.country_list?.length || 235} Sovereign States • {activeMapCorridors.length} Monitored Flow Vectors)
+                      <span className="text-xs text-[#786b59] font-mono">
+                        ({data?.country_list?.length || 235} Sovereign States • 8 Snapshot Periods)
                       </span>
                     </div>
 
-                    {/* Clean Map Layer Toggle */}
-                    <div className="flex items-center gap-1 bg-[#0b101b] border border-slate-800 p-0.5 rounded-lg text-xs">
-                      <button
-                        onClick={() => setMapMode('corridors')}
-                        className={`px-3 py-1 rounded-md text-xs font-medium transition ${
-                          mapMode === 'corridors'
-                            ? 'bg-slate-200 text-slate-950 font-semibold shadow-sm'
-                            : 'text-slate-400 hover:text-slate-200'
-                        }`}
-                      >
-                        Bilateral Corridors
-                      </button>
-                      <button
-                        onClick={() => setMapMode('communities')}
-                        className={`px-3 py-1 rounded-md text-xs font-medium transition ${
-                          mapMode === 'communities'
-                            ? 'bg-slate-200 text-slate-950 font-semibold shadow-sm'
-                            : 'text-slate-400 hover:text-slate-200'
-                        }`}
-                      >
-                        Alliance Clusters
-                      </button>
+                    {/* Map Overlay Mode Switcher */}
+                    <div className="flex items-center gap-1 bg-[#e8e0cf] border border-[#d8ccb8] p-0.5 rounded-lg text-xs">
+                      {[
+                        { id: 'corridors', label: 'Bilateral Corridors' },
+                        { id: 'centrality', label: 'Centrality Topography' },
+                        { id: 'communities', label: 'Alliance Clusters' },
+                        { id: 'religion', label: 'Religion & Culture' },
+                        { id: 'simulation', label: 'Crisis Displacement' },
+                      ].map((m) => (
+                        <button
+                          key={m.id}
+                          onClick={() => {
+                            setMapMode(m.id as any);
+                            if (m.id === 'simulation') {
+                              setActiveView('simulator');
+                            }
+                          }}
+                          className={`px-3 py-1 rounded-md text-xs font-medium transition ${
+                            mapMode === m.id
+                              ? 'bg-[#1e3a5f] text-white font-semibold shadow-xs'
+                              : 'text-[#5a5043] hover:text-[#1a202c]'
+                          }`}
+                        >
+                          {m.label}
+                        </button>
+                      ))}
                     </div>
                   </div>
 
@@ -252,7 +266,7 @@ export default function Home() {
                     }}
                     mode={mapMode}
                     nodesData={nodesMap}
-                    simulationEpicenter={null}
+                    simulationEpicenter={mapMode === 'simulation' ? simulationEpicenter : null}
                     year={year}
                   />
                 </section>
@@ -289,140 +303,144 @@ export default function Home() {
                   {activeView === 'map' && (
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
                       {/* Left: Quick Corridor Table */}
-                  <div className="lg:col-span-8 bg-[#0b101b] border border-slate-800 p-4 rounded-xl shadow-md space-y-3">
-                    <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
-                      <div>
-                        <h3 className="font-semibold text-slate-100 text-sm">
-                          Top Bilateral Migration Corridors ({year})
-                        </h3>
-                        <p className="text-xs text-slate-400">
-                          Ranked by total registered bilateral migrant stock volume
-                        </p>
-                      </div>
-                      <span className="text-[11px] bg-blue-950 text-blue-300 border border-blue-800/80 px-2 py-0.5 rounded font-mono">
-                        {(data?.edges || []).filter((e: any) => Number(e.year) === year).length} Monitored Corridors
-                      </span>
-                    </div>
+                      <div className="lg:col-span-8 bg-[#fbf9f4] border border-[#d8ccb8] p-4 rounded-xl shadow-sm space-y-3">
+                        <div className="flex items-center justify-between border-b border-[#ded3be] pb-2.5">
+                          <div>
+                            <h3 className="font-bold text-[#1a202c] text-sm font-serif">
+                              Top Bilateral Migration Corridors ({year})
+                            </h3>
+                            <p className="text-xs text-[#635a4d]">
+                              Ranked by total registered bilateral migrant stock volume
+                            </p>
+                          </div>
+                          <span className="text-[11px] bg-[#eef3f8] text-[#1e3a5f] border border-[#c7d9ec] px-2.5 py-1 rounded font-mono font-semibold">
+                            {(data?.edges || []).filter((e: any) => Number(e.year) === year).length} Monitored Corridors
+                          </span>
+                        </div>
 
-                    <div className="overflow-x-auto max-h-72 overflow-y-auto">
-                      <table className="w-full text-left text-xs">
-                        <thead>
-                          <tr className="text-[10.5px] text-slate-400 border-b border-slate-800 font-mono">
-                            <th className="py-2 px-2.5">#</th>
-                            <th className="py-2 px-2.5">Origin State</th>
-                            <th className="py-2 px-2.5">Destination State</th>
-                            <th className="py-2 px-2.5">Migrant Stock</th>
-                            <th className="py-2 px-2.5">Geography Rel</th>
-                            <th className="py-2 px-2.5">Income Tier</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-800 text-slate-300">
-                          {(data?.edges || [])
-                            .filter((e: any) => Number(e.year) === year)
-                            .slice(0, 15)
-                            .map((e: any, idx: number) => (
-                              <tr
-                                key={idx}
-                                onClick={() => setSelectedCountry(e.origin_iso3)}
-                                className="hover:bg-slate-800/40 cursor-pointer transition"
-                              >
-                                <td className="py-2 px-2.5 font-mono text-slate-500 text-[11px]">#{idx + 1}</td>
-                                <td className="py-2 px-2.5 font-medium text-slate-100 flex items-center gap-1.5">
-                                  <span>{e.origin_flag}</span>
-                                  <span>{e.origin_country_name || e.origin_iso3}</span>
-                                  <span className="text-[10px] text-slate-500 font-mono">({e.origin_iso3})</span>
-                                </td>
-                                <td className="py-2 px-2.5 font-medium text-slate-100">
-                                  <span className="inline-flex items-center gap-1.5">
-                                    <span>{e.dest_flag}</span>
-                                    <span>{e.dest_country_name || e.dest_iso3}</span>
-                                    <span className="text-[10px] text-slate-500 font-mono">({e.dest_iso3})</span>
-                                  </span>
-                                </td>
-                                <td className="py-2 px-2.5 font-mono font-semibold text-blue-400">
-                                  {Math.round(Number(e.weight) || 0).toLocaleString()}
-                                </td>
-                                <td className="py-2 px-2.5">
-                                  <span
-                                    className={`px-2 py-0.5 rounded text-[10px] ${
-                                      e.same_continent === 1
-                                        ? 'bg-blue-950 text-blue-300 border border-blue-800'
-                                        : 'bg-slate-800 text-slate-400'
-                                    }`}
-                                  >
-                                    {e.same_continent === 1 ? 'Intra-Continental' : 'Inter-Continental'}
-                                  </span>
-                                </td>
-                                <td className="py-2 px-2.5">
-                                  <span className="text-[10.5px] text-slate-400 font-mono">
-                                    {e.dest_income_group || 'High income'}
-                                  </span>
-                                </td>
+                        <div className="overflow-x-auto max-h-72 overflow-y-auto border border-[#ded3be] rounded-lg">
+                          <table className="w-full text-left text-xs bg-[#ffffff]">
+                            <thead>
+                              <tr className="text-[10.5px] text-[#6d5c46] border-b border-[#ded3be] font-mono bg-[#f4efe6]">
+                                <th className="py-2.5 px-3">#</th>
+                                <th className="py-2.5 px-3">Origin State</th>
+                                <th className="py-2.5 px-3">Destination State</th>
+                                <th className="py-2.5 px-3">Migrant Stock</th>
+                                <th className="py-2.5 px-3">Geography Rel</th>
+                                <th className="py-2.5 px-3">Destination Religion</th>
+                                <th className="py-2.5 px-3">Income Tier</th>
                               </tr>
-                            ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-
-                  {/* Right: Quick Action Hub & Mini-Summary */}
-                  <div className="lg:col-span-4 space-y-4">
-                    {/* Simulator Callout Card */}
-                    <div className="p-4 bg-[#0d1422] border border-slate-700/80 rounded-xl shadow-md space-y-2.5">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-semibold text-red-400 uppercase tracking-wide">
-                          Simulation Module
-                        </span>
-                        <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                            </thead>
+                            <tbody className="divide-y divide-[#f0e9dc] text-[#1e293b]">
+                              {(data?.edges || [])
+                                .filter((e: any) => Number(e.year) === year)
+                                .slice(0, 15)
+                                .map((e: any, idx: number) => (
+                                  <tr
+                                    key={idx}
+                                    onClick={() => setSelectedCountry(e.origin_iso3)}
+                                    className="hover:bg-[#fbf7f0] cursor-pointer transition"
+                                  >
+                                    <td className="py-2 px-3 font-mono text-[#8a7c6a] text-[11px]">#{idx + 1}</td>
+                                    <td className="py-2 px-3 font-semibold text-[#1a202c] flex items-center gap-1.5">
+                                      <span>{e.origin_flag}</span>
+                                      <span>{e.origin_country_name || e.origin_iso3}</span>
+                                      <span className="text-[10px] text-[#786b59] font-mono font-normal">({e.origin_iso3})</span>
+                                    </td>
+                                    <td className="py-2 px-3 font-semibold text-[#1a202c]">
+                                      <span className="inline-flex items-center gap-1.5">
+                                        <span>{e.dest_flag}</span>
+                                        <span>{e.dest_country_name || e.dest_iso3}</span>
+                                        <span className="text-[10px] text-[#786b59] font-mono font-normal">({e.dest_iso3})</span>
+                                      </span>
+                                    </td>
+                                    <td className="py-2 px-3 font-mono font-bold text-[#1e3a5f]">
+                                      {Math.round(Number(e.weight) || 0).toLocaleString()}
+                                    </td>
+                                    <td className="py-2 px-3">
+                                      <span
+                                        className={`px-2 py-0.5 rounded text-[10px] font-medium ${
+                                          e.same_continent === 1
+                                            ? 'bg-[#eef3f8] text-[#1e3a5f] border border-[#c7d9ec]'
+                                            : 'bg-[#f4efe6] text-[#6d5c46] border border-[#ded3be]'
+                                        }`}
+                                      >
+                                        {e.same_continent === 1 ? 'Intra-Continental' : 'Inter-Continental'}
+                                      </span>
+                                    </td>
+                                    <td className="py-2 px-3 text-[10.5px] text-[#28534b] font-medium">
+                                      {e.dest_dominant_religion || 'Christianity'}
+                                    </td>
+                                    <td className="py-2 px-3">
+                                      <span className="text-[10.5px] text-[#554a3b] font-medium">
+                                        {e.dest_income_group || 'High income'}
+                                      </span>
+                                    </td>
+                                  </tr>
+                                ))}
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
-                      <h4 className="font-semibold text-slate-100 text-sm">
-                        Crisis Displacement Simulator
-                      </h4>
-                      <p className="text-xs text-slate-400 leading-relaxed">
-                        Evaluate gravity-routing models for acute shocks across conflict, climate, border shifts, and economic asymmetry with localized capacity strain assessments.
-                      </p>
-                      <button
-                        onClick={() => {
-                          setActiveView('simulator');
-                          setMapMode('simulation');
-                        }}
-                        className="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg text-xs transition flex items-center justify-center gap-1.5 shadow-sm"
-                      >
-                        <span>Launch Crisis Simulator</span>
-                      </button>
-                    </div>
 
-                    {/* Quick Macro Indicators */}
-                    <div className="p-4 bg-[#0b101b] border border-slate-800 rounded-xl shadow-md space-y-2.5">
-                      <h4 className="font-semibold text-slate-200 text-xs uppercase tracking-wide">Systemic Insights</h4>
-                      <div className="space-y-2 text-xs">
-                        <div className="p-2.5 bg-[#080c14] border border-slate-800 rounded-lg">
-                          <div className="text-slate-400 font-medium text-xs">Integration Trend:</div>
-                          <div className="text-slate-300 text-[11px] mt-0.5">
-                            Network modularity declined by <strong>20.5%</strong> from 1990 to 2025, demonstrating an increasingly interconnected global migration architecture.
+                      {/* Right: Quick Action Hub & Mini-Summary */}
+                      <div className="lg:col-span-4 space-y-4">
+                        {/* Simulator Callout Card */}
+                        <div className="p-4 bg-[#f4efe6] border border-[#ded3be] rounded-xl shadow-sm space-y-2.5">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10.5px] font-bold text-[#8b2626] uppercase tracking-wide font-mono">
+                              Simulation Module
+                            </span>
+                            <span className="w-2 h-2 rounded-full bg-[#8b2626]"></span>
+                          </div>
+                          <h4 className="font-bold text-[#1a202c] text-sm font-serif">
+                            Crisis Displacement Simulator
+                          </h4>
+                          <p className="text-xs text-[#635a4d] leading-relaxed">
+                            Evaluate gravity-routing models for acute shocks across conflict, climate, border shifts, and cultural kinship with localized capacity strain assessments.
+                          </p>
+                          <button
+                            onClick={() => {
+                              setActiveView('simulator');
+                              setMapMode('simulation');
+                            }}
+                            className="w-full py-2 bg-[#1e3a5f] hover:bg-[#162c46] text-white font-semibold rounded-lg text-xs transition flex items-center justify-center gap-1.5 shadow-sm"
+                          >
+                            <span>Launch Crisis Simulator</span>
+                          </button>
+                        </div>
+
+                        {/* Quick Macro Indicators */}
+                        <div className="p-4 bg-[#fbf9f4] border border-[#d8ccb8] rounded-xl shadow-sm space-y-2.5">
+                          <h4 className="font-bold text-[#1a202c] text-xs uppercase tracking-wide font-serif">Systemic Insights</h4>
+                          <div className="space-y-2 text-xs">
+                            <div className="p-3 bg-[#f4efe6] border border-[#ded3be] rounded-lg shadow-xs">
+                              <div className="text-[#1a202c] font-bold text-xs">Cultural & Religion Homophily:</div>
+                              <div className="text-[#635a4d] text-[11.5px] mt-0.5">
+                                Shared dominant religion and progressive MIPEX integration policies generate a <strong>+28% to +35% multiplier</strong> on bilateral corridor retention.
+                              </div>
+                            </div>
+                            <div className="p-3 bg-[#f4efe6] border border-[#ded3be] rounded-lg shadow-xs">
+                              <div className="text-[#1a202c] font-bold text-xs">Economic Pull:</div>
+                              <div className="text-[#635a4d] text-[11.5px] mt-0.5">
+                                GDP per capita disparity explains over <strong>60% of variance</strong> in corridor choice, compounded by established historical diaspora kinship.
+                              </div>
+                            </div>
                           </div>
                         </div>
-                        <div className="p-2.5 bg-[#080c14] border border-slate-800 rounded-lg">
-                          <div className="text-slate-400 font-medium text-xs">Economic Pull:</div>
-                          <div className="text-slate-300 text-[11px] mt-0.5">
-                            GDP per capita disparity explains over <strong>60% of variance</strong> in corridor choice, compounded by established historical diaspora kinship.
-                          </div>
-                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              )}
-            </section>
+                  )}
+                </section>
+              </>
+            )}
           </>
         )}
-      </>
-    )}
-  </main>
+      </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800 bg-[#06090e] py-3 text-center text-xs text-slate-500 font-mono">
-        Nodes and Nations // Topological Study of Global Human Movement (1990–2025)
+      <footer className="border-t border-[#ded3be] bg-[#f4efe6] py-3 text-center text-xs text-[#786b59] font-mono">
+        Nodes and Nations: Topological Study of Global Human Movement (1990–2025)
       </footer>
     </div>
   );

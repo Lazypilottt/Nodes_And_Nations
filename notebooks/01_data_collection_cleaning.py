@@ -33,7 +33,7 @@ if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
-from data.loader import paths, load_ndgain, load_henley, load_conflict_long
+from data.loader import paths, load_ndgain, load_henley, load_conflict_long, load_religions, load_cultural_integration
 
 ROOT        = paths["ROOT"]
 RAW_DIR     = paths["RAW_DIR"]
@@ -364,8 +364,16 @@ def fetch_ucdp_conflict() -> pd.DataFrame:
 # 5. BUILD FACTORS PANEL
 # ══════════════════════════════════════════════════════════════════════════════
 
-def build_factors_panel(wb: pd.DataFrame, conflict: pd.DataFrame, edu: pd.DataFrame, henley: pd.DataFrame, ndgain: pd.DataFrame) -> pd.DataFrame:
-    """Merge all supplementary datasets into one cohesive country-year panel for 1990-2025."""
+def build_factors_panel(
+    wb: pd.DataFrame,
+    conflict: pd.DataFrame,
+    edu: pd.DataFrame,
+    henley: pd.DataFrame,
+    ndgain: pd.DataFrame,
+    religions: pd.DataFrame = None,
+    cult_integration: pd.DataFrame = None,
+) -> pd.DataFrame:
+    """Merge all supplementary datasets including religion & cultural integration into one cohesive country-year panel for 1990-2025."""
     panel = wb[wb["year"].isin(SNAPSHOT_YEARS)].copy()
 
     for df, label in [
@@ -373,11 +381,22 @@ def build_factors_panel(wb: pd.DataFrame, conflict: pd.DataFrame, edu: pd.DataFr
         (edu, "education_index"),
         (henley, "visa_openness_index"),
         (ndgain, "climate_vulnerability"),
+        (cult_integration, "cultural_integration"),
     ]:
-        if df.empty:
+        if df is None or df.empty:
             continue
         df_snap = df[df["year"].isin(SNAPSHOT_YEARS)].copy()
         panel = panel.merge(df_snap, on=["iso3", "year"], how="left")
+
+    # Merge static religion profile
+    if religions is not None and not religions.empty:
+        rel_cols = [
+            "iso3", "dominant_religion", "christianity_pct", "islam_pct",
+            "hinduism_pct", "buddhism_pct", "judaism_pct", "unaffiliated_pct",
+            "religious_fractionalization", "religious_diversity_index", "religiosity_importance_score"
+        ]
+        present_rel_cols = [c for c in rel_cols if c in religions.columns]
+        panel = panel.merge(religions[present_rel_cols], on="iso3", how="left")
 
     # Conflict intensity defaults to 0 for peaceful country-years
     if "conflict_intensity" in panel.columns:
@@ -387,7 +406,14 @@ def build_factors_panel(wb: pd.DataFrame, conflict: pd.DataFrame, edu: pd.DataFr
 
     # Smooth forward/backward fills per country for bounded indices where country existed
     panel = panel.sort_values(["iso3", "year"]).reset_index(drop=True)
-    for col in ["education_index", "climate_vulnerability", "visa_openness_index", "unemployment", "gdp_per_capita"]:
+    numeric_smooth_cols = [
+        "education_index", "climate_vulnerability", "visa_openness_index",
+        "unemployment", "gdp_per_capita", "integration_policy_index",
+        "cultural_openness_index", "labour_market_integration",
+        "anti_discrimination_score", "naturalization_access_score",
+        "religious_fractionalization", "religious_diversity_index", "religiosity_importance_score"
+    ]
+    for col in numeric_smooth_cols:
         if col in panel.columns:
             panel[col] = panel.groupby("iso3")[col].transform(lambda s: s.ffill().bfill())
 
@@ -397,7 +423,10 @@ def build_factors_panel(wb: pd.DataFrame, conflict: pd.DataFrame, edu: pd.DataFr
     # Standardize column order
     cols_order = [
         "iso3", "year", "gdp_per_capita", "population", "unemployment",
-        "conflict_intensity", "education_index", "climate_vulnerability", "visa_openness_index"
+        "conflict_intensity", "education_index", "climate_vulnerability", "visa_openness_index",
+        "dominant_religion", "religious_fractionalization", "religious_diversity_index", "religiosity_importance_score",
+        "integration_policy_index", "cultural_openness_index", "labour_market_integration",
+        "anti_discrimination_score", "naturalization_access_score"
     ]
     cols_present = [c for c in cols_order if c in panel.columns] + [c for c in panel.columns if c not in cols_order]
     panel = panel[cols_present]
@@ -417,7 +446,7 @@ def main():
 
     t_start = time.time()
 
-    print("\n[1/6] Parsing UN DESA bilateral migration data...")
+    print("\n[1/7] Parsing UN DESA bilateral migration data...")
     df_wide = parse_undesa_fast(UNDESA_FILE)
     df_long = melt_to_long(df_wide)
     df_long = extrapolate_2025(df_long)
@@ -426,21 +455,25 @@ def main():
     df_long.to_csv(out_mig, index=False)
     print(f"  ✓ migration_long.csv: {len(df_long):,} rows")
 
-    print("\n[2/6] World Bank data...")
+    print("\n[2/7] World Bank data...")
     wb = fetch_all_worldbank()
 
-    print("\n[3/6] UCDP conflict data...")
+    print("\n[3/7] UCDP conflict data...")
     conflict = fetch_ucdp_conflict()
 
-    print("\n[4/6] UNDP Education Index...")
+    print("\n[4/7] UNDP Education Index...")
     edu = fetch_undp_education()
 
-    print("\n[5/6] Henley Passport + ND-GAIN climate...")
+    print("\n[5/7] Henley Passport + ND-GAIN climate...")
     henley = load_henley()
     ndgain = load_ndgain()
 
-    print("\n[6/6] Building factors panel...")
-    factors = build_factors_panel(wb, conflict, edu, henley, ndgain)
+    print("\n[6/7] Loading World Religion Demographics & Cultural Integration Index...")
+    religions = load_religions()
+    cult_integration = load_cultural_integration()
+
+    print("\n[7/7] Building unified multi-dimensional factors panel...")
+    factors = build_factors_panel(wb, conflict, edu, henley, ndgain, religions, cult_integration)
     
     out_fac = os.path.join(PROCESSED, "factors_panel.csv")
     out_fac_enrich = os.path.join(PROCESSED, "factors_panel_enriched.csv")

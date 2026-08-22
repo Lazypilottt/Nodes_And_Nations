@@ -88,6 +88,14 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           louvain_community: obj.louvain_community,
           community_label: obj.community_label || 'General Community',
           is_boundary_node: obj.is_boundary_node === 'True' || obj.is_boundary_node === 'true',
+          dominant_religion: obj.dominant_religion || 'Christianity',
+          religious_diversity_index: parseFloat(obj.religious_diversity_index) || 0.4,
+          religiosity_importance_score: parseFloat(obj.religiosity_importance_score) || 0.7,
+          integration_policy_index: parseFloat(obj.integration_policy_index) || 0.5,
+          cultural_openness_index: parseFloat(obj.cultural_openness_index) || 0.5,
+          labour_market_integration: parseFloat(obj.labour_market_integration) || 0.5,
+          anti_discrimination_score: parseFloat(obj.anti_discrimination_score) || 0.5,
+          naturalization_access_score: parseFloat(obj.naturalization_access_score) || 0.5,
         };
       }
     }
@@ -120,6 +128,11 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       gdp_per_capita: 3500,
       population: 40000000,
       louvain_community: '0',
+      dominant_religion: 'Christianity',
+      religious_diversity_index: 0.4,
+      religiosity_importance_score: 0.7,
+      integration_policy_index: 0.5,
+      cultural_openness_index: 0.5,
     };
 
     // Calculate routing gravity score for every other country in the world
@@ -138,6 +151,11 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         gdp_per_capita: 5000,
         population: 15000000,
         louvain_community: '0',
+        dominant_religion: 'Christianity',
+        religious_diversity_index: 0.4,
+        religiosity_importance_score: 0.7,
+        integration_policy_index: 0.5,
+        cultural_openness_index: 0.5,
       };
 
       const distKm = Math.max(
@@ -149,18 +167,23 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       const isNeighbor = distKm < 1800;
       const isSameContinent = targetGeo.continent === epicGeo.continent;
       const isSameCommunity = targetNode.louvain_community === epicNode.louvain_community;
+      const isSameReligion = targetNode.dominant_religion && epicNode.dominant_religion && targetNode.dominant_religion === epicNode.dominant_religion;
+      const culturalDistance = Math.abs((targetNode.cultural_openness_index || 0.5) - (epicNode.cultural_openness_index || 0.5));
+      const integrationScore = targetNode.integration_policy_index || 0.5;
 
       // Gravity Model Components
       let gravityScore = 0;
 
       if (scenario === 'conflict') {
-        // War/Conflict Model: Heavy geographic contiguity + historical diaspora pull + income capacity
+        // War/Conflict Model: Heavy geographic contiguity + historical diaspora pull + income capacity + cultural openness & kinship
         const distDecay = Math.pow(distKm, -0.65);
         const diasporaPull = Math.pow(existingDiaspora + 500, 0.42);
         const gdpPull = Math.pow(Math.max(1000, targetNode.gdp_per_capita), 0.28);
         const neighborBonus = isNeighbor ? 2.8 : 1.0;
         const continentBonus = isSameContinent ? 1.4 : 0.8;
         const communityBonus = isSameCommunity ? 1.3 : 1.0;
+        const religionBonus = isSameReligion ? 1.25 : 0.95;
+        const integrationPull = Math.pow(Math.max(0.1, integrationScore), 0.35);
 
         gravityScore =
           distDecay *
@@ -169,29 +192,47 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           neighborBonus *
           continentBonus *
           communityBonus *
+          religionBonus *
+          integrationPull *
           intensityFactor;
 
         // Policy shock modifiers
         if (border_policy === 'kinship_first') {
           gravityScore *= Math.pow(existingDiaspora + 100, 0.2);
+          if (isSameReligion) gravityScore *= 1.3;
+        } else if (border_policy === 'cultural_kinship') {
+          gravityScore *= isSameReligion ? 2.0 : 0.45;
+          gravityScore *= Math.pow(Math.max(0.1, targetNode.cultural_openness_index || 0.5), 0.5);
+        } else if (border_policy === 'integration_havens') {
+          gravityScore *= Math.pow(Math.max(0.1, integrationScore), 1.2);
         } else if (border_policy === 'strict_border') {
           if (!isNeighbor) gravityScore *= 0.3;
         }
       } else if (scenario === 'climate') {
-        // Climate Displacement: Moves towards high climate-resilience / high-income destinations
+        // Climate Displacement: Moves towards high climate-resilience, high integration openness & high-income destinations
         const distDecay = Math.pow(distKm, -0.45);
         const gdpPull = Math.pow(Math.max(2000, targetNode.gdp_per_capita), 0.45);
-        gravityScore = distDecay * gdpPull * (isSameContinent ? 1.5 : 1.0) * intensityFactor;
+        const integrationPull = Math.pow(Math.max(0.1, integrationScore), 0.4);
+        gravityScore = distDecay * gdpPull * integrationPull * (isSameContinent ? 1.5 : 1.0) * intensityFactor;
+      } else if (scenario === 'cultural_kinship') {
+        // Cultural & Religious Kinship Routing: Strong pull towards shared religion, cultural openness, and diaspora
+        const diasporaPull = Math.pow(existingDiaspora + 200, 0.45);
+        const religionMultiplier = isSameReligion ? 3.0 : 0.4;
+        const opennessMultiplier = Math.pow(Math.max(0.1, targetNode.cultural_openness_index || 0.5), 0.6);
+        const distDecay = Math.pow(distKm, -0.5);
+        gravityScore = diasporaPull * religionMultiplier * opennessMultiplier * distDecay * intensityFactor;
       } else if (scenario === 'visa') {
-        // Visa Liberalization / Border Free Movement: Sharp increase to high-income & alliance partners
+        // Visa Liberalization / Border Free Movement: Sharp increase to high-income, high integration policy partners
         const diasporaPull = Math.pow(existingDiaspora + 200, 0.5);
         const incomeBonus = targetNode.income_group === 'High income' ? 2.2 : 1.0;
-        gravityScore = diasporaPull * incomeBonus * (isSameContinent ? 1.6 : 0.9) * intensityFactor;
+        const integrationBonus = Math.pow(Math.max(0.1, integrationScore), 0.5);
+        gravityScore = diasporaPull * incomeBonus * integrationBonus * (isSameContinent ? 1.6 : 0.9) * intensityFactor;
       } else {
-        // Economic Asymmetry: Gradient between origin and dest GDP per capita
+        // Economic Asymmetry: Gradient between origin and dest GDP per capita and labour market integration
         const gdpRatio = Math.max(0.5, targetNode.gdp_per_capita / Math.max(500, epicNode.gdp_per_capita));
         const distDecay = Math.pow(distKm, -0.5);
-        gravityScore = Math.pow(gdpRatio, 0.6) * distDecay * (existingDiaspora + 100);
+        const labourPull = Math.pow(Math.max(0.1, targetNode.labour_market_integration || 0.5), 0.4);
+        gravityScore = Math.pow(gdpRatio, 0.6) * distDecay * (existingDiaspora + 100) * labourPull;
       }
 
       candidateDestinations.push({
@@ -200,6 +241,11 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         continent: targetGeo.continent,
         un_region: targetGeo.un_region,
         income_group: targetGeo.income_group,
+        dominant_religion: targetNode.dominant_religion,
+        religious_diversity_index: targetNode.religious_diversity_index,
+        integration_policy_index: targetNode.integration_policy_index,
+        cultural_openness_index: targetNode.cultural_openness_index,
+        is_same_religion: isSameReligion,
         lat: targetGeo.lat,
         lng: targetGeo.lng,
         flag: targetGeo.flag,
@@ -253,11 +299,29 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     const continentBreakdown: Record<string, number> = {};
     const regionBreakdown: Record<string, number> = {};
     const incomeBreakdown: Record<string, number> = {};
+    const religionBreakdown: Record<string, number> = {};
+    const integrationBreakdown: Record<string, number> = {
+      'High Integration (>0.70)': 0,
+      'Moderate Integration (0.45-0.70)': 0,
+      'Restrictive Integration (<0.45)': 0,
+    };
 
     for (const dest of projectedDestinations) {
       continentBreakdown[dest.continent] = (continentBreakdown[dest.continent] || 0) + dest.predicted_influx;
       regionBreakdown[dest.un_region] = (regionBreakdown[dest.un_region] || 0) + dest.predicted_influx;
       incomeBreakdown[dest.income_group] = (incomeBreakdown[dest.income_group] || 0) + dest.predicted_influx;
+      
+      const rel = dest.dominant_religion || 'Other';
+      religionBreakdown[rel] = (religionBreakdown[rel] || 0) + dest.predicted_influx;
+
+      const mipex = dest.integration_policy_index || 0.5;
+      if (mipex >= 0.70) {
+        integrationBreakdown['High Integration (>0.70)'] += dest.predicted_influx;
+      } else if (mipex >= 0.45) {
+        integrationBreakdown['Moderate Integration (0.45-0.70)'] += dest.predicted_influx;
+      } else {
+        integrationBreakdown['Restrictive Integration (<0.45)'] += dest.predicted_influx;
+      }
     }
 
     // Top 15 key recipient corridors for map visualization
@@ -290,6 +354,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           lng: epicGeo.lng,
           flag: epicGeo.flag,
           population: epicNode.population,
+          dominant_religion: epicNode.dominant_religion,
+          integration_policy_index: epicNode.integration_policy_index,
+          cultural_openness_index: epicNode.cultural_openness_index,
         },
         intensity,
         displaced_scale,
@@ -301,6 +368,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       continent_breakdown: continentBreakdown,
       region_breakdown: regionBreakdown,
       income_breakdown: incomeBreakdown,
+      religion_breakdown: religionBreakdown,
+      integration_breakdown: integrationBreakdown,
     });
   } catch (err: any) {
     console.error('Simulation Error:', err);

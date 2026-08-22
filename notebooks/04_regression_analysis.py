@@ -96,7 +96,11 @@ def load_regression_data() -> pd.DataFrame:
         merged["conflict_intensity"] = 0.0
 
     # Optional features — set to NaN if missing
-    for col in ["unemployment", "education_index", "visa_openness_index", "climate_vulnerability"]:
+    for col in [
+        "unemployment", "education_index", "visa_openness_index", "climate_vulnerability",
+        "cultural_openness_index", "integration_policy_index", "religious_fractionalization",
+        "religious_diversity_index", "religiosity_importance_score", "labour_market_integration"
+    ]:
         if col not in merged.columns:
             merged[col] = np.nan
 
@@ -158,24 +162,31 @@ def fit_model_pair(
     direction: str,
 ) -> tuple[list, list]:
     """
-    Fit baseline (3-factor) and full (7-factor) OLS models for a given
+    Fit baseline, full, and extended cultural gravity OLS models for a given
     dependent variable.
     Returns (list of coef DataFrames, list of summary dicts).
     """
     # Baseline predictors
     baseline_preds = [c for c in ["log_population", "log_gdp_per_capita", "conflict_intensity"]
                       if c in df.columns]
-    # Full predictor set
+    # Full socioeconomic predictor set
     raw_full_preds = baseline_preds + [
         c for c in ["unemployment", "education_index", "visa_openness_index", "climate_vulnerability"]
         if c in df.columns
     ]
+    # Extended Cultural & Integration Gravity set
+    raw_cultural_preds = raw_full_preds + [
+        c for c in [
+            "cultural_openness_index", "integration_policy_index",
+            "religious_fractionalization", "religious_diversity_index",
+            "religiosity_importance_score"
+        ]
+        if c in df.columns
+    ]
     
-    # Filter out predictors that have virtually no data
+    # Filter out predictors that have insufficient data
     full_preds = [c for c in raw_full_preds if df[c].notna().sum() > 30]
-    dropped = set(raw_full_preds) - set(full_preds)
-    if dropped:
-        print(f"  Note: Dropping predictors due to insufficient data: {dropped}")
+    cultural_preds = [c for c in raw_cultural_preds if df[c].notna().sum() > 30]
 
     coef_dfs = []
     summary_rows = []
@@ -183,6 +194,7 @@ def fit_model_pair(
     for model_label, preds in [
         (f"baseline_{direction}", baseline_preds),
         (f"full_{direction}",     full_preds),
+        (f"cultural_gravity_{direction}", cultural_preds),
     ]:
         print(f"\n  Fitting {model_label} (y={y_col}, X={preds})")
         model, coef_df = fit_ols_model(df, y_col, preds, model_label)

@@ -105,10 +105,27 @@ def load_and_build_features():
     df["gdp_log_diff"] = df["origin_log_gdp"] - df["dest_log_gdp"]
     df["pop_log_diff"] = df["origin_log_pop"] - df["dest_log_pop"]
 
-    # Conflict, unemployment etc.
-    for col in ["conflict_intensity", "unemployment", "education_index", "visa_openness_index", "climate_vulnerability"]:
+    # Conflict, unemployment, climate, culture, religion etc.
+    for col in [
+        "conflict_intensity", "unemployment", "education_index", "visa_openness_index", "climate_vulnerability",
+        "integration_policy_index", "cultural_openness_index", "labour_market_integration",
+        "anti_discrimination_score", "naturalization_access_score",
+        "religious_fractionalization", "religious_diversity_index", "religiosity_importance_score",
+        "dominant_religion"
+    ]:
         df[f"origin_{col}"] = df.get(f"origin_{col}", np.nan)
         df[f"dest_{col}"] = df.get(f"dest_{col}", np.nan)
+
+    # Cultural & Religious relational features
+    if "origin_dominant_religion" in df.columns and "dest_dominant_religion" in df.columns:
+        df["same_dominant_religion"] = (df["origin_dominant_religion"] == df["dest_dominant_religion"]).astype(float)
+    else:
+        df["same_dominant_religion"] = 0.0
+
+    if "origin_cultural_openness_index" in df.columns and "dest_cultural_openness_index" in df.columns:
+        df["cultural_openness_diff"] = (df["origin_cultural_openness_index"] - df["dest_cultural_openness_index"]).abs()
+    else:
+        df["cultural_openness_diff"] = np.nan
 
     # Categorical relational features
     df["same_continent"] = (df.get("origin_continent") == df.get("dest_continent")).astype(float)
@@ -126,6 +143,13 @@ def load_and_build_features():
         "origin_education_index", "dest_education_index",
         "origin_visa_openness_index", "dest_visa_openness_index",
         "origin_climate_vulnerability", "dest_climate_vulnerability",
+        "origin_cultural_openness_index", "dest_cultural_openness_index",
+        "cultural_openness_diff", "dest_integration_policy_index",
+        "dest_labour_market_integration", "dest_anti_discrimination_score",
+        "dest_naturalization_access_score",
+        "same_dominant_religion", "origin_religiosity_importance_score",
+        "dest_religiosity_importance_score", "origin_religious_diversity_index",
+        "dest_religious_diversity_index",
         "same_continent", "same_income_group",
         "year",
     ]
@@ -174,6 +198,7 @@ def build_and_train(df, feature_cols):
     pipe = Pipeline([
         ("scaler", StandardScaler()),
         ("estimator", estimator)
+        ("vector", &&moderator_vector01) #inclined vector has to be reshuffeled in the first module sine die
     ])
 
     # Randomized search

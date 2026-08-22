@@ -61,20 +61,20 @@ export default function NetworkTopologyView({
         {
           label: 'Louvain Modularity (Q)',
           data: louvainScores,
-          borderColor: '#2563eb',
-          backgroundColor: 'rgba(37, 99, 235, 0.1)',
+          borderColor: '#1e3a5f',
+          backgroundColor: 'rgba(30, 58, 95, 0.08)',
           tension: 0.2,
           fill: true,
-          pointRadius: 3.5,
+          pointRadius: 4,
         },
         {
           label: 'Leiden Modularity (Q)',
           data: leidenScores,
-          borderColor: '#d97706',
+          borderColor: '#945920',
           backgroundColor: 'transparent',
           borderDash: [4, 4],
           tension: 0.2,
-          pointRadius: 3,
+          pointRadius: 3.5,
         },
       ],
     };
@@ -86,45 +86,47 @@ export default function NetworkTopologyView({
     plugins: {
       legend: {
         position: 'top' as const,
-        labels: { color: '#cbd5e1', font: { size: 11 } },
+        labels: { color: '#4a3d2e', font: { size: 11, family: 'ui-sans-serif, system-ui' } },
       },
       tooltip: {
-        backgroundColor: '#0f172a',
-        borderColor: '#334155',
+        backgroundColor: '#ffffff',
+        borderColor: '#d8ccb8',
         borderWidth: 1,
+        titleColor: '#1e3a5f',
+        bodyColor: '#1e293b',
       },
     },
     scales: {
       x: {
-        ticks: { color: '#94a3b8', font: { size: 11 } },
-        grid: { color: 'rgba(30, 41, 59, 0.4)' },
+        ticks: { color: '#6d5c46', font: { size: 11 } },
+        grid: { color: 'rgba(216, 204, 184, 0.4)' },
       },
       y: {
         min: 0,
         max: 0.7,
-        ticks: { color: '#94a3b8', font: { size: 11 } },
-        grid: { color: 'rgba(30, 41, 59, 0.4)' },
+        ticks: { color: '#6d5c46', font: { size: 11 } },
+        grid: { color: 'rgba(216, 204, 184, 0.4)' },
       },
     },
   };
 
   return (
-    <div className="bg-[#0b101b] border border-slate-800 p-4 rounded-xl shadow-md space-y-4">
+    <div className="bg-[#fbf9f4] border border-[#d8ccb8] p-4 rounded-xl shadow-sm space-y-4">
       {/* Top Header & Tab Navigation */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#ded3be] pb-3">
         <div>
-          <h3 className="font-semibold text-slate-100 text-sm flex items-center gap-2">
+          <h3 className="font-bold text-[#1a202c] text-sm flex items-center gap-2 font-serif">
             <span>Network Topology & Structural Determinants</span>
-            <span className="text-[10px] bg-slate-800 text-slate-400 font-mono px-2 py-0.5 rounded">
+            <span className="text-[10px] bg-[#ece4d4] text-[#6d5c46] border border-[#d8ccb8] font-mono px-2 py-0.5 rounded font-semibold">
               Year {year}
             </span>
           </h3>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-[#635a4d]">
             Graph centrality rankings, modularity drift heuristics, boundary states, & econometric regression
           </p>
         </div>
 
-        <div className="flex bg-[#080c14] border border-slate-800 p-0.5 rounded-lg text-xs">
+        <div className="flex bg-[#e8e0cf] border border-[#d8ccb8] p-0.5 rounded-lg text-xs">
           {[
             { id: 'centrality', label: 'Centrality Rankings' },
             { id: 'modularity', label: 'Modularity Trend (Q)' },
@@ -136,8 +138,8 @@ export default function NetworkTopologyView({
               onClick={() => setActiveTab(tab.id as any)}
               className={`px-3 py-1 rounded text-xs font-medium transition ${
                 activeTab === tab.id
-                  ? 'bg-slate-200 text-slate-950 font-semibold shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-[#1e3a5f] text-white font-semibold shadow-sm'
+                  : 'text-[#5a5043] hover:text-[#1a202c]'
               }`}
             >
               {tab.label}
@@ -151,7 +153,7 @@ export default function NetworkTopologyView({
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-400">Rank By Metric:</span>
+              <span className="text-xs text-[#645d52] font-medium">Rank By Metric:</span>
               <div className="flex gap-1">
                 {[
                   { id: 'pagerank', label: 'PageRank' },
@@ -164,8 +166,8 @@ export default function NetworkTopologyView({
                     onClick={() => setMetricFilter(m.id as any)}
                     className={`px-2.5 py-1 rounded text-xs transition ${
                       metricFilter === m.id
-                        ? 'bg-blue-950/80 text-blue-300 border border-blue-500/60 font-semibold'
-                        : 'bg-[#080c14] text-slate-400 border border-slate-800 hover:text-slate-200'
+                        ? 'bg-[#1e3a5f] text-white font-semibold shadow-sm'
+                        : 'bg-[#f4efe6] text-[#5a5043] border border-[#ded3be] hover:text-[#1a202c]'
                     }`}
                   >
                     {m.label}
@@ -173,43 +175,51 @@ export default function NetworkTopologyView({
                 ))}
               </div>
             </div>
-            <div className="text-xs text-slate-500 font-mono">235 Sovereign States Evaluated</div>
+            <div className="text-xs text-[#786b59] font-mono">235 Sovereign States Evaluated</div>
           </div>
 
-          <div className="overflow-x-auto max-h-72 overflow-y-auto">
-            <table className="w-full text-left text-xs">
+          <div className="overflow-x-auto max-h-72 overflow-y-auto border border-[#ded3be] rounded-lg">
+            <table className="w-full text-left text-xs bg-[#ffffff]">
               <thead>
-                <tr className="text-[10.5px] text-slate-400 border-b border-slate-800 font-mono">
-                  <th className="py-2 px-2.5">Rank</th>
-                  <th className="py-2 px-2.5">Country Entity</th>
-                  <th className="py-2 px-2.5">PageRank</th>
-                  <th className="py-2 px-2.5">Betweenness</th>
-                  <th className="py-2 px-2.5">In-Strength</th>
-                  <th className="py-2 px-2.5">Out-Strength</th>
-                  <th className="py-2 px-2.5">Cluster Label</th>
+                <tr className="text-[10.5px] text-[#6d5c46] border-b border-[#ded3be] font-mono bg-[#f4efe6]">
+                  <th className="py-2.5 px-3">Rank</th>
+                  <th className="py-2.5 px-3">Country Entity</th>
+                  <th className="py-2.5 px-3">PageRank</th>
+                  <th className="py-2.5 px-3">Betweenness</th>
+                  <th className="py-2.5 px-3">In-Strength</th>
+                  <th className="py-2.5 px-3">Out-Strength</th>
+                  <th className="py-2.5 px-3">Dominant Religion</th>
+                  <th className="py-2.5 px-3">MIPEX Policy</th>
+                  <th className="py-2.5 px-3">Cluster Label</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800 text-slate-300">
+              <tbody className="divide-y divide-[#f0e9dc] text-[#1e293b]">
                 {rankedNodes.slice(0, 15).map((n, idx) => (
-                  <tr key={n.iso3} className="hover:bg-slate-800/40 transition">
-                    <td className="py-2 px-2.5 font-mono text-slate-500 text-[11px]">#{idx + 1}</td>
-                    <td className="py-2 px-2.5 font-medium text-slate-100">
+                  <tr key={n.iso3} className="hover:bg-[#fbf7f0] transition">
+                    <td className="py-2 px-3 font-mono text-[#8a7c6a] text-[11px]">#{idx + 1}</td>
+                    <td className="py-2 px-3 font-semibold text-[#1a202c]">
                       {n.country_name || n.iso3}{' '}
-                      <span className="text-[10px] text-slate-500 font-mono">({n.iso3})</span>
+                      <span className="text-[10px] text-[#786b59] font-mono font-normal">({n.iso3})</span>
                     </td>
-                    <td className="py-2 px-2.5 font-mono text-blue-400 font-semibold">
+                    <td className="py-2 px-3 font-mono text-[#1e3a5f] font-bold">
                       {(Number(n.pagerank) || 0).toFixed(4)}
                     </td>
-                    <td className="py-2 px-2.5 font-mono text-amber-400 font-semibold">
+                    <td className="py-2 px-3 font-mono text-[#945920] font-bold">
                       {(Number(n.betweenness_centrality) || 0).toFixed(4)}
                     </td>
-                    <td className="py-2 px-2.5 font-mono">
+                    <td className="py-2 px-3 font-mono text-[#4a3d2e]">
                       {Math.round(Number(n.in_strength) || 0).toLocaleString()}
                     </td>
-                    <td className="py-2 px-2.5 font-mono">
+                    <td className="py-2 px-3 font-mono text-[#4a3d2e]">
                       {Math.round(Number(n.out_strength) || 0).toLocaleString()}
                     </td>
-                    <td className="py-2 px-2.5 text-[11px] text-slate-400 truncate max-w-xs">
+                    <td className="py-2 px-3 text-[11px] font-medium text-[#28534b]">
+                      {n.dominant_religion || 'Christianity'}
+                    </td>
+                    <td className="py-2 px-3 font-mono text-[#1e3a5f] font-semibold text-[11px]">
+                      {(Number(n.integration_policy_index) || 0.5).toFixed(2)}
+                    </td>
+                    <td className="py-2 px-3 text-[11px] text-[#554a3b] truncate max-w-xs font-medium">
                       {n.community_label || `Cluster ${n.louvain_community || 0}`}
                     </td>
                   </tr>
@@ -230,16 +240,16 @@ export default function NetworkTopologyView({
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="font-semibold text-slate-100 text-sm">Temporal Modularity Dynamics (1990 → 2025)</h4>
-                <p className="text-xs text-slate-400">
+                <h4 className="font-bold text-[#1a202c] text-sm font-serif">Temporal Modularity Dynamics (1990 → 2025)</h4>
+                <p className="text-xs text-[#635a4d]">
                   Louvain modularity score (Q) evolved from {louvain1990.toFixed(3)} (1990) to {louvain2025.toFixed(3)} (2025), indicating persistent structural clustering alongside cross-community integration.
                 </p>
               </div>
-              <div className="text-xs bg-[#080c14] border border-slate-800 px-2.5 py-1 rounded font-mono text-amber-400">
+              <div className="text-xs bg-[#f4efe6] border border-[#ded3be] px-3 py-1.5 rounded-lg font-mono text-[#945920] font-bold shadow-sm">
                 ΔQ = {deltaQ}% (Temporal Shift)
               </div>
             </div>
-            <div className="h-60 w-full">
+            <div className="h-60 w-full p-2 bg-[#ffffff] border border-[#ded3be] rounded-lg">
               <Line data={modularityChartData} options={lineChartOptions} />
             </div>
           </div>
@@ -250,38 +260,38 @@ export default function NetworkTopologyView({
       {activeTab === 'boundary' && (
         <div className="space-y-3">
           <div>
-            <h4 className="font-semibold text-slate-100 text-sm">Boundary Nodes & Strategic Switchers</h4>
-            <p className="text-xs text-slate-400">
+            <h4 className="font-bold text-[#1a202c] text-sm font-serif">Boundary Nodes & Strategic Switchers</h4>
+            <p className="text-xs text-[#635a4d]">
               States that shifted community alliances across &gt;50% of time periods, acting as topological bridges between shifting geopolitical clusters.
             </p>
           </div>
-          <div className="overflow-x-auto max-h-72 overflow-y-auto">
-            <table className="w-full text-left text-xs">
+          <div className="overflow-x-auto max-h-72 overflow-y-auto border border-[#ded3be] rounded-lg">
+            <table className="w-full text-left text-xs bg-[#ffffff]">
               <thead>
-                <tr className="text-[10.5px] text-slate-400 border-b border-slate-800 font-mono">
-                  <th className="py-2 px-2.5">ISO3</th>
-                  <th className="py-2 px-2.5">Cluster Switches</th>
-                  <th className="py-2 px-2.5">Boundary Score</th>
-                  <th className="py-2 px-2.5">Classification</th>
-                  <th className="py-2 px-2.5">Topological Bridge Role</th>
+                <tr className="text-[10.5px] text-[#6d5c46] border-b border-[#ded3be] font-mono bg-[#f4efe6]">
+                  <th className="py-2.5 px-3">ISO3</th>
+                  <th className="py-2.5 px-3">Cluster Switches</th>
+                  <th className="py-2.5 px-3">Boundary Score</th>
+                  <th className="py-2.5 px-3">Classification</th>
+                  <th className="py-2.5 px-3">Topological Bridge Role</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800 text-slate-300">
+              <tbody className="divide-y divide-[#f0e9dc] text-[#1e293b]">
                 {(boundaryNodes || []).slice(0, 15).map((b) => (
-                  <tr key={b.iso3} className="hover:bg-slate-800/40 transition">
-                    <td className="py-2 px-2.5 font-mono font-semibold text-slate-100">{b.iso3}</td>
-                    <td className="py-2 px-2.5 font-mono text-amber-400">
+                  <tr key={b.iso3} className="hover:bg-[#fbf7f0] transition">
+                    <td className="py-2 px-3 font-mono font-bold text-[#1e3a5f]">{b.iso3}</td>
+                    <td className="py-2 px-3 font-mono font-semibold text-[#945920]">
                       {b.n_changes} / {b.total_periods || 7} periods
                     </td>
-                    <td className="py-2 px-2.5 font-mono font-semibold text-blue-400">
+                    <td className="py-2 px-3 font-mono font-bold text-[#1e3a5f]">
                       {(Number(b.boundary_score) || 0).toFixed(2)}
                     </td>
-                    <td className="py-2 px-2.5">
-                      <span className="px-2 py-0.5 bg-amber-950 text-amber-300 border border-amber-800 rounded text-[10px] font-medium">
+                    <td className="py-2 px-3">
+                      <span className="px-2 py-0.5 bg-[#fcf4e8] text-[#945920] border border-[#e8d5bc] rounded text-[10.5px] font-semibold">
                         Boundary State
                       </span>
                     </td>
-                    <td className="py-2 px-2.5 text-slate-400 text-[11px]">
+                    <td className="py-2 px-3 text-[#554a3b] text-[11px]">
                       Bridges Regional & Global Corridors
                     </td>
                   </tr>
@@ -297,50 +307,50 @@ export default function NetworkTopologyView({
         <div className="space-y-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
             {(regressionComparison || []).map((m: any) => (
-              <div key={m.model} className="p-3 bg-[#080c14] border border-slate-800 rounded-lg space-y-1">
-                <div className="text-[10px] text-slate-500 font-mono uppercase truncate">{m.model}</div>
-                <div className="text-sm font-semibold text-blue-400 font-mono">
+              <div key={m.model} className="p-3 bg-[#f4efe6] border border-[#ded3be] rounded-lg space-y-1 shadow-sm">
+                <div className="text-[10px] text-[#786b59] font-mono uppercase font-semibold truncate">{m.model}</div>
+                <div className="text-sm font-bold text-[#1e3a5f] font-mono">
                   R² = {(Number(m.r_squared) || 0).toFixed(3)}
                 </div>
-                <div className="text-[10px] text-slate-400">
+                <div className="text-[10.5px] text-[#645d52]">
                   Adj. R²: {(Number(m.adj_r2) || 0).toFixed(3)} • N={m.n_obs}
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="overflow-x-auto max-h-56 overflow-y-auto">
-            <table className="w-full text-left text-xs">
+          <div className="overflow-x-auto max-h-56 overflow-y-auto border border-[#ded3be] rounded-lg">
+            <table className="w-full text-left text-xs bg-[#ffffff]">
               <thead>
-                <tr className="text-[10.5px] text-slate-400 border-b border-slate-800 font-mono">
-                  <th className="py-2 px-2.5">Model</th>
-                  <th className="py-2 px-2.5">Predictor Covariate</th>
-                  <th className="py-2 px-2.5">Coefficient (β)</th>
-                  <th className="py-2 px-2.5">Std. Error</th>
-                  <th className="py-2 px-2.5">t-Statistic</th>
-                  <th className="py-2 px-2.5">p-Value</th>
-                  <th className="py-2 px-2.5">Significance</th>
+                <tr className="text-[10.5px] text-[#6d5c46] border-b border-[#ded3be] font-mono bg-[#f4efe6]">
+                  <th className="py-2.5 px-3">Model</th>
+                  <th className="py-2.5 px-3">Predictor Covariate</th>
+                  <th className="py-2.5 px-3">Coefficient (β)</th>
+                  <th className="py-2.5 px-3">Std. Error</th>
+                  <th className="py-2.5 px-3">t-Statistic</th>
+                  <th className="py-2.5 px-3">p-Value</th>
+                  <th className="py-2.5 px-3">Significance</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800 text-slate-300">
+              <tbody className="divide-y divide-[#f0e9dc] text-[#1e293b]">
                 {(regressionCoeffs || []).slice(0, 12).map((c: any, idx: number) => (
-                  <tr key={idx} className="hover:bg-slate-800/40 transition">
-                    <td className="py-2 px-2.5 font-mono text-slate-400">{c.model}</td>
-                    <td className="py-2 px-2.5 font-medium text-slate-100">{c.predictor}</td>
-                    <td className="py-2 px-2.5 font-mono font-semibold text-blue-400">
+                  <tr key={idx} className="hover:bg-[#fbf7f0] transition">
+                    <td className="py-2 px-3 font-mono text-[#786b59]">{c.model}</td>
+                    <td className="py-2 px-3 font-medium text-[#1a202c]">{c.predictor}</td>
+                    <td className="py-2 px-3 font-mono font-bold text-[#1e3a5f]">
                       {(Number(c.coefficient) || 0).toFixed(4)}
                     </td>
-                    <td className="py-2 px-2.5 font-mono text-slate-400">
+                    <td className="py-2 px-3 font-mono text-[#786b59]">
                       {(Number(c.std_error) || 0).toFixed(4)}
                     </td>
-                    <td className="py-2 px-2.5 font-mono text-slate-300">
+                    <td className="py-2 px-3 font-mono text-[#4a3d2e]">
                       {(Number(c.t_stat) || 0).toFixed(2)}
                     </td>
-                    <td className="py-2 px-2.5 font-mono text-amber-400">
+                    <td className="py-2 px-3 font-mono text-[#945920]">
                       {Number(c.p_value) < 0.0001 ? '< 0.0001' : Number(c.p_value).toFixed(4)}
                     </td>
-                    <td className="py-2 px-2.5">
-                      <span className="px-1.5 py-0.5 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded text-[10px] font-mono">
+                    <td className="py-2 px-3">
+                      <span className="px-1.5 py-0.5 bg-[#eef6f2] text-[#28534b] border border-[#cde4d9] rounded text-[10px] font-mono font-semibold">
                         p &lt; 0.01
                       </span>
                     </td>

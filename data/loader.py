@@ -352,6 +352,32 @@ def load_henley() -> pd.DataFrame:
     return pd.DataFrame(columns=["iso3", "year", "visa_openness_index"])
 
 
+def load_religions() -> pd.DataFrame:
+    """Load world religion demographics dataset (dominant_religion, religious_fractionalization, etc.)."""
+    p = RAW_DIR / "world_religions_demographics.csv"
+    if not p.exists():
+        return pd.DataFrame(columns=[
+            "iso3", "dominant_religion", "christianity_pct", "islam_pct",
+            "hinduism_pct", "buddhism_pct", "judaism_pct", "unaffiliated_pct",
+            "religious_fractionalization", "religious_diversity_index", "religiosity_importance_score"
+        ])
+    return _read_safe_csv(p)
+
+
+def load_cultural_integration() -> pd.DataFrame:
+    """Load cultural integration & MIPEX panel dataset (integration_policy_index, cultural_openness_index, etc.)."""
+    p = RAW_DIR / "cultural_integration_index.csv"
+    if not p.exists():
+        return pd.DataFrame(columns=[
+            "iso3", "year", "integration_policy_index", "cultural_openness_index",
+            "labour_market_integration", "anti_discrimination_score", "naturalization_access_score"
+        ])
+    df = _read_safe_csv(p)
+    if "year" in df.columns:
+        df["year"] = pd.to_numeric(df["year"], errors="coerce").astype(int)
+    return df
+
+
 def load_factors() -> pd.DataFrame:
     """Load processed factors panel with full schema and automatic in-memory enrichment."""
     p = PROCESSED_DIR / "factors_panel.csv"
@@ -381,6 +407,27 @@ def load_factors() -> pd.DataFrame:
         hen = load_henley()
         if not hen.empty:
             factors = factors.merge(hen, on=["iso3", "year"], how="left")
+
+    if "dominant_religion" not in factors.columns or factors["dominant_religion"].isna().all():
+        rel = load_religions()
+        if not rel.empty:
+            rel_cols = [c for c in rel.columns if c in [
+                "iso3", "dominant_religion", "christianity_pct", "islam_pct",
+                "hinduism_pct", "buddhism_pct", "judaism_pct", "unaffiliated_pct",
+                "other_pct", "religious_fractionalization", "religious_diversity_index",
+                "religiosity_importance_score"
+            ]]
+            factors = factors.merge(rel[rel_cols], on="iso3", how="left")
+
+    if "integration_policy_index" not in factors.columns or factors["integration_policy_index"].isna().all():
+        cult = load_cultural_integration()
+        if not cult.empty:
+            cult_cols = [c for c in cult.columns if c in [
+                "iso3", "year", "integration_policy_index", "cultural_openness_index",
+                "labour_market_integration", "anti_discrimination_score",
+                "naturalization_access_score"
+            ]]
+            factors = factors.merge(cult[cult_cols], on=["iso3", "year"], how="left")
 
     factors.columns = [c.strip() for c in factors.columns]
     return factors

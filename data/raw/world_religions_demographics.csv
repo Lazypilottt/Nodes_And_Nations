@@ -1,0 +1,236 @@
+iso3,country_name,continent,un_region,income_group,dominant_religion,christianity_pct,islam_pct,hinduism_pct,buddhism_pct,judaism_pct,unaffiliated_pct,other_pct,religious_fractionalization,religious_diversity_index,religiosity_importance_score
+ABW,Aruba,Americas,Caribbean,High income,Christianity,82.0,1.2,2.5,0.3,0.1,11.5,2.4,0.313,0.3682,0.75
+AFG,Afghanistan,Asia,South Asia,Low income,Islam,0.02,99.7,0.1,0.02,0.01,0.1,0.05,0.006,0.0071,0.98
+AGO,Angola,Africa,Sub-Saharan Africa,Lower middle income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+AIA,Anguilla,Americas,Caribbean,High income,Christianity,82.0,1.2,2.5,0.3,0.1,11.5,2.4,0.313,0.3682,0.75
+ALB,Albania,Europe,Eastern Europe,Upper middle income,Christianity,76.0,8.5,0.1,0.2,0.3,13.5,1.4,0.3967,0.4667,0.62
+AND,Andorra,Europe,Western Europe,High income,Christianity,62.0,7.5,0.8,0.7,0.4,26.5,2.1,0.5392,0.6344,0.38
+ARE,United Arab Emirates,Asia,Western Asia,High income,Islam,6.5,88.0,0.5,0.2,2.5,2.0,0.3,0.2203,0.2592,0.91
+ARG,Argentina,Americas,Latin America,Upper middle income,Christianity,88.0,0.5,0.2,0.3,0.1,9.5,1.4,0.2163,0.2545,0.78
+ARM,Armenia,Asia,Western Asia,Upper middle income,Islam,6.5,88.0,0.5,0.2,2.5,2.0,0.3,0.2203,0.2592,0.91
+ASM,American Samoa,Oceania,Polynesia,Upper middle income,Christianity,94.0,0.2,0.2,0.2,0.1,3.0,2.3,0.115,0.1353,0.9
+ATG,Antigua and Barbuda,Americas,Caribbean,High income,Christianity,82.0,1.2,2.5,0.3,0.1,11.5,2.4,0.313,0.3682,0.75
+AUS,Australia,Oceania,Australia/NZ,High income,Christianity,43.9,3.2,2.7,2.4,0.4,38.9,8.5,0.6464,0.7605,0.34
+AUT,Austria,Europe,Western Europe,High income,Christianity,62.0,7.5,0.8,0.7,0.4,26.5,2.1,0.5392,0.6344,0.38
+AZE,Azerbaijan,Asia,Western Asia,Upper middle income,Islam,6.5,88.0,0.5,0.2,2.5,2.0,0.3,0.2203,0.2592,0.91
+BDI,Burundi,Africa,Sub-Saharan Africa,Low income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+BEL,Belgium,Europe,Western Europe,High income,Christianity,62.0,7.5,0.8,0.7,0.4,26.5,2.1,0.5392,0.6344,0.38
+BEN,Benin,Africa,Sub-Saharan Africa,Low income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+BES,"Bonaire, Sint Eustatius and Saba",Americas,Caribbean,High income,Christianity,82.0,1.2,2.5,0.3,0.1,11.5,2.4,0.313,0.3682,0.75
+BFA,Burkina Faso,Africa,Sub-Saharan Africa,Low income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+BGD,Bangladesh,Asia,South Asia,Lower middle income,Islam,0.4,89.1,9.8,0.6,0.01,0.05,0.04,0.1965,0.2312,0.96
+BGR,Bulgaria,Europe,Eastern Europe,Upper middle income,Christianity,76.0,8.5,0.1,0.2,0.3,13.5,1.4,0.3967,0.4667,0.62
+BHR,Bahrain,Asia,Western Asia,High income,Islam,6.5,88.0,0.5,0.2,2.5,2.0,0.3,0.2203,0.2592,0.91
+BHS,Bahamas,Americas,Caribbean,High income,Christianity,82.0,1.2,2.5,0.3,0.1,11.5,2.4,0.313,0.3682,0.75
+BIH,Bosnia and Herzegovina,Europe,Eastern Europe,Upper middle income,Christianity,76.0,8.5,0.1,0.2,0.3,13.5,1.4,0.3967,0.4667,0.62
+BLM,Saint Barthélemy,Americas,Caribbean,High income,Christianity,82.0,1.2,2.5,0.3,0.1,11.5,2.4,0.313,0.3682,0.75
+BLR,Belarus,Europe,Eastern Europe,Upper middle income,Christianity,76.0,8.5,0.1,0.2,0.3,13.5,1.4,0.3967,0.4667,0.62
+BLZ,Belize,Americas,Central America,Lower middle income,Christianity,89.0,0.2,0.1,0.1,0.1,9.0,1.5,0.1996,0.2348,0.82
+BMU,Bermuda,Americas,Northern America,High income,Christianity,68.0,1.8,1.2,1.4,1.8,23.0,2.8,0.4829,0.5681,0.55
+BOL,Bolivia,Americas,Latin America,Lower middle income,Christianity,88.0,0.5,0.2,0.3,0.1,9.5,1.4,0.2163,0.2545,0.78
+BRA,Brazil,Americas,Latin America,Upper middle income,Christianity,88.8,0.1,0.01,0.3,0.1,8.0,2.69,0.2043,0.2404,0.86
+BRB,Barbados,Americas,Caribbean,High income,Christianity,82.0,1.2,2.5,0.3,0.1,11.5,2.4,0.313,0.3682,0.75
+BRN,Brunei Darussalam,Asia,South-Eastern Asia,High income,Islam,21.0,42.0,1.5,24.0,0.1,7.5,3.9,0.7145,0.8406,0.86
+BTN,Bhutan,Asia,South Asia,Lower middle income,Hinduism,2.5,34.0,58.0,2.5,0.1,1.5,1.4,0.5463,0.6427,0.93
+BWA,Botswana,Africa,Sub-Saharan Africa,Upper middle income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+CAF,Central African Republic,Africa,Sub-Saharan Africa,Low income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+CAN,Canada,Americas,Northern America,High income,Christianity,53.3,4.9,2.3,1.1,0.9,34.6,2.9,0.5922,0.6967,0.42
+CHE,Switzerland,Europe,Western Europe,High income,Christianity,62.0,7.5,0.8,0.7,0.4,26.5,2.1,0.5392,0.6344,0.38
+CHI,Channel Islands,Europe,Northern Europe,High income,Christianity,60.0,5.0,0.6,0.5,0.2,31.5,2.2,0.5377,0.6326,0.32
+CHL,Chile,Americas,Latin America,High income,Christianity,88.0,0.5,0.2,0.3,0.1,9.5,1.4,0.2163,0.2545,0.78
+CHN,China,Asia,Eastern Asia,Upper middle income,Unaffiliated,2.5,1.8,0.1,15.8,0.01,52.2,27.59,0.6255,0.7359,0.22
+CIV,Côte d'Ivoire,Africa,Sub-Saharan Africa,Lower middle income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+CMR,Cameroon,Africa,Sub-Saharan Africa,Lower middle income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+COD,DR Congo,Africa,Sub-Saharan Africa,Low income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+COG,Congo,Africa,Sub-Saharan Africa,Lower middle income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+COK,Cook Islands,Oceania,Polynesia,High income,Christianity,94.0,0.2,0.2,0.2,0.1,3.0,2.3,0.115,0.1353,0.9
+COL,Colombia,Americas,Latin America,Upper middle income,Christianity,88.0,0.5,0.2,0.3,0.1,9.5,1.4,0.2163,0.2545,0.78
+COM,Comoros,Africa,Sub-Saharan Africa,Low income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+CPV,Cabo Verde,Africa,Sub-Saharan Africa,Lower middle income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+CRI,Costa Rica,Americas,Latin America,Upper middle income,Christianity,88.0,0.5,0.2,0.3,0.1,9.5,1.4,0.2163,0.2545,0.78
+CUB,Cuba,Americas,Latin America,Upper middle income,Christianity,88.0,0.5,0.2,0.3,0.1,9.5,1.4,0.2163,0.2545,0.78
+CUW,Curaçao,Americas,Caribbean,High income,Christianity,82.0,1.2,2.5,0.3,0.1,11.5,2.4,0.313,0.3682,0.75
+CYM,Cayman Islands,Americas,Caribbean,High income,Christianity,82.0,1.2,2.5,0.3,0.1,11.5,2.4,0.313,0.3682,0.75
+CYP,Cyprus,Europe,Western Asia,High income,Islam,6.5,88.0,0.5,0.2,2.5,2.0,0.3,0.2203,0.2592,0.91
+CZE,Czechia,Europe,Eastern Europe,High income,Christianity,76.0,8.5,0.1,0.2,0.3,13.5,1.4,0.3967,0.4667,0.62
+DEU,Germany,Europe,Western Europe,High income,Christianity,54.0,6.8,0.1,0.3,0.2,38.0,0.6,0.5593,0.658,0.35
+DJI,Djibouti,Africa,Sub-Saharan Africa,Lower middle income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+DMA,Dominica,Americas,Caribbean,Upper middle income,Christianity,82.0,1.2,2.5,0.3,0.1,11.5,2.4,0.313,0.3682,0.75
+DNK,Denmark,Europe,Northern Europe,High income,Christianity,60.0,5.0,0.6,0.5,0.2,31.5,2.2,0.5377,0.6326,0.32
+DOM,Dominican Republic,Americas,Latin America,Upper middle income,Christianity,88.0,0.5,0.2,0.3,0.1,9.5,1.4,0.2163,0.2545,0.78
+DZA,Algeria,Africa,Northern Africa,Lower middle income,Islam,1.5,96.5,0.1,0.1,0.1,1.5,0.2,0.0683,0.0804,0.94
+ECU,Ecuador,Americas,Latin America,Upper middle income,Christianity,88.0,0.5,0.2,0.3,0.1,9.5,1.4,0.2163,0.2545,0.78
+EGY,Egypt,Africa,Northern Africa,Lower middle income,Islam,10.0,90.0,0.01,0.01,0.01,0.0,0.0,0.18,0.2118,0.94
+ERI,Eritrea,Africa,Sub-Saharan Africa,Low income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+ESH,Western Sahara,Africa,Northern Africa,Lower middle income,Islam,1.5,96.5,0.1,0.1,0.1,1.5,0.2,0.0683,0.0804,0.94
+ESP,Spain,Europe,Southern Europe,High income,Christianity,78.0,4.5,0.2,0.2,0.1,15.5,1.5,0.3653,0.4298,0.65
+EST,Estonia,Europe,Northern Europe,High income,Christianity,60.0,5.0,0.6,0.5,0.2,31.5,2.2,0.5377,0.6326,0.32
+ETH,Ethiopia,Africa,Sub-Saharan Africa,Low income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+FIN,Finland,Europe,Northern Europe,High income,Christianity,60.0,5.0,0.6,0.5,0.2,31.5,2.2,0.5377,0.6326,0.32
+FJI,Fiji,Oceania,Melanesia,Upper middle income,Christianity,92.0,0.5,0.5,0.2,0.1,3.5,3.2,0.1513,0.178,0.88
+FLK,Falkland Islands,Americas,South America,High income,Christianity,86.0,0.4,0.5,0.3,0.1,11.0,1.7,0.248,0.2918,0.76
+FRA,France,Europe,Western Europe,High income,Christianity,50.0,8.5,0.1,0.5,0.8,39.5,0.6,0.5866,0.6901,0.3
+FRO,Faroe Islands,Europe,Northern Europe,High income,Christianity,60.0,5.0,0.6,0.5,0.2,31.5,2.2,0.5377,0.6326,0.32
+FSM,Micronesia,Oceania,Micronesia,Lower middle income,Christianity,91.0,0.3,0.3,0.5,0.1,4.5,3.3,0.1687,0.1985,0.85
+GAB,Gabon,Africa,Sub-Saharan Africa,Upper middle income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+GBR,United Kingdom,Europe,Northern Europe,High income,Christianity,46.2,6.7,1.7,0.5,0.5,37.2,7.2,0.6382,0.7508,0.32
+GEO,Georgia,Asia,Western Asia,Upper middle income,Islam,6.5,88.0,0.5,0.2,2.5,2.0,0.3,0.2203,0.2592,0.91
+GHA,Ghana,Africa,Sub-Saharan Africa,Lower middle income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+GIB,Gibraltar,Europe,Southern Europe,High income,Christianity,78.0,4.5,0.2,0.2,0.1,15.5,1.5,0.3653,0.4298,0.65
+GIN,Guinea,Africa,Sub-Saharan Africa,Low income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+GLP,Guadeloupe,Americas,Caribbean,High income,Christianity,82.0,1.2,2.5,0.3,0.1,11.5,2.4,0.313,0.3682,0.75
+GMB,Gambia,Africa,Sub-Saharan Africa,Low income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+GNB,Guinea-Bissau,Africa,Sub-Saharan Africa,Low income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+GNQ,Equatorial Guinea,Africa,Sub-Saharan Africa,Upper middle income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+GRC,Greece,Europe,Southern Europe,High income,Christianity,78.0,4.5,0.2,0.2,0.1,15.5,1.5,0.3653,0.4298,0.65
+GRD,Grenada,Americas,Caribbean,Upper middle income,Christianity,82.0,1.2,2.5,0.3,0.1,11.5,2.4,0.313,0.3682,0.75
+GRL,Greenland,Americas,Northern America,High income,Christianity,68.0,1.8,1.2,1.4,1.8,23.0,2.8,0.4829,0.5681,0.55
+GTM,Guatemala,Americas,Latin America,Upper middle income,Christianity,88.0,0.5,0.2,0.3,0.1,9.5,1.4,0.2163,0.2545,0.78
+GUF,French Guiana,Americas,South America,High income,Christianity,86.0,0.4,0.5,0.3,0.1,11.0,1.7,0.248,0.2918,0.76
+GUM,Guam,Oceania,Micronesia,High income,Christianity,91.0,0.3,0.3,0.5,0.1,4.5,3.3,0.1687,0.1985,0.85
+GUY,Guyana,Americas,Latin America,Upper middle income,Christianity,88.0,0.5,0.2,0.3,0.1,9.5,1.4,0.2163,0.2545,0.78
+HKG,Hong Kong,Asia,Eastern Asia,High income,Unaffiliated,6.5,2.0,0.2,38.0,0.1,48.0,5.2,0.6179,0.7269,0.35
+HND,Honduras,Americas,Latin America,Lower middle income,Christianity,88.0,0.5,0.2,0.3,0.1,9.5,1.4,0.2163,0.2545,0.78
+HRV,Croatia,Europe,Eastern Europe,High income,Christianity,76.0,8.5,0.1,0.2,0.3,13.5,1.4,0.3967,0.4667,0.62
+HTI,Haiti,Americas,Latin America,Low income,Christianity,88.0,0.5,0.2,0.3,0.1,9.5,1.4,0.2163,0.2545,0.78
+HUN,Hungary,Europe,Eastern Europe,High income,Christianity,76.0,8.5,0.1,0.2,0.3,13.5,1.4,0.3967,0.4667,0.62
+IDN,Indonesia,Asia,South-Eastern Asia,Upper middle income,Islam,9.9,87.2,1.7,0.7,0.01,0.4,0.1,0.2295,0.27,0.93
+IMN,Isle of Man,Europe,Northern Europe,High income,Christianity,60.0,5.0,0.6,0.5,0.2,31.5,2.2,0.5377,0.6326,0.32
+IND,India,Asia,South Asia,Lower middle income,Hinduism,2.3,14.6,79.8,0.7,0.01,0.2,2.39,0.3407,0.4008,0.95
+IRL,Ireland,Europe,Northern Europe,High income,Christianity,60.0,5.0,0.6,0.5,0.2,31.5,2.2,0.5377,0.6326,0.32
+IRN,Iran,Asia,Western Asia,Lower middle income,Islam,0.4,99.4,0.01,0.01,0.05,0.1,0.03,0.0119,0.014,0.92
+IRQ,Iraq,Asia,Western Asia,Upper middle income,Islam,6.5,88.0,0.5,0.2,2.5,2.0,0.3,0.2203,0.2592,0.91
+ISL,Iceland,Europe,Northern Europe,High income,Christianity,60.0,5.0,0.6,0.5,0.2,31.5,2.2,0.5377,0.6326,0.32
+ISR,Israel,Asia,Western Asia,High income,Judaism,2.0,18.0,0.1,0.1,74.0,5.0,0.8,0.417,0.4906,0.78
+ITA,Italy,Europe,Southern Europe,High income,Christianity,78.0,4.5,0.2,0.2,0.1,15.5,1.5,0.3653,0.4298,0.65
+JAM,Jamaica,Americas,Latin America,Upper middle income,Christianity,88.0,0.5,0.2,0.3,0.1,9.5,1.4,0.2163,0.2545,0.78
+JOR,Jordan,Asia,Western Asia,Upper middle income,Islam,6.5,88.0,0.5,0.2,2.5,2.0,0.3,0.2203,0.2592,0.91
+JPN,Japan,Asia,Eastern Asia,High income,Unaffiliated,1.5,0.2,0.1,36.2,0.01,57.0,5.0,0.5413,0.6368,0.25
+KAZ,Kazakhstan,Asia,Central Asia,Upper middle income,Islam,1.5,88.0,0.1,0.2,0.1,9.5,0.6,0.2163,0.2545,0.72
+KEN,Kenya,Africa,Sub-Saharan Africa,Lower middle income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+KGZ,Kyrgyzstan,Asia,Central Asia,Lower middle income,Islam,1.5,88.0,0.1,0.2,0.1,9.5,0.6,0.2163,0.2545,0.72
+KHM,Cambodia,Asia,South-Eastern Asia,Lower middle income,Islam,21.0,42.0,1.5,24.0,0.1,7.5,3.9,0.7145,0.8406,0.86
+KIR,Kiribati,Oceania,Micronesia,Lower middle income,Christianity,91.0,0.3,0.3,0.5,0.1,4.5,3.3,0.1687,0.1985,0.85
+KNA,Saint Kitts and Nevis,Americas,Latin America,High income,Christianity,88.0,0.5,0.2,0.3,0.1,9.5,1.4,0.2163,0.2545,0.78
+KOR,South Korea,Asia,Eastern Asia,High income,Unaffiliated,6.5,2.0,0.2,38.0,0.1,48.0,5.2,0.6179,0.7269,0.35
+KWT,Kuwait,Asia,Western Asia,High income,Islam,6.5,88.0,0.5,0.2,2.5,2.0,0.3,0.2203,0.2592,0.91
+LAO,Laos,Asia,South-Eastern Asia,Lower middle income,Islam,21.0,42.0,1.5,24.0,0.1,7.5,3.9,0.7145,0.8406,0.86
+LBN,Lebanon,Asia,Western Asia,Lower middle income,Islam,6.5,88.0,0.5,0.2,2.5,2.0,0.3,0.2203,0.2592,0.91
+LBR,Liberia,Africa,Sub-Saharan Africa,Low income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+LBY,Libya,Africa,Northern Africa,Upper middle income,Islam,1.5,96.5,0.1,0.1,0.1,1.5,0.2,0.0683,0.0804,0.94
+LCA,Saint Lucia,Americas,Latin America,Upper middle income,Christianity,88.0,0.5,0.2,0.3,0.1,9.5,1.4,0.2163,0.2545,0.78
+LIE,Liechtenstein,Europe,Western Europe,High income,Christianity,62.0,7.5,0.8,0.7,0.4,26.5,2.1,0.5392,0.6344,0.38
+LKA,Sri Lanka,Asia,South Asia,Lower middle income,Hinduism,2.5,34.0,58.0,2.5,0.1,1.5,1.4,0.5463,0.6427,0.93
+LSO,Lesotho,Africa,Sub-Saharan Africa,Lower middle income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+LTU,Lithuania,Europe,Northern Europe,High income,Christianity,60.0,5.0,0.6,0.5,0.2,31.5,2.2,0.5377,0.6326,0.32
+LUX,Luxembourg,Europe,Western Europe,High income,Christianity,62.0,7.5,0.8,0.7,0.4,26.5,2.1,0.5392,0.6344,0.38
+LVA,Latvia,Europe,Northern Europe,High income,Christianity,60.0,5.0,0.6,0.5,0.2,31.5,2.2,0.5377,0.6326,0.32
+MAC,Macao,Asia,Eastern Asia,High income,Unaffiliated,6.5,2.0,0.2,38.0,0.1,48.0,5.2,0.6179,0.7269,0.35
+MAF,Saint Martin,Americas,Caribbean,High income,Christianity,82.0,1.2,2.5,0.3,0.1,11.5,2.4,0.313,0.3682,0.75
+MAR,Morocco,Africa,Northern Africa,Lower middle income,Islam,1.5,96.5,0.1,0.1,0.1,1.5,0.2,0.0683,0.0804,0.94
+MCO,Monaco,Europe,Western Europe,High income,Christianity,62.0,7.5,0.8,0.7,0.4,26.5,2.1,0.5392,0.6344,0.38
+MDA,Moldova,Europe,Eastern Europe,Lower middle income,Christianity,76.0,8.5,0.1,0.2,0.3,13.5,1.4,0.3967,0.4667,0.62
+MDG,Madagascar,Africa,Sub-Saharan Africa,Low income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+MDV,Maldives,Asia,South Asia,Upper middle income,Hinduism,2.5,34.0,58.0,2.5,0.1,1.5,1.4,0.5463,0.6427,0.93
+MEX,Mexico,Americas,Latin America,Upper middle income,Christianity,92.0,0.1,0.01,0.1,0.05,7.0,0.74,0.1486,0.1748,0.84
+MHL,Marshall Islands,Oceania,Micronesia,Upper middle income,Christianity,91.0,0.3,0.3,0.5,0.1,4.5,3.3,0.1687,0.1985,0.85
+MKD,North Macedonia,Europe,Eastern Europe,Upper middle income,Christianity,76.0,8.5,0.1,0.2,0.3,13.5,1.4,0.3967,0.4667,0.62
+MLI,Mali,Africa,Sub-Saharan Africa,Low income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+MLT,Malta,Europe,Southern Europe,High income,Christianity,78.0,4.5,0.2,0.2,0.1,15.5,1.5,0.3653,0.4298,0.65
+MMR,Myanmar,Asia,South-Eastern Asia,Lower middle income,Buddhism,6.2,4.3,0.5,87.9,0.01,0.1,1.0,0.2215,0.2606,0.94
+MNE,Montenegro,Europe,Eastern Europe,Upper middle income,Christianity,76.0,8.5,0.1,0.2,0.3,13.5,1.4,0.3967,0.4667,0.62
+MNG,Mongolia,Asia,Eastern Asia,Lower middle income,Unaffiliated,6.5,2.0,0.2,38.0,0.1,48.0,5.2,0.6179,0.7269,0.35
+MNP,Northern Mariana Islands,Oceania,Micronesia,High income,Christianity,91.0,0.3,0.3,0.5,0.1,4.5,3.3,0.1687,0.1985,0.85
+MOZ,Mozambique,Africa,Sub-Saharan Africa,Low income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+MRT,Mauritania,Africa,Sub-Saharan Africa,Lower middle income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+MSR,Montserrat,Americas,Caribbean,Upper middle income,Christianity,82.0,1.2,2.5,0.3,0.1,11.5,2.4,0.313,0.3682,0.75
+MTQ,Martinique,Americas,Caribbean,High income,Christianity,82.0,1.2,2.5,0.3,0.1,11.5,2.4,0.313,0.3682,0.75
+MUS,Mauritius,Africa,Sub-Saharan Africa,High income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+MWI,Malawi,Africa,Sub-Saharan Africa,Low income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+MYS,Malaysia,Asia,South-Eastern Asia,Upper middle income,Islam,9.2,63.5,6.3,18.7,0.01,1.0,1.3,0.5491,0.646,0.88
+MYT,Mayotte,Africa,Sub-Saharan Africa,Upper middle income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+NAM,Namibia,Africa,Sub-Saharan Africa,Upper middle income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+NCL,New Caledonia,Oceania,Melanesia,High income,Christianity,92.0,0.5,0.5,0.2,0.1,3.5,3.2,0.1513,0.178,0.88
+NER,Niger,Africa,Sub-Saharan Africa,Low income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+NGA,Nigeria,Africa,Sub-Saharan Africa,Lower middle income,Islam,46.5,52.5,0.1,0.1,0.01,0.3,0.5,0.5081,0.5978,0.95
+NIC,Nicaragua,Americas,Latin America,Lower middle income,Christianity,88.0,0.5,0.2,0.3,0.1,9.5,1.4,0.2163,0.2545,0.78
+NIU,Niue,Oceania,Polynesia,Upper middle income,Christianity,94.0,0.2,0.2,0.2,0.1,3.0,2.3,0.115,0.1353,0.9
+NLD,Netherlands,Europe,Western Europe,High income,Christianity,62.0,7.5,0.8,0.7,0.4,26.5,2.1,0.5392,0.6344,0.38
+NOR,Norway,Europe,Northern Europe,High income,Christianity,60.0,5.0,0.6,0.5,0.2,31.5,2.2,0.5377,0.6326,0.32
+NPL,Nepal,Asia,South Asia,Lower middle income,Hinduism,2.5,34.0,58.0,2.5,0.1,1.5,1.4,0.5463,0.6427,0.93
+NRU,Nauru,Oceania,Micronesia,High income,Christianity,91.0,0.3,0.3,0.5,0.1,4.5,3.3,0.1687,0.1985,0.85
+NZL,New Zealand,Oceania,Australia/NZ,High income,Christianity,52.0,3.2,2.5,2.8,0.5,35.0,4.0,0.603,0.7094,0.4
+OMN,Oman,Asia,Western Asia,High income,Islam,6.5,88.0,0.5,0.2,2.5,2.0,0.3,0.2203,0.2592,0.91
+PAK,Pakistan,Asia,South Asia,Lower middle income,Islam,1.6,96.4,1.9,0.05,0.01,0.02,0.02,0.0701,0.0825,0.96
+PAN,Panama,Americas,Latin America,High income,Christianity,88.0,0.5,0.2,0.3,0.1,9.5,1.4,0.2163,0.2545,0.78
+PER,Peru,Americas,Latin America,Upper middle income,Christianity,88.0,0.5,0.2,0.3,0.1,9.5,1.4,0.2163,0.2545,0.78
+PHL,Philippines,Asia,South-Eastern Asia,Lower middle income,Christianity,92.5,5.6,0.01,0.1,0.01,0.1,1.7,0.1409,0.1658,0.92
+PLW,Palau,Oceania,Micronesia,High income,Christianity,91.0,0.3,0.3,0.5,0.1,4.5,3.3,0.1687,0.1985,0.85
+PNG,Papua New Guinea,Oceania,Melanesia,Lower middle income,Christianity,92.0,0.5,0.5,0.2,0.1,3.5,3.2,0.1513,0.178,0.88
+POL,Poland,Europe,Eastern Europe,High income,Christianity,76.0,8.5,0.1,0.2,0.3,13.5,1.4,0.3967,0.4667,0.62
+PRI,Puerto Rico,Americas,Latin America,High income,Christianity,88.0,0.5,0.2,0.3,0.1,9.5,1.4,0.2163,0.2545,0.78
+PRK,North Korea,Asia,Eastern Asia,Low income,Unaffiliated,6.5,2.0,0.2,38.0,0.1,48.0,5.2,0.6179,0.7269,0.35
+PRT,Portugal,Europe,Southern Europe,High income,Christianity,78.0,4.5,0.2,0.2,0.1,15.5,1.5,0.3653,0.4298,0.65
+PRY,Paraguay,Americas,Latin America,Upper middle income,Christianity,88.0,0.5,0.2,0.3,0.1,9.5,1.4,0.2163,0.2545,0.78
+PSE,Palestine,Asia,Western Asia,Lower middle income,Islam,6.5,88.0,0.5,0.2,2.5,2.0,0.3,0.2203,0.2592,0.91
+PYF,French Polynesia,Oceania,Polynesia,High income,Christianity,94.0,0.2,0.2,0.2,0.1,3.0,2.3,0.115,0.1353,0.9
+QAT,Qatar,Asia,Western Asia,High income,Islam,6.5,88.0,0.5,0.2,2.5,2.0,0.3,0.2203,0.2592,0.91
+REU,Réunion,Africa,Sub-Saharan Africa,High income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+ROU,Romania,Europe,Eastern Europe,High income,Christianity,76.0,8.5,0.1,0.2,0.3,13.5,1.4,0.3967,0.4667,0.62
+RUS,Russia,Europe,Eastern Europe,Upper middle income,Christianity,73.3,10.0,0.1,0.5,0.2,15.0,0.9,0.4301,0.506,0.52
+RWA,Rwanda,Africa,Sub-Saharan Africa,Low income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+SAU,Saudi Arabia,Asia,Western Asia,High income,Islam,4.4,93.0,1.1,0.3,0.01,0.7,0.49,0.133,0.1565,0.95
+SDN,Sudan,Africa,Sub-Saharan Africa,Low income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+SEN,Senegal,Africa,Sub-Saharan Africa,Lower middle income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+SGP,Singapore,Asia,South-Eastern Asia,High income,Buddhism,18.9,15.6,5.0,31.1,0.05,20.0,9.35,0.792,0.9318,0.7
+SHN,Saint Helena,Africa,Sub-Saharan Africa,Upper middle income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+SLB,Solomon Islands,Oceania,Melanesia,Lower middle income,Christianity,92.0,0.5,0.5,0.2,0.1,3.5,3.2,0.1513,0.178,0.88
+SLE,Sierra Leone,Africa,Sub-Saharan Africa,Low income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+SLV,El Salvador,Americas,Latin America,Lower middle income,Christianity,88.0,0.5,0.2,0.3,0.1,9.5,1.4,0.2163,0.2545,0.78
+SMR,San Marino,Europe,Southern Europe,High income,Christianity,78.0,4.5,0.2,0.2,0.1,15.5,1.5,0.3653,0.4298,0.65
+SOM,Somalia,Africa,Sub-Saharan Africa,Low income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+SPM,Saint Pierre and Miquelon,Americas,Northern America,High income,Christianity,68.0,1.8,1.2,1.4,1.8,23.0,2.8,0.4829,0.5681,0.55
+SRB,Serbia,Europe,Eastern Europe,Upper middle income,Christianity,76.0,8.5,0.1,0.2,0.3,13.5,1.4,0.3967,0.4667,0.62
+SSD,South Sudan,Africa,Sub-Saharan Africa,Low income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+STP,Sao Tome and Principe,Africa,Sub-Saharan Africa,Lower middle income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+SUR,Suriname,Americas,Latin America,Upper middle income,Christianity,88.0,0.5,0.2,0.3,0.1,9.5,1.4,0.2163,0.2545,0.78
+SVK,Slovakia,Europe,Eastern Europe,High income,Christianity,76.0,8.5,0.1,0.2,0.3,13.5,1.4,0.3967,0.4667,0.62
+SVN,Slovenia,Europe,Eastern Europe,High income,Christianity,76.0,8.5,0.1,0.2,0.3,13.5,1.4,0.3967,0.4667,0.62
+SWE,Sweden,Europe,Northern Europe,High income,Christianity,60.0,5.0,0.6,0.5,0.2,31.5,2.2,0.5377,0.6326,0.32
+SWZ,Eswatini,Africa,Sub-Saharan Africa,Lower middle income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+SXM,Sint Maarten,Americas,Caribbean,High income,Christianity,82.0,1.2,2.5,0.3,0.1,11.5,2.4,0.313,0.3682,0.75
+SYC,Seychelles,Africa,Sub-Saharan Africa,High income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+SYR,Syria,Asia,Western Asia,Low income,Islam,5.2,92.8,0.01,0.01,0.01,1.5,0.5,0.1359,0.1599,0.92
+TCA,Turks and Caicos Islands,Americas,Caribbean,High income,Christianity,82.0,1.2,2.5,0.3,0.1,11.5,2.4,0.313,0.3682,0.75
+TCD,Chad,Africa,Sub-Saharan Africa,Low income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+TGO,Togo,Africa,Sub-Saharan Africa,Low income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+THA,Thailand,Asia,South-Eastern Asia,Upper middle income,Buddhism,1.2,5.4,0.1,93.0,0.01,0.2,0.1,0.132,0.1553,0.94
+TJK,Tajikistan,Asia,Central Asia,Low income,Islam,1.5,88.0,0.1,0.2,0.1,9.5,0.6,0.2163,0.2545,0.72
+TKL,Tokelau,Oceania,Polynesia,Lower middle income,Christianity,94.0,0.2,0.2,0.2,0.1,3.0,2.3,0.115,0.1353,0.9
+TKM,Turkmenistan,Asia,Central Asia,Upper middle income,Islam,1.5,88.0,0.1,0.2,0.1,9.5,0.6,0.2163,0.2545,0.72
+TLS,Timor-Leste,Asia,South-Eastern Asia,Lower middle income,Islam,21.0,42.0,1.5,24.0,0.1,7.5,3.9,0.7145,0.8406,0.86
+TON,Tonga,Oceania,Polynesia,Upper middle income,Christianity,94.0,0.2,0.2,0.2,0.1,3.0,2.3,0.115,0.1353,0.9
+TTO,Trinidad and Tobago,Americas,Latin America,High income,Christianity,88.0,0.5,0.2,0.3,0.1,9.5,1.4,0.2163,0.2545,0.78
+TUN,Tunisia,Africa,Northern Africa,Lower middle income,Islam,1.5,96.5,0.1,0.1,0.1,1.5,0.2,0.0683,0.0804,0.94
+TUR,Turkey,Asia,Western Asia,Upper middle income,Islam,0.4,98.6,0.01,0.01,0.01,0.9,0.07,0.0277,0.0326,0.86
+TUV,Tuvalu,Oceania,Polynesia,Upper middle income,Christianity,94.0,0.2,0.2,0.2,0.1,3.0,2.3,0.115,0.1353,0.9
+TWN,Taiwan,Asia,Eastern Asia,High income,Unaffiliated,6.5,2.0,0.2,38.0,0.1,48.0,5.2,0.6179,0.7269,0.35
+TZA,Tanzania,Africa,Sub-Saharan Africa,Lower middle income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+UGA,Uganda,Africa,Sub-Saharan Africa,Low income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+UKR,Ukraine,Europe,Eastern Europe,Lower middle income,Christianity,85.0,1.2,0.01,0.1,0.2,13.0,0.5,0.2604,0.3064,0.68
+URY,Uruguay,Americas,Latin America,High income,Christianity,88.0,0.5,0.2,0.3,0.1,9.5,1.4,0.2163,0.2545,0.78
+USA,United States,Americas,Northern America,High income,Christianity,65.0,1.3,1.0,1.2,2.0,26.5,3.0,0.5056,0.5948,0.55
+UZB,Uzbekistan,Asia,Central Asia,Lower middle income,Islam,1.5,88.0,0.1,0.2,0.1,9.5,0.6,0.2163,0.2545,0.72
+VAT,Holy See,Europe,Southern Europe,High income,Christianity,78.0,4.5,0.2,0.2,0.1,15.5,1.5,0.3653,0.4298,0.65
+VCT,Saint Vincent and the Grenadines,Americas,Caribbean,Upper middle income,Christianity,82.0,1.2,2.5,0.3,0.1,11.5,2.4,0.313,0.3682,0.75
+VEN,Venezuela,Americas,Latin America,Lower middle income,Christianity,88.0,0.5,0.2,0.3,0.1,9.5,1.4,0.2163,0.2545,0.78
+VGB,British Virgin Islands,Americas,Caribbean,High income,Christianity,82.0,1.2,2.5,0.3,0.1,11.5,2.4,0.313,0.3682,0.75
+VIR,United States Virgin Islands,Americas,Caribbean,High income,Christianity,82.0,1.2,2.5,0.3,0.1,11.5,2.4,0.313,0.3682,0.75
+VNM,Vietnam,Asia,South-Eastern Asia,Lower middle income,Islam,21.0,42.0,1.5,24.0,0.1,7.5,3.9,0.7145,0.8406,0.86
+VUT,Vanuatu,Oceania,Melanesia,Lower middle income,Christianity,92.0,0.5,0.5,0.2,0.1,3.5,3.2,0.1513,0.178,0.88
+WLF,Wallis and Futuna Islands,Oceania,Polynesia,Upper middle income,Christianity,94.0,0.2,0.2,0.2,0.1,3.0,2.3,0.115,0.1353,0.9
+WSM,Samoa,Oceania,Polynesia,Lower middle income,Christianity,94.0,0.2,0.2,0.2,0.1,3.0,2.3,0.115,0.1353,0.9
+YEM,Yemen,Asia,Western Asia,Low income,Islam,6.5,88.0,0.5,0.2,2.5,2.0,0.3,0.2203,0.2592,0.91
+ZAF,South Africa,Africa,Sub-Saharan Africa,Upper middle income,Christianity,85.3,1.9,1.1,0.2,0.1,10.0,1.4,0.2617,0.3079,0.82
+ZMB,Zambia,Africa,Sub-Saharan Africa,Lower middle income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92
+ZWE,Zimbabwe,Africa,Sub-Saharan Africa,Low income,Christianity,58.0,32.0,0.3,0.1,0.1,3.5,6.0,0.5564,0.6546,0.92

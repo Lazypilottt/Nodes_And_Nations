@@ -4,63 +4,49 @@
 
 @layer base {
   html, body, #__next {
-    height: 100%;
+    min-height: 100%;
     margin: 0;
     padding: 0;
-    background-color: #06090e;
-    color: #e2e8f0;
+    background-color: #f8f5ee;
+    color: #1e293b;
     font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   }
 }
 
-/* Custom Glassmorphic & HUD Utilities */
-.glass-panel {
-  background: rgba(11, 15, 23, 0.75);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(33, 46, 69, 0.6);
+/* Old Money / Executive Editorial Design System Tokens */
+.parchment-card {
+  background: #fbf9f4;
+  border: 1px solid #e2d8c5;
+  box-shadow: 0 2px 10px -2px rgba(44, 34, 20, 0.05);
 }
 
-.glass-panel-hover {
+.parchment-card-hover {
   transition: all 0.2s ease-in-out;
 }
-.glass-panel-hover:hover {
-  border-color: rgba(6, 182, 212, 0.5);
-  box-shadow: 0 0 25px -5px rgba(6, 182, 212, 0.15);
+.parchment-card-hover:hover {
+  border-color: #b89868;
+  box-shadow: 0 4px 16px -3px rgba(44, 34, 20, 0.09);
 }
 
-.glass-pill {
-  background: rgba(22, 31, 48, 0.6);
-  border: 1px solid rgba(33, 46, 69, 0.8);
-  backdrop-filter: blur(8px);
+.parchment-inset {
+  background: #f3ede2;
+  border: 1px solid #ddd2be;
 }
 
-.text-glow-cyan {
-  text-shadow: 0 0 12px rgba(6, 182, 212, 0.6);
-}
-
-.text-glow-amber {
-  text-shadow: 0 0 12px rgba(245, 158, 11, 0.6);
-}
-
-.text-glow-rose {
-  text-shadow: 0 0 12px rgba(244, 63, 94, 0.6);
-}
-
-/* Custom Scrollbar */
+/* Custom Scrollbar in Warm Linen / Sand Tone */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #06090e;
+  background: #f4efe6;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #cfc4b2;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #b5a894;
 }
 
 /* Map Canvas & SVG Animation */
