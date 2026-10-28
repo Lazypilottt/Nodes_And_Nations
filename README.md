@@ -1,115 +1,209 @@
-Nodes and Nations
-=================
-A topological analysis of human movement (1990-2025)
+# Nodes & Nations
 
-There is a quiet structure to how the world moves. Migration isn't just a ledger of border crossings; it's a dynamic, directed graph subject to the gravity of GDP, the friction of conflict, and the momentum of established diasporas. 
+**A network analysis of global migration, 1990–2025.**
 
-This repository models 35 years of global migration using UN DESA bilateral stock data. We treat countries as nodes and mass human movement as weighted, directed edges. The pipeline parses the raw data, constructs temporal graph snapshots, evaluates systemic routing changes via centrality and community detection heuristics, and performs ordinary least squares regression to isolate the macro-drivers of movement.
+[![CI](https://github.com/Lazypilottt/Nodes_And_Nations/actions/workflows/ci.yml/badge.svg)](https://github.com/Lazypilottt/Nodes_And_Nations/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-Everything collapses into clean, unified master exports (`nodes_master.csv` and `migration_full_flat.csv`) and powers an interactive full-stack Next.js / React analytics platform and crisis simulator.
+Nodes & Nations treats the world's countries as nodes and bilateral migrant
+stock as weighted, directed edges. Using 35 years of UN DESA data, it builds
+eight network snapshots, measures which countries act as hubs and bridges,
+detects regional migration blocs and how they shift over time, tests which
+socio-economic factors explain migration, and trains a model that predicts
+corridor size. An interactive dashboard puts all of it on a map, alongside a
+displacement scenario simulator.
 
+---
 
-Architecture & Execution
-------------------------
-The analysis runs as a linear, reproducible pipeline. Heavy notebooks have been replaced with modular scripts that get straight to the math. Run them sequentially or with `scripts/build_pipeline.py`.
+## Key findings
 
-Dependencies: networkx, python-louvain, leidenalg, igraph, statsmodels, scikit-learn, xgboost, openpyxl, requests, pandas, numpy, fastapi, uvicorn.
+| | 1990 | 2025* |
+| --- | --- | --- |
+| Bilateral migrant stock | 140.8 M | 293.2 M |
+| Active corridors | 8,006 | 9,042 |
+| Louvain modularity *Q* | 0.604 | 0.544 |
 
-    source venv/bin/activate
-    
-    python notebooks/01_data_collection_cleaning.py
-    python notebooks/02_network_construction_centrality.py
-    python notebooks/03_community_detection.py
-    python notebooks/04_regression_analysis.py
-    python notebooks/05_export_finalization.py
-    python notebooks/06_edge_weight_predictor.py
+<sub>*2025 is extrapolated from the 2020→2024 UN DESA trend.</sub>
 
-Or build all phases in one command:
+- **The network is becoming more integrated.** Modularity declines steadily
+  from 0.604 (1990) to 0.544 (2025): migration is less confined to regional
+  blocs than it used to be. Louvain and Leiden agree closely in every year.
+- **Most countries keep their bloc.** After tracking communities across years,
+  only five countries (Aruba, Venezuela, Colombia, Eritrea, Marshall Islands)
+  switch community in at least four of the seven transitions.
+- **Size and income dominate.** In pooled OLS with country-clustered standard
+  errors, log population and log GDP per capita are the strongest predictors of
+  immigrant stock, and climate vulnerability has a significant negative effect.
+  Population, GDP and conflict alone explain R² ≈ 0.69 of immigrant stock and
+  0.77 of emigrant stock.
+- **Modelled cultural indices add little.** Adding the integration-policy and
+  cultural-openness indices does not significantly improve the inflow model
+  (see the [data caveats](#data-sources--licensing)).
+- **The largest corridor** in 2025 is Mexico → United States (≈11.3 M),
+  followed by Afghanistan → Iran, Syria → Türkiye and Russia ↔ Ukraine.
 
-    python scripts/build_pipeline.py
+<p align="center">
+  <img src="Graphs/05_corridor_map_2025.png" alt="Map of the 30 largest migration corridors in 2025" width="85%">
+</p>
+<p align="center">
+  <img src="Graphs/01_global_migrant_stock.png" alt="Global migrant stock 1990–2025" width="49%">
+  <img src="Graphs/08_modularity_over_time.png" alt="Network modularity 1990–2025" width="49%">
+</p>
 
-Note: Script 01 reads the initial UN matrix into memory and reaches out to the World Bank and UCDP endpoints for socioeconomic covariates. Local caching is implemented; the API heavy lifting only happens on the first run. The 2025 vectors are extrapolated geometrically from recent momentum.
+All figures live in [`Graphs/`](Graphs/) and are regenerated from the
+pipeline outputs with `python scripts/make_figures.py`.
 
+---
 
-Data Provenance & Indices
--------------------------
-* Bilateral migrant stock (1990-2025): UN DESA IMS 2024
-* GDP, Population, Unemployment: World Bank WDI (API)
-* Education Index: UNDP HDR (Static CSV)
-* Conflict intensity: UCDP/PRIO ACD (Static CSV)
-* Cultural Integration Index (`cultural_integration_index.csv`): MIPEX-aligned metrics (1990–2025) including `integration_policy_index`, `cultural_openness_index`, `labour_market_integration`, `anti_discrimination_score`, `naturalization_access_score`.
-* World Religion Demographics (`world_religions_demographics.csv`): 235 sovereign states with percentage shares across Christianity, Islam, Hinduism, Buddhism, Judaism, and Unaffiliated, alongside Herfindahl fractionalization and diversity indices.
-* Visa Openness: Henley Passport Index (Static CSV)
-* Climate Vulnerability: ND-GAIN Index (Static CSV)
+## Repository layout
 
+```
+api/            FastAPI service for the corridor-size model
+dashboard/      Next.js dashboard (see dashboard/README.md)
+data/
+  raw/          Source datasets (UN DESA, ND-GAIN, Henley, UCDP, modelled indices)
+  processed/    Cleaned long-format migration table and country-year factors panel
+  exports/      Analysis outputs consumed by the dashboard
+  loader.py     Shared paths and loaders
+  features.py   Dyad feature engineering shared by training and the API
+models/         Trained edge-weight model
+notebooks/      Pipeline steps 01–06 (plain Python scripts)
+scripts/
+  build_pipeline.py   Runs every pipeline step in order
+  make_figures.py     Regenerates the figures in Graphs/
+Graphs/         Static figures (PNG) generated from the exports
+docs/           Project report
+```
 
-Analytical Modules
-------------------
-Phase 2: Network Topology
-We build 8 directed graphs (Nx). Edge weights dictate the calculations. The script isolates purely transit hubs (Betweenness) versus global attractors (weight-aware PageRank).
+## Quick start
 
-Phase 3: Structural Fault Lines 
-As global alliances and borders shift, so does the network density. We apply Louvain, Leiden, and Girvan-Newman algorithms to partition the graph. By measuring Modularity (Q) alongside temporal Jaccard drift, the pipeline identifies "boundary nodes"—states acting as bridges between shifting geo-political clusters.
+Requirements: Python 3.9+ (3.11 recommended) and Node.js 18.17+.
 
-Phase 4: Cultural & Econometric Gravity Regression 
-We fit pooled and year-by-year OLS models against structural and cultural data to determine how capital variance, cultural openness, shared dominant religion, and demographic mass govern corridor edge weights. Cultural gravity models achieve high explanatory power ($R^2 > 0.62$).
+```bash
+git clone https://github.com/Lazypilottt/Nodes_And_Nations.git
+cd Nodes_And_Nations
 
-Phase 5: Unified Dataset Finalization & Validation
-Outputs are written to `data/exports/`, producing unified datasets (`nodes_master.csv` with 42 features per sovereign country-year, and `migration_full_flat.csv` with 91 dyadic features).
+python -m venv venv
+source venv/bin/activate              # Windows: venv\Scripts\activate
+pip install -r requirements.txt
 
-Phase 6: Machine-Learning Edge Predictor
-A full ML pipeline training gradient-boosted regressors (Histogram Gradient Boosting / XGBoost) with 31 features (R² ~ 0.70) to predict bilateral corridor migrant stock.
+# Optional: the exports are committed, so this is only needed after changes
+python scripts/build_pipeline.py
+python scripts/make_figures.py
 
+cd dashboard
+npm install
+npm run dev                           # http://localhost:3000
+```
 
-Interactive Web Platform (Next.js / React)
-------------------------------------------
-Launch the interactive dashboard:
+## The pipeline
 
-    cd dashboard
-    npm run dev
+Each step is a standalone script in `notebooks/` and can be run on its own.
+`scripts/build_pipeline.py` runs them in order (`--skip-graph` skips 02,
+`--skip-train` skips 06).
 
-Features:
-* Planetary Vector Surface: Interactive Mercator SVG map supporting Bilateral Corridors, Centrality Topography, Alliance Clusters, and Dominant Religion Demographics.
-* Crisis Displacement Cockpit: Real-time gravity routing simulations across armed conflict, cultural kinship displacement, climate surges, and border policy shocks.
-* Macro-Flow Distribution Analytics: Interactive doughnut and pie visualizers for destination continents, income tiers, dominant religions, and MIPEX policy tiers.
-* Dyadic Corridor Comparator: Side-by-side socioeconomic, cultural, and religious affinity comparison between sovereign states.
-* Network Topology & Econometric Determinants: Centrality rankings, modularity drift (Q) trends, boundary node switchers, and OLS regression tables.
+| Step | Script | What it does |
+| --- | --- | --- |
+| 01 | `01_data_collection_cleaning.py` | Parses the UN DESA origin–destination matrix (both sexes), extrapolates 2025, and builds a country-year panel of covariates (World Bank GDP, population and unemployment; UNDP education; UCDP conflict; Henley visa openness; ND-GAIN climate vulnerability; modelled religion and integration indices). API responses are cached in `data/raw/cache/`. |
+| 02 | `02_network_construction_centrality.py` | Builds one weighted directed graph per snapshot year and computes degree, strength, betweenness and weighted PageRank, plus network-level summaries. |
+| 03 | `03_community_detection.py` | Runs Louvain, Leiden and Girvan–Newman, compares them (NMI/ARI), aligns communities across years with Hungarian matching, and measures temporal drift (Jaccard) and boundary nodes. |
+| 04 | `04_regression_analysis.py` | Fits baseline, full and cultural-gravity OLS models for log immigrant and emigrant stock (pooled with country-clustered SEs, and year by year), with VIF diagnostics. |
+| 05 | `05_export_finalization.py` | Writes `nodes_master.csv` (country-year) and `migration_full_flat.csv` (corridor-level), plus metadata, community labels and summary statistics. |
+| 06 | `06_edge_weight_predictor.py` | Trains a gradient-boosting model of log corridor stock on all corridors, with a train/test split grouped by corridor. |
 
+### Main outputs (`data/exports/`)
 
-Notes from the run
-------------------
-The data suggests an interesting systemic truth: the network's Louvain modularity score drops from 0.560 in 1990 down to 0.474 projected for 2025. The graph is becoming less compartmentalized and more structurally integrated over time.
+| File | Grain | Contents |
+| --- | --- | --- |
+| `nodes_master.csv` | country × year | Centrality, community, boundary score, socio-economic and cultural covariates |
+| `migration_full_flat.csv` | corridor × year (top 500/year) | Corridor weight with origin and destination attributes and dyadic indicators |
+| `network_edges.csv` | corridor × year (top 500/year) | Origin, destination, weight |
+| `modularity_scores.csv` | year × algorithm | Modularity, community count, NMI/ARI agreement |
+| `boundary_nodes.csv` | country | Community switches across the seven transitions |
+| `regression_*.csv`, `vif_analysis.csv` | model × predictor | Coefficients, standard errors, fit statistics |
+| `edge_model_metrics.json` | — | Held-out performance of the corridor model |
 
-- Codebase finalized 2026.
+The complete corridor table (all ~9,000 corridors per year) is
+`data/processed/migration_long.csv`.
 
+## Corridor-size prediction API
 
-Phase 6: Machine-Learning Edge Predictor
----------------------------------------
-A full ML pipeline has been added to demonstrate an applied data-science deliverable suitable for a resume. It trains a gradient-boosting regressor to predict bilateral migrant stock (edge weight) from origin/destination socioeconomic features and relational signals.
+```bash
+python -m uvicorn api.predict:app --reload --port 8001
+```
 
-New files:
-- notebooks/06_edge_weight_predictor.py  # full training + CV, feature importances, model persistence
-- models/edge_weight_predictor.joblib     # (created after running the training script)
-- api/predict.py                          # FastAPI demo to serve predictions
-- requirements-ml.txt                     # ML + serving dependencies to install in the project venv
+```bash
+curl -X POST localhost:8001/predict \
+  -H 'Content-Type: application/json' \
+  -d '{"origin_iso3": "IND", "dest_iso3": "USA", "year": 2020}'
+```
 
-Quickstart (recommended)
+Returns the predicted `log1p` stock, the predicted stock, and any input
+features that were missing for that pair. You can also pass a precomputed
+`features` object. `GET /health` reports whether the model is loaded. Interactive
+docs are at `http://localhost:8001/docs`.
 
-    source venv/bin/activate
-    pip install -r requirements-ml.txt
-    python notebooks/06_edge_weight_predictor.py
+The model is a histogram gradient-boosting regressor over 31 origin,
+destination and dyadic features. On corridors it never saw during training it
+reaches **R² ≈ 0.73** on log stock (see `data/exports/edge_model_metrics.json`).
+Because the split is grouped by corridor, this measures generalisation to new
+country pairs rather than interpolation between years of known ones.
 
-After training, run the demo server:
+## Dashboard
 
-    source venv/bin/activate
-    uvicorn api.predict:app --reload --port 8001
+See [dashboard/README.md](dashboard/README.md). In short: an interactive map
+with corridor, centrality, community and religion layers; a country drill-down;
+a displacement scenario simulator; distribution breakdowns; centrality,
+modularity and regression views; and a two-country comparator.
 
-POST /predict (JSON)
-- Provide either `features` (precomputed feature map) or `origin_iso3`, `dest_iso3`, and `year` to let the server compute features and return a prediction.
+## Data sources & licensing
 
-What this demonstrates for your resume
-- End-to-end ML workflow: feature engineering, model selection with randomized CV, evaluation (RMSE/R²), feature-importance visualization, model persistence
-- Production demo: simple REST endpoint for fast validation and screenshots
-- Use this in a portfolio entry alongside a short write-up and a ROC/importance figure to show measurable impact
+| Data | Source | Notes |
+| --- | --- | --- |
+| Bilateral migrant stock | [UN DESA, International Migrant Stock 2024](https://www.un.org/development/desa/pd/content/international-migrant-stock) | Both sexes, mid-year, 1990–2024. 2025 extrapolated. |
+| GDP per capita, population, unemployment | [World Bank WDI](https://data.worldbank.org/) (API) | CC BY 4.0 |
+| Education index | UNDP Human Development Reports | |
+| Conflict intensity | UCDP/PRIO Armed Conflict Dataset | |
+| Visa openness | Henley Passport Index | |
+| Climate vulnerability | ND-GAIN Country Index | |
+| Religion profile | **Modelled** — `data/raw/generate_cultural_datasets.py` | Regional baselines with exact figures for about 30 countries, informed by Pew Research. |
+| Integration & cultural-openness indices | **Modelled** — `data/raw/generate_cultural_datasets.py` | MIPEX-*style* scores from regional archetypes plus a linear time trend. Not official MIPEX data. |
 
-If you'd like, the next step is to: run the training script here, save the artifacts, and start the demo server so sample predictions and screenshots can be produced for the portfolio. Reply "Run training" to proceed.
+> **Caveat.** The religion and integration indices are synthetic approximations
+> built for this project, not measured data. Treat any result that depends on
+> them (cultural-gravity regressions, the religion/integration breakdowns, the
+> kinship and integration options in the simulator) as illustrative.
+> Replacing them with sourced data is the most valuable contribution you could
+> make; see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+The source code is released under the [MIT License](LICENSE). Third-party
+datasets in `data/raw/` remain subject to their providers' terms; cite the
+original sources when reusing them.
+
+## Limitations
+
+- Migrant **stock** is not **flow**: a corridor's value counts people living
+  abroad at a point in time, not movements in a period.
+- 2025 values are a one-year geometric extrapolation from 2024 and are marked
+  `is_extrapolated` in `migration_long.csv`.
+- Girvan–Newman runs on a reduced subgraph (edges covering 80% of total
+  weight) for tractability, so its modularity is not comparable to
+  Louvain/Leiden.
+- The displacement simulator is a hand-tuned scenario tool, not a validated
+  forecasting model.
+
+## Contributing
+
+Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) and
+the [Code of Conduct](CODE_OF_CONDUCT.md). Report security issues privately as
+described in [SECURITY.md](SECURITY.md).
+
+## Citation
+
+If you use this project, please cite it using [CITATION.cff](CITATION.cff)
+(GitHub shows a "Cite this repository" button) and cite UN DESA for the
+underlying migration data.
+
+## License
+
+[MIT](LICENSE) © Lazypilottt

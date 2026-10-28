@@ -1,269 +1,147 @@
 import React, { useState } from 'react';
-import { COUNTRY_GEO_MAP, CountryGeo, getCountryGeo } from '../lib/countryGeo';
+import { Line } from 'react-chartjs-2';
+import useSWR from 'swr';
+import { lineGrid } from '../lib/charts';
+import { COUNTRY_LIST, getCountryGeo } from '../lib/countryGeo';
+import { fetcher } from '../lib/fetcher';
+import { ACCENT, fmtCompact, fmtInt, fmtNum } from '../lib/theme';
+import { SNAPSHOT_YEARS, type NodeRow, type Year } from '../lib/types';
+import { Card, Field, Stat, selectClass } from './ui';
 
-interface CorridorComparatorProps {
-  nodes: any[];
-  edges: any[];
-  year: number;
+const B_COLOR = '#d97706';
+
+interface CorridorResponse {
+  a: string;
+  b: string;
+  series: { year: number; a_to_b: number; b_to_a: number }[];
 }
 
-export default function CorridorComparator({ nodes, edges, year }: CorridorComparatorProps) {
-  const [countryA, setCountryA] = useState('IND');
-  const [countryB, setCountryB] = useState('USA');
+const ROWS: { label: string; get: (n?: NodeRow) => React.ReactNode }[] = [
+  { label: 'Population', get: (n) => fmtCompact(n?.population) },
+  { label: 'GDP per capita', get: (n) => (n?.gdp_per_capita ? `$${fmtInt(n.gdp_per_capita)}` : '—') },
+  { label: 'Unemployment', get: (n) => (n?.unemployment != null ? `${fmtNum(n.unemployment, 1)}%` : '—') },
+  { label: 'Immigrant stock', get: (n) => fmtCompact(n?.in_strength) },
+  { label: 'Emigrant stock', get: (n) => fmtCompact(n?.out_strength) },
+  { label: 'PageRank', get: (n) => fmtNum(n?.pagerank, 4) },
+  { label: 'Visa openness', get: (n) => fmtNum(n?.visa_openness_index, 0) },
+  { label: 'Climate vulnerability', get: (n) => fmtNum(n?.climate_vulnerability, 3) },
+  { label: 'Dominant religion', get: (n) => n?.dominant_religion ?? '—' },
+  { label: 'Integration policy', get: (n) => fmtNum(n?.integration_policy_index, 2) },
+  { label: 'Network community', get: (n) => (n?.community_label ?? '—').replace(/^Cluster \d+:\s*/, '') },
+];
 
-  const geoA = getCountryGeo(countryA);
-  const geoB = getCountryGeo(countryB);
+export default function CorridorComparator({ nodesByIso, year }: { nodesByIso: Record<string, NodeRow>; year: Year }) {
+  const [a, setA] = useState('IND');
+  const [b, setB] = useState('ARE');
+  const { data, error } = useSWR<CorridorResponse>(a !== b ? `/api/corridor?a=${a}&b=${b}` : null, fetcher, {
+    keepPreviousData: true,
+  });
 
-  const nodeA = (nodes || []).find((n) => n.iso3 === countryA && Number(n.year) === year) || {};
-  const nodeB = (nodes || []).find((n) => n.iso3 === countryB && Number(n.year) === year) || {};
+  const ga = getCountryGeo(a);
+  const gb = getCountryGeo(b);
+  const na = nodesByIso[a];
+  const nb = nodesByIso[b];
+  const point = data?.series.find((s) => s.year === year);
+  const aToB = point?.a_to_b ?? 0;
+  const bToA = point?.b_to_a ?? 0;
 
-  // Historical flows A -> B and B -> A
-  const flowAtoB = (edges || []).find(
-    (e) => e.origin_iso3 === countryA && e.dest_iso3 === countryB && Number(e.year) === year
-  );
-  const flowBtoA = (edges || []).find(
-    (e) => e.origin_iso3 === countryB && e.dest_iso3 === countryA && Number(e.year) === year
-  );
-
-  const stockAtoB = Number(flowAtoB?.weight || 0);
-  const stockBtoA = Number(flowBtoA?.weight || 0);
-  const netFlow = stockAtoB - stockBtoA;
+  const chart = {
+    labels: SNAPSHOT_YEARS,
+    datasets: [
+      {
+        label: `${ga.name} → ${gb.name}`,
+        data: SNAPSHOT_YEARS.map((y) => data?.series.find((s) => s.year === y)?.a_to_b ?? 0),
+        borderColor: ACCENT,
+        backgroundColor: ACCENT,
+        tension: 0.3,
+        pointRadius: SNAPSHOT_YEARS.map((y) => (y === year ? 5 : 2.5)),
+      },
+      {
+        label: `${gb.name} → ${ga.name}`,
+        data: SNAPSHOT_YEARS.map((y) => data?.series.find((s) => s.year === y)?.b_to_a ?? 0),
+        borderColor: B_COLOR,
+        backgroundColor: B_COLOR,
+        tension: 0.3,
+        pointRadius: SNAPSHOT_YEARS.map((y) => (y === year ? 5 : 2.5)),
+      },
+    ],
+  };
+  const options: any = {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { position: 'top', align: 'end' },
+      tooltip: { callbacks: { label: (ctx: any) => ` ${ctx.dataset.label}: ${fmtInt(ctx.raw)}` } },
+    },
+    scales: { x: { grid: { display: false } }, y: { grid: lineGrid, beginAtZero: true, ticks: { callback: (v: number) => fmtCompact(v, 0) } } },
+  };
 
   return (
-    <div className="bg-[#fbf9f4] border border-[#d8ccb8] p-4 rounded-xl shadow-sm space-y-4">
-      {/* Header & Country Selectors */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#ded3be] pb-3">
-        <div>
-          <h3 className="font-bold text-[#1a202c] text-sm flex items-center gap-2 font-serif">
-            <span>Bilateral Corridor Comparator & Dyadic Analysis</span>
-            <span className="text-[10px] bg-[#ece4d4] text-[#6d5c46] border border-[#d8ccb8] font-mono px-2 py-0.5 rounded font-semibold">
-              Year {year}
-            </span>
-          </h3>
-          <p className="text-xs text-[#635a4d]">
-            Compare socioeconomic push/pull determinants and bilateral migration trajectories side-by-side
-          </p>
-        </div>
-
-        {/* Country Selectors */}
-        <div className="flex items-center gap-2.5">
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-[#645d52] font-medium">State A:</span>
-            <select
-              value={countryA}
-              onChange={(e) => setCountryA(e.target.value)}
-              className="bg-[#ffffff] border border-[#ded3be] text-[#1e293b] px-2.5 py-1.5 rounded-lg text-xs focus:outline-none focus:border-[#1e3a5f]"
-            >
-              {Object.values(COUNTRY_GEO_MAP).map((c) => (
-                <option key={c.iso3} value={c.iso3}>
-                  {c.flag} {c.name} ({c.iso3})
-                </option>
-              ))}
+    <div className="space-y-6">
+      <Card>
+        <div className="grid grid-cols-1 items-end gap-4 sm:grid-cols-[1fr_auto_1fr]">
+          <Field label="Country A">
+            <select className={selectClass} value={a} onChange={(e) => setA(e.target.value)}>
+              {COUNTRY_LIST.map((c) => <option key={c.iso3} value={c.iso3}>{c.flag} {c.name}</option>)}
             </select>
-          </div>
-
+          </Field>
           <button
             onClick={() => {
-              const temp = countryA;
-              setCountryA(countryB);
-              setCountryB(temp);
+              setA(b);
+              setB(a);
             }}
-            className="px-2.5 py-1.5 bg-[#1e3a5f] hover:bg-[#162c46] text-white rounded-lg text-xs font-semibold transition shadow-xs"
-            title="Swap Origin and Destination"
+            aria-label="Swap countries"
+            className="h-[38px] rounded-lg border border-zinc-200 px-3 text-sm text-zinc-600 hover:bg-zinc-50"
           >
-            ⇄ Swap
+            ⇄
           </button>
-
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-[#645d52] font-medium">State B:</span>
-            <select
-              value={countryB}
-              onChange={(e) => setCountryB(e.target.value)}
-              className="bg-[#ffffff] border border-[#ded3be] text-[#1e293b] px-2.5 py-1.5 rounded-lg text-xs focus:outline-none focus:border-[#1e3a5f]"
-            >
-              {Object.values(COUNTRY_GEO_MAP).map((c) => (
-                <option key={c.iso3} value={c.iso3}>
-                  {c.flag} {c.name} ({c.iso3})
-                </option>
-              ))}
+          <Field label="Country B">
+            <select className={selectClass} value={b} onChange={(e) => setB(e.target.value)}>
+              {COUNTRY_LIST.map((c) => <option key={c.iso3} value={c.iso3}>{c.flag} {c.name}</option>)}
             </select>
-          </div>
+          </Field>
         </div>
-      </div>
+        {a === b && <p className="mt-3 text-xs text-amber-600">Pick two different countries.</p>}
+        {error && <p className="mt-3 text-xs text-red-600">{error.message}</p>}
+      </Card>
 
-      {/* Side-by-Side Socioeconomic Factor Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-11 gap-3 items-center">
-        {/* Country A Card (5 cols) */}
-        <div className="md:col-span-5 bg-[#f4efe6] border border-[#ded3be] p-3.5 rounded-lg space-y-2.5 shadow-sm">
-          <div className="flex items-center justify-between border-b border-[#ded3be] pb-2">
-            <div className="flex items-center gap-2 font-medium text-[#1a202c]">
-              <span className="text-xl">{geoA.flag}</span>
-              <div>
-                <div className="text-xs font-bold text-[#1a202c] font-serif">{geoA.name}</div>
-                <div className="text-[10px] text-[#786b59] font-mono">{geoA.iso3} • {geoA.un_region}</div>
-              </div>
-            </div>
-            <span className="text-[10px] bg-[#eef3f8] text-[#1e3a5f] border border-[#c7d9ec] px-2 py-0.5 rounded font-mono font-semibold">
-              {nodeA.income_group || geoA.income_group}
-            </span>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <Card className="lg:col-span-2" title="Bilateral migrant stock over time" subtitle="People born in one country living in the other">
+          <div className="mb-5 grid grid-cols-3 gap-4">
+            <Stat label={`${ga.iso3} → ${gb.iso3}, ${year}`} value={fmtCompact(aToB)} tone="accent" />
+            <Stat label={`${gb.iso3} → ${ga.iso3}, ${year}`} value={fmtCompact(bToA)} />
+            <Stat
+              label="Net flow"
+              value={aToB === bToA ? '0' : `${fmtCompact(Math.abs(aToB - bToA))}`}
+              hint={aToB === bToA ? 'Balanced' : `towards ${aToB > bToA ? gb.name : ga.name}`}
+            />
           </div>
+          <div className="h-64">
+            <Line data={chart} options={options} />
+          </div>
+        </Card>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
-            <div className="p-2 bg-[#ffffff] border border-[#e4dbcb] rounded-lg">
-              <div className="text-[10px] text-[#786b59] font-medium">GDP per Capita</div>
-              <div className="font-bold text-[#1e3a5f] font-mono text-xs mt-0.5">
-                ${Math.round(Number(nodeA.gdp_per_capita) || 0).toLocaleString()}
-              </div>
-            </div>
-            <div className="p-2 bg-[#ffffff] border border-[#e4dbcb] rounded-lg">
-              <div className="text-[10px] text-[#786b59] font-medium">Population</div>
-              <div className="font-bold text-[#1e293b] font-mono text-xs mt-0.5">
-                {(Number(nodeA.population) || 0) >= 1000000
-                  ? `${((Number(nodeA.population) || 0) / 1000000).toFixed(1)}M`
-                  : `${Math.round((Number(nodeA.population) || 0) / 1000)}k`}
-              </div>
-            </div>
-            <div className="p-2 bg-[#ffffff] border border-[#e4dbcb] rounded-lg">
-              <div className="text-[10px] text-[#786b59] font-medium">Dominant Religion</div>
-              <div className="font-bold text-[#28534b] font-mono text-xs mt-0.5 truncate">
-                {nodeA.dominant_religion || 'Christianity'}
-              </div>
-            </div>
-            <div className="p-2 bg-[#ffffff] border border-[#e4dbcb] rounded-lg">
-              <div className="text-[10px] text-[#786b59] font-medium">Integration (MIPEX)</div>
-              <div className="font-bold text-[#1e3a5f] font-mono text-xs mt-0.5">
-                {(Number(nodeA.integration_policy_index) || 0.5).toFixed(2)} / 1.0
-              </div>
-            </div>
-            <div className="p-2 bg-[#ffffff] border border-[#e4dbcb] rounded-lg">
-              <div className="text-[10px] text-[#786b59] font-medium">Cultural Openness</div>
-              <div className="font-bold text-[#945920] font-mono text-xs mt-0.5">
-                {(Number(nodeA.cultural_openness_index) || 0.5).toFixed(2)}
-              </div>
-            </div>
-            <div className="p-2 bg-[#ffffff] border border-[#e4dbcb] rounded-lg">
-              <div className="text-[10px] text-[#786b59] font-medium">Visa Openness</div>
-              <div className="font-bold text-[#4a3d2e] font-mono text-xs mt-0.5">
-                {(Number(nodeA.visa_openness_index) || 0).toFixed(1)}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Central Vector (1 col) */}
-        <div className="md:col-span-1 flex flex-col items-center justify-center space-y-1 text-center py-1">
-          <div className="text-[11px] font-mono font-bold text-[#1e3a5f] bg-[#e8e0cf] px-2 py-0.5 rounded">VS</div>
-          <div className="w-px h-6 bg-[#ded3be]"></div>
-          <div className="text-[9.5px] text-[#786b59] font-mono uppercase font-semibold">Bilateral</div>
-        </div>
-
-        {/* Country B Card (5 cols) */}
-        <div className="md:col-span-5 bg-[#f4efe6] border border-[#ded3be] p-3.5 rounded-lg space-y-2.5 shadow-sm">
-          <div className="flex items-center justify-between border-b border-[#ded3be] pb-2">
-            <div className="flex items-center gap-2 font-medium text-[#1a202c]">
-              <span className="text-xl">{geoB.flag}</span>
-              <div>
-                <div className="text-xs font-bold text-[#1a202c] font-serif">{geoB.name}</div>
-                <div className="text-[10px] text-[#786b59] font-mono">{geoB.iso3} • {geoB.un_region}</div>
-              </div>
-            </div>
-            <span className="text-[10px] bg-[#fcf4e8] text-[#945920] border border-[#e8d5bc] px-2 py-0.5 rounded font-mono font-semibold">
-              {nodeB.income_group || geoB.income_group}
-            </span>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
-            <div className="p-2 bg-[#ffffff] border border-[#e4dbcb] rounded-lg">
-              <div className="text-[10px] text-[#786b59] font-medium">GDP per Capita</div>
-              <div className="font-bold text-[#1e3a5f] font-mono text-xs mt-0.5">
-                ${Math.round(Number(nodeB.gdp_per_capita) || 0).toLocaleString()}
-              </div>
-            </div>
-            <div className="p-2 bg-[#ffffff] border border-[#e4dbcb] rounded-lg">
-              <div className="text-[10px] text-[#786b59] font-medium">Population</div>
-              <div className="font-bold text-[#1e293b] font-mono text-xs mt-0.5">
-                {(Number(nodeB.population) || 0) >= 1000000
-                  ? `${((Number(nodeB.population) || 0) / 1000000).toFixed(1)}M`
-                  : `${Math.round((Number(nodeB.population) || 0) / 1000)}k`}
-              </div>
-            </div>
-            <div className="p-2 bg-[#ffffff] border border-[#e4dbcb] rounded-lg">
-              <div className="text-[10px] text-[#786b59] font-medium">Dominant Religion</div>
-              <div className="font-bold text-[#28534b] font-mono text-xs mt-0.5 truncate">
-                {nodeB.dominant_religion || 'Christianity'}
-              </div>
-            </div>
-            <div className="p-2 bg-[#ffffff] border border-[#e4dbcb] rounded-lg">
-              <div className="text-[10px] text-[#786b59] font-medium">Integration (MIPEX)</div>
-              <div className="font-bold text-[#1e3a5f] font-mono text-xs mt-0.5">
-                {(Number(nodeB.integration_policy_index) || 0.5).toFixed(2)} / 1.0
-              </div>
-            </div>
-            <div className="p-2 bg-[#ffffff] border border-[#e4dbcb] rounded-lg">
-              <div className="text-[10px] text-[#786b59] font-medium">Cultural Openness</div>
-              <div className="font-bold text-[#945920] font-mono text-xs mt-0.5">
-                {(Number(nodeB.cultural_openness_index) || 0.5).toFixed(2)}
-              </div>
-            </div>
-            <div className="p-2 bg-[#ffffff] border border-[#e4dbcb] rounded-lg">
-              <div className="text-[10px] text-[#786b59] font-medium">Visa Openness</div>
-              <div className="font-bold text-[#4a3d2e] font-mono text-xs mt-0.5">
-                {(Number(nodeB.visa_openness_index) || 0).toFixed(1)}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Bilateral Net Balance & Cultural Affinity Deck */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3 pt-2 border-t border-[#ded3be]">
-        <div className="p-3 bg-[#f4efe6] border border-[#ded3be] rounded-lg space-y-0.5 shadow-sm">
-          <div className="text-[#786b59] text-[10px] uppercase font-mono font-semibold">
-            {geoA.name} → {geoB.name} Stock
-          </div>
-          <div className="text-lg font-bold text-[#1e3a5f] font-mono">
-            {stockAtoB.toLocaleString()}
-          </div>
-          <div className="text-[10.5px] text-[#645d52]">
-            {stockAtoB > 0 ? 'Active corridor stock' : 'No recorded stock'}
-          </div>
-        </div>
-
-        <div className="p-3 bg-[#f4efe6] border border-[#ded3be] rounded-lg space-y-0.5 shadow-sm">
-          <div className="text-[#786b59] text-[10px] uppercase font-mono font-semibold">
-            {geoB.name} → {geoA.name} Stock
-          </div>
-          <div className="text-lg font-bold text-[#945920] font-mono">
-            {stockBtoA.toLocaleString()}
-          </div>
-          <div className="text-[10.5px] text-[#645d52]">Reverse corridor stock</div>
-        </div>
-
-        <div className="p-3 bg-[#f4efe6] border border-[#ded3be] rounded-lg space-y-0.5 shadow-sm">
-          <div className="text-[#786b59] text-[10px] uppercase font-mono font-semibold">Net Asymmetry Balance</div>
-          <div className="text-lg font-bold text-[#28534b] font-mono">
-            {netFlow >= 0 ? `+${netFlow.toLocaleString()}` : netFlow.toLocaleString()}
-          </div>
-          <div className="text-[10.5px] text-[#645d52]">
-            Gradient towards {netFlow >= 0 ? geoB.name : geoA.name}
-          </div>
-        </div>
-
-        <div className="p-3 bg-[#f4efe6] border border-[#ded3be] rounded-lg space-y-0.5 shadow-sm">
-          <div className="text-[#786b59] text-[10px] uppercase font-mono font-semibold">Cultural & Religious Affinity</div>
-          <div className="text-xs font-bold text-[#1a202c] font-mono flex items-center gap-1.5 mt-0.5">
-            <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
-              nodeA.dominant_religion === nodeB.dominant_religion
-                ? 'bg-[#eaf3ed] text-[#28534b] border border-[#b2d8be]'
-                : 'bg-[#f8ede8] text-[#8b2626] border border-[#e8c0b5]'
-            }`}>
-              {nodeA.dominant_religion === nodeB.dominant_religion ? 'Shared Religion' : 'Cross-Religious'}
-            </span>
-          </div>
-          <div className="text-[10px] text-[#645d52] font-mono mt-1">
-            Distance: {Math.abs(Number(nodeA.cultural_openness_index || 0.5) - Number(nodeB.cultural_openness_index || 0.5)).toFixed(2)}
-          </div>
-        </div>
+        <Card title={`Profiles, ${year}`} bodyClassName="px-5 pb-3 pt-2">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-[11px] uppercase tracking-wide text-zinc-500">
+                <th className="py-2 text-left font-medium" />
+                <th className="py-2 text-right font-medium">{ga.flag} {ga.iso3}</th>
+                <th className="py-2 text-right font-medium">{gb.flag} {gb.iso3}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-zinc-100">
+              {ROWS.map((r) => (
+                <tr key={r.label}>
+                  <td className="py-2 pr-2 text-xs text-zinc-500">{r.label}</td>
+                  <td className="max-w-[110px] truncate py-2 pl-2 text-right tabular-nums text-zinc-900">{r.get(na)}</td>
+                  <td className="max-w-[110px] truncate py-2 pl-2 text-right tabular-nums text-zinc-900">{r.get(nb)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card>
       </div>
     </div>
   );

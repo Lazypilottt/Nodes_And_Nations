@@ -211,7 +211,40 @@ export const COUNTRY_GEO_MAP: Record<string, CountryGeo> = {
   VNM: { iso3: "VNM", name: "Vietnam", lat: 14.0583, lng: 108.2772, continent: "Asia", un_region: "South-Eastern Asia", income_group: "Lower middle income", flag: "🇻🇳" },
   YEM: { iso3: "YEM", name: "Yemen", lat: 15.5527, lng: 48.5164, continent: "Asia", un_region: "Western Asia", income_group: "Low income", flag: "🇾🇪" },
   ZMB: { iso3: "ZMB", name: "Zambia", lat: -13.1339, lng: 27.8493, continent: "Africa", un_region: "Sub-Saharan Africa", income_group: "Lower middle income", flag: "🇿🇲" },
-  ZWE: { iso3: "ZWE", name: "Zimbabwe", lat: -19.0154, lng: 29.1549, continent: "Africa", un_region: "Sub-Saharan Africa", income_group: "Low income", flag: "🇿🇼" }
+  ZWE: { iso3: "ZWE", name: "Zimbabwe", lat: -19.0154, lng: 29.1549, continent: "Africa", un_region: "Sub-Saharan Africa", income_group: "Low income", flag: "🇿🇼" },
+  // Territories present in the UN DESA data
+  BES: { iso3: "BES", name: "Bonaire, Sint Eustatius and Saba", lat: 12.1800, lng: -68.2500, continent: "Americas", un_region: "Caribbean", income_group: "High income", flag: "🇧🇶" },
+  CHI: { iso3: "CHI", name: "Channel Islands", lat: 49.3500, lng: -2.3500, continent: "Europe", un_region: "Northern Europe", income_group: "High income", flag: "🇯🇪" },
+  COK: { iso3: "COK", name: "Cook Islands", lat: -21.2400, lng: -159.7800, continent: "Oceania", un_region: "Polynesia", income_group: "High income", flag: "🇨🇰" },
+  CUW: { iso3: "CUW", name: "Curaçao", lat: 12.1700, lng: -68.9900, continent: "Americas", un_region: "Caribbean", income_group: "High income", flag: "🇨🇼" },
+  CYM: { iso3: "CYM", name: "Cayman Islands", lat: 19.3100, lng: -81.2500, continent: "Americas", un_region: "Caribbean", income_group: "High income", flag: "🇰🇾" },
+  ESH: { iso3: "ESH", name: "Western Sahara", lat: 24.2200, lng: -12.8900, continent: "Africa", un_region: "Northern Africa", income_group: "Lower middle income", flag: "🇪🇭" },
+  FLK: { iso3: "FLK", name: "Falkland Islands", lat: -51.8000, lng: -59.5200, continent: "Americas", un_region: "South America", income_group: "High income", flag: "🇫🇰" },
+  FRO: { iso3: "FRO", name: "Faroe Islands", lat: 61.8900, lng: -6.9100, continent: "Europe", un_region: "Northern Europe", income_group: "High income", flag: "🇫🇴" },
+  GIB: { iso3: "GIB", name: "Gibraltar", lat: 36.1400, lng: -5.3500, continent: "Europe", un_region: "Southern Europe", income_group: "High income", flag: "🇬🇮" },
+  GLP: { iso3: "GLP", name: "Guadeloupe", lat: 16.2700, lng: -61.5500, continent: "Americas", un_region: "Caribbean", income_group: "High income", flag: "🇬🇵" },
+  GRL: { iso3: "GRL", name: "Greenland", lat: 71.7100, lng: -42.6000, continent: "Americas", un_region: "Northern America", income_group: "High income", flag: "🇬🇱" },
+  GUF: { iso3: "GUF", name: "French Guiana", lat: 3.9300, lng: -53.1300, continent: "Americas", un_region: "South America", income_group: "High income", flag: "🇬🇫" },
+  GUM: { iso3: "GUM", name: "Guam", lat: 13.4400, lng: 144.7900, continent: "Oceania", un_region: "Micronesia", income_group: "High income", flag: "🇬🇺" },
+  IMN: { iso3: "IMN", name: "Isle of Man", lat: 54.2400, lng: -4.5500, continent: "Europe", un_region: "Northern Europe", income_group: "High income", flag: "🇮🇲" },
+  MAC: { iso3: "MAC", name: "Macao", lat: 22.2000, lng: 113.5400, continent: "Asia", un_region: "Eastern Asia", income_group: "High income", flag: "🇲🇴" },
+  MNP: { iso3: "MNP", name: "Northern Mariana Islands", lat: 15.1800, lng: 145.7500, continent: "Oceania", un_region: "Micronesia", income_group: "High income", flag: "🇲🇵" },
+  MSR: { iso3: "MSR", name: "Montserrat", lat: 16.7400, lng: -62.1900, continent: "Americas", un_region: "Caribbean", income_group: "Upper middle income", flag: "🇲🇸" },
+  MTQ: { iso3: "MTQ", name: "Martinique", lat: 14.6400, lng: -61.0200, continent: "Americas", un_region: "Caribbean", income_group: "High income", flag: "🇲🇶" },
+  MYT: { iso3: "MYT", name: "Mayotte", lat: -12.8300, lng: 45.1700, continent: "Africa", un_region: "Sub-Saharan Africa", income_group: "Upper middle income", flag: "🇾🇹" },
+  NCL: { iso3: "NCL", name: "New Caledonia", lat: -20.9000, lng: 165.6200, continent: "Oceania", un_region: "Melanesia", income_group: "High income", flag: "🇳🇨" },
+  NIU: { iso3: "NIU", name: "Niue", lat: -19.0500, lng: -169.8700, continent: "Oceania", un_region: "Polynesia", income_group: "Upper middle income", flag: "🇳🇺" },
+  PYF: { iso3: "PYF", name: "French Polynesia", lat: -17.6800, lng: -149.4100, continent: "Oceania", un_region: "Polynesia", income_group: "High income", flag: "🇵🇫" },
+  REU: { iso3: "REU", name: "Réunion", lat: -21.1200, lng: 55.5400, continent: "Africa", un_region: "Sub-Saharan Africa", income_group: "High income", flag: "🇷🇪" },
+  SHN: { iso3: "SHN", name: "Saint Helena", lat: -15.9600, lng: -5.7100, continent: "Africa", un_region: "Sub-Saharan Africa", income_group: "Upper middle income", flag: "🇸🇭" },
+  SPM: { iso3: "SPM", name: "Saint Pierre and Miquelon", lat: 46.9400, lng: -56.2700, continent: "Americas", un_region: "Northern America", income_group: "High income", flag: "🇵🇲" },
+  SXM: { iso3: "SXM", name: "Sint Maarten", lat: 18.0400, lng: -63.0500, continent: "Americas", un_region: "Caribbean", income_group: "High income", flag: "🇸🇽" },
+  TCA: { iso3: "TCA", name: "Turks and Caicos Islands", lat: 21.6900, lng: -71.8000, continent: "Americas", un_region: "Caribbean", income_group: "High income", flag: "🇹🇨" },
+  TKL: { iso3: "TKL", name: "Tokelau", lat: -9.2000, lng: -171.8500, continent: "Oceania", un_region: "Polynesia", income_group: "Lower middle income", flag: "🇹🇰" },
+  VAT: { iso3: "VAT", name: "Holy See", lat: 41.9000, lng: 12.4500, continent: "Europe", un_region: "Southern Europe", income_group: "High income", flag: "🇻🇦" },
+  VGB: { iso3: "VGB", name: "British Virgin Islands", lat: 18.4200, lng: -64.6400, continent: "Americas", un_region: "Caribbean", income_group: "High income", flag: "🇻🇬" },
+  VIR: { iso3: "VIR", name: "United States Virgin Islands", lat: 18.3400, lng: -64.9000, continent: "Americas", un_region: "Caribbean", income_group: "High income", flag: "🇻🇮" },
+  WLF: { iso3: "WLF", name: "Wallis and Futuna Islands", lat: -13.7700, lng: -177.1600, continent: "Oceania", un_region: "Polynesia", income_group: "Upper middle income", flag: "🇼🇫" }
 };
 
 export function getCountryGeo(iso3: string): CountryGeo {
@@ -236,3 +269,6 @@ export function projectLatLng(lat: number, lng: number, width: number = 1000, he
   return { x: Math.max(8, Math.min(width - 8, x)), y: Math.max(8, Math.min(height - 8, y)) };
 }
 
+export const COUNTRY_LIST: CountryGeo[] = Object.values(COUNTRY_GEO_MAP).sort((a, b) =>
+  a.name.localeCompare(b.name)
+);

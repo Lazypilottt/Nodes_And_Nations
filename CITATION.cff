@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this software or its derived datasets, please cite it as below."
+title: "Nodes & Nations: A Network Analysis of Global Migration, 1990–2025"
+type: software
+authors:
+  - alias: Lazypilottt
+repository-code: "https://github.com/Lazypilottt/Nodes_And_Nations"
+license: MIT
+keywords:
+  - migration
+  - network analysis
+  - community detection
+  - gravity model
+  - UN DESA
+references:
+  - type: data
+    title: "International Migrant Stock 2024"
+    authors:
+      - name: "United Nations Department of Economic and Social Affairs, Population Division"
+    year: 2024
+    url: "https://www.un.org/development/desa/pd/content/international-migrant-stock"

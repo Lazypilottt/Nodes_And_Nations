@@ -3,7 +3,7 @@
 Full pipeline for predicting edge migrant stock (edge weight) using gradient-boosting.
 
 Produces:
- - data/exports/edge_model_metrics.csv
+ - data/exports/edge_model_metrics.json
  - data/exports/edge_feature_importance.png
  - models/edge_weight_predictor.joblib
 
@@ -12,7 +12,11 @@ Usage:
     python notebooks/06_edge_weight_predictor.py
 
 Notes:
- - Requires outputs from earlier pipeline: data/exports/network_edges.csv and data/processed/factors_panel.csv
+ - Trains on every bilateral corridor in data/processed/migration_long.csv, not
+   just the top-N export, so the model sees small corridors as well as large ones.
+ - Train/test and CV splits are grouped by corridor (origin, dest). A random row
+   split would put the same corridor in both sets for different years and
+   overstate accuracy.
  - If xgboost is not installed, falls back to sklearn's HistGradientBoostingRegressor
 """
 
@@ -23,11 +27,11 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split, RandomizedSearchCV
+from sklearn.model_selection import GroupKFold, GroupShuffleSplit, RandomizedSearchCV
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.ensemble import HistGradientBoostingRegressor
+from sklearn.inspection import permutation_importance
 import joblib
 import matplotlib
 matplotlib.use("Agg")
@@ -40,20 +44,13 @@ ROOT_DIR = str(Path(__file__).resolve().parents[1])
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
-from data.loader import paths, load_factors, load_edges, load_country_metadata
-ROOT = paths["ROOT"]
+from data.loader import paths, load_factors, load_migration_long, load_country_metadata
+from data.features import FEATURE_COLUMNS, build_dyad_features
+
 EXPORTS_DIR = paths["EXPORTS_DIR"]
-PROCESSED = paths["PROCESSED_DIR"]
 MODELS_DIR = paths["MODELS_DIR"]
 os.makedirs(MODELS_DIR, exist_ok=True)
 os.makedirs(EXPORTS_DIR, exist_ok=True)
-
-# Paths for expected input files (used as a quick existence check)
-EDGE_CSV = os.path.join(EXPORTS_DIR, "network_edges.csv")
-FACTORS_CSV = os.path.join(PROCESSED, "factors_panel.csv")
-
-if not os.path.exists(EDGE_CSV) or not os.path.exists(FACTORS_CSV):
-    raise FileNotFoundError("Required input files missing. Run earlier pipeline steps to produce network_edges.csv and factors_panel.csv")
 
 # Try to use XGBoost if available (often faster / better). Fallback to sklearn's HistGradientBoostingRegressor.
 try:
@@ -64,118 +61,40 @@ except Exception:
 
 
 def load_and_build_features():
-    edges = load_edges()
+    migration = load_migration_long()
     factors = load_factors()
     country_meta = load_country_metadata()
 
-    # Basic renaming: origin_iso3, dest_iso3, year, weight
-    if "origin_iso3" not in edges.columns or "dest_iso3" not in edges.columns:
-        raise ValueError("network_edges.csv must contain origin_iso3 and dest_iso3 columns")
+    edges = (
+        migration[migration["origin_iso3"] != migration["dest_iso3"]]
+        .groupby(["origin_iso3", "dest_iso3", "year"], as_index=False)["migrant_stock"].sum()
+        .rename(columns={"migrant_stock": "weight"})
+    )
+    edges = edges[edges["weight"] > 0]
 
-    # Merge origin factors
-    origin = factors.rename(columns=lambda c: f"origin_{c}" if c != "iso3" else "origin_iso3")
-    dest = factors.rename(columns=lambda c: f"dest_{c}" if c != "iso3" else "dest_iso3")
+    df = build_dyad_features(edges, factors, country_meta)
+    df["log_weight"] = np.log1p(df["weight"].astype(float))
+    df["corridor"] = df["origin_iso3"] + "->" + df["dest_iso3"]
 
-    df = edges.merge(origin, left_on=["origin_iso3", "year"], right_on=["origin_iso3", "origin_year"], how="left")
-    # Note: origin_year column produced by renaming is 'origin_year'
-    # But factors file has column name 'year' — the rename above produced 'origin_year' so right_on is correct
-    df = df.merge(dest, left_on=["dest_iso3", "year"], right_on=["dest_iso3", "dest_year"], how="left")
+    # Require the core gravity terms; everything else may be missing
+    df = df.dropna(subset=["log_weight", "origin_log_gdp", "dest_log_gdp", "origin_log_pop", "dest_log_pop"])
 
-    # If country metadata exists, use continent/income group to create relational features
-    if country_meta is not None:
-        df = df.merge(country_meta.rename(columns={"iso3": "origin_iso3", "continent": "origin_continent", "income_group": "origin_income_group"}), on="origin_iso3", how="left")
-        df = df.merge(country_meta.rename(columns={"iso3": "dest_iso3", "continent": "dest_continent", "income_group": "dest_income_group"}), on="dest_iso3", how="left")
-
-    # Target
-    df["weight"] = df["weight"].astype(float)
-    df["log_weight"] = np.log1p(df["weight"])  # target for regression
-
-    # Feature engineering: logs of gdp / population
-    for prefix in ["origin_", "dest_"]:
-        if f"{prefix}gdp_per_capita" in df.columns:
-            df[f"{prefix}log_gdp"] = np.where(df[f"{prefix}gdp_per_capita"] > 0, np.log(df[f"{prefix}gdp_per_capita"]), np.nan)
-        else:
-            df[f"{prefix}log_gdp"] = np.nan
-        if f"{prefix}population" in df.columns:
-            df[f"{prefix}log_pop"] = np.where(df[f"{prefix}population"] > 0, np.log(df[f"{prefix}population"]), np.nan)
-        else:
-            df[f"{prefix}log_pop"] = np.nan
-
-    # Differences / ratios
-    df["gdp_log_diff"] = df["origin_log_gdp"] - df["dest_log_gdp"]
-    df["pop_log_diff"] = df["origin_log_pop"] - df["dest_log_pop"]
-
-    # Conflict, unemployment, climate, culture, religion etc.
-    for col in [
-        "conflict_intensity", "unemployment", "education_index", "visa_openness_index", "climate_vulnerability",
-        "integration_policy_index", "cultural_openness_index", "labour_market_integration",
-        "anti_discrimination_score", "naturalization_access_score",
-        "religious_fractionalization", "religious_diversity_index", "religiosity_importance_score",
-        "dominant_religion"
-    ]:
-        df[f"origin_{col}"] = df.get(f"origin_{col}", np.nan)
-        df[f"dest_{col}"] = df.get(f"dest_{col}", np.nan)
-
-    # Cultural & Religious relational features
-    if "origin_dominant_religion" in df.columns and "dest_dominant_religion" in df.columns:
-        df["same_dominant_religion"] = (df["origin_dominant_religion"] == df["dest_dominant_religion"]).astype(float)
-    else:
-        df["same_dominant_religion"] = 0.0
-
-    if "origin_cultural_openness_index" in df.columns and "dest_cultural_openness_index" in df.columns:
-        df["cultural_openness_diff"] = (df["origin_cultural_openness_index"] - df["dest_cultural_openness_index"]).abs()
-    else:
-        df["cultural_openness_diff"] = np.nan
-
-    # Categorical relational features
-    df["same_continent"] = (df.get("origin_continent") == df.get("dest_continent")).astype(float)
-    df["same_income_group"] = (df.get("origin_income_group") == df.get("dest_income_group")).astype(float)
-
-    # Year as numeric
-    df["year"] = df["year"].astype(int)
-
-    # Select feature columns
-    feature_cols = [
-        "origin_log_gdp", "dest_log_gdp", "origin_log_pop", "dest_log_pop",
-        "gdp_log_diff", "pop_log_diff",
-        "origin_conflict_intensity", "dest_conflict_intensity",
-        "origin_unemployment", "dest_unemployment",
-        "origin_education_index", "dest_education_index",
-        "origin_visa_openness_index", "dest_visa_openness_index",
-        "origin_climate_vulnerability", "dest_climate_vulnerability",
-        "origin_cultural_openness_index", "dest_cultural_openness_index",
-        "cultural_openness_diff", "dest_integration_policy_index",
-        "dest_labour_market_integration", "dest_anti_discrimination_score",
-        "dest_naturalization_access_score",
-        "same_dominant_religion", "origin_religiosity_importance_score",
-        "dest_religiosity_importance_score", "origin_religious_diversity_index",
-        "dest_religious_diversity_index",
-        "same_continent", "same_income_group",
-        "year",
-    ]
-
-    # Keep only columns that exist
-    feature_cols = [c for c in feature_cols if c in df.columns]
-
-    df_features = df[["origin_iso3", "dest_iso3", "year", "weight", "log_weight"] + feature_cols].copy()
-
-    # Drop rows where target is missing or where both origin/dest logs are missing
-    df_features = df_features.dropna(subset=["log_weight"])
-    # Require at least some core features non-null
-    df_features = df_features.dropna(subset=[c for c in ["origin_log_gdp", "dest_log_gdp", "origin_log_pop", "dest_log_pop"] if c in df_features.columns], how="any")
-
-    print(f"Built feature frame: {df_features.shape[0]:,} rows, {len(feature_cols)} features")
-
-    return df_features, feature_cols
+    print(f"Built feature frame: {df.shape[0]:,} rows, {df['corridor'].nunique():,} corridors, "
+          f"{len(FEATURE_COLUMNS)} features")
+    return df, list(FEATURE_COLUMNS)
 
 
 def build_and_train(df, feature_cols):
     X = df[feature_cols]
     y = df["log_weight"]
+    groups = df["corridor"]
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    splitter = GroupShuffleSplit(n_splits=1, test_size=0.2, random_state=42)
+    train_idx, test_idx = next(splitter.split(X, y, groups))
+    X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
+    y_train, y_test = y.iloc[train_idx], y.iloc[test_idx]
 
-    # Model
+    # Tree ensembles are scale-invariant, so no scaler is needed.
     if XGB_AVAILABLE:
         estimator = XGBRegressor(objective="reg:squarederror", tree_method="hist", verbosity=0, n_jobs=4, random_state=42)
         param_dist = {
@@ -189,80 +108,72 @@ def build_and_train(df, feature_cols):
     else:
         estimator = HistGradientBoostingRegressor(random_state=42)
         param_dist = {
-            "estimator__learning_rate": [0.01, 0.05, 0.1],
-            "estimator__max_iter": [100, 200, 400],
-            "estimator__max_leaf_nodes": [15, 31, 63, None],
+            "estimator__learning_rate": [0.03, 0.05, 0.1],
+            "estimator__max_iter": [200, 400, 600],
+            "estimator__max_leaf_nodes": [15, 31, 63],
+            "estimator__min_samples_leaf": [20, 50, 100],
+            "estimator__l2_regularization": [0.0, 0.1, 1.0],
         }
         estimator_name = "histgb"
 
-    pipe = Pipeline([
-        ("scaler", StandardScaler()),
-        ("estimator", estimator)
-        ("vector", &&moderator_vector01) #inclined vector has to be reshuffeled in the first module sine die
-    ])
+    pipe = Pipeline([("estimator", estimator)])
 
-    # Randomized search
-    n_iter = 20
-    search = RandomizedSearchCV(pipe, param_distributions=param_dist, n_iter=n_iter, cv=3,
-                                scoring="neg_root_mean_squared_error", random_state=42, n_jobs=4, verbose=1)
+    search = RandomizedSearchCV(
+        pipe, param_distributions=param_dist, n_iter=12, cv=GroupKFold(n_splits=3),
+        scoring="neg_root_mean_squared_error", random_state=42, n_jobs=4, verbose=1,
+    )
 
     print("Starting randomized CV search (this may take a few minutes)...")
-    search.fit(X_train, y_train)
+    search.fit(X_train, y_train, groups=groups.iloc[train_idx])
 
     print(f"Best params ({estimator_name}): {search.best_params_}")
 
-    # Evaluate
     best = search.best_estimator_
     y_pred = best.predict(X_test)
-    # mean_squared_error in some sklearn versions does not accept `squared` kwarg — take sqrt of MSE for RMSE
     rmse = mean_squared_error(y_test, y_pred) ** 0.5
     r2 = r2_score(y_test, y_pred)
 
     print(f"Test RMSE (log-weight): {rmse:.4f}")
     print(f"Test R²: {r2:.4f}")
 
-    # Feature importance if available
-    fi = None
-    if XGB_AVAILABLE:
-        try:
-            fi = best.named_steps["estimator"].feature_importances_
-        except Exception:
-            fi = None
-    else:
-        try:
-            fi = best.named_steps["estimator"].feature_importances_
-        except Exception:
-            fi = None
-
-    # Save model
     model_path = os.path.join(MODELS_DIR, "edge_weight_predictor.joblib")
     joblib.dump({"model": best, "features": feature_cols}, model_path)
     print(f"Saved model: {model_path}")
 
-    # Save metrics & feature importance
-    metrics = {"rmse_log": float(rmse), "r2": float(r2), "n_test": int(len(y_test))}
+    metrics = {
+        "estimator": estimator_name,
+        "rmse_log": float(rmse),
+        "r2": float(r2),
+        "n_train": int(len(y_train)),
+        "n_test": int(len(y_test)),
+        "split": "grouped by corridor",
+    }
     metrics_path = os.path.join(EXPORTS_DIR, "edge_model_metrics.json")
     with open(metrics_path, "w") as f:
         json.dump(metrics, f, indent=2)
 
-    if fi is not None:
-        fi_df = pd.DataFrame({"feature": feature_cols, "importance": fi})
-        fi_df = fi_df.sort_values("importance", ascending=False)
-        fig, ax = plt.subplots(figsize=(8, max(4, len(feature_cols) * 0.25)))
-        ax.barh(fi_df["feature"], fi_df["importance"])
-        ax.invert_yaxis()
-        ax.set_xlabel("feature importance")
-        plt.tight_layout()
-        out_fig = os.path.join(EXPORTS_DIR, "edge_feature_importance.png")
-        fig.savefig(out_fig, dpi=150)
-        print(f"Saved feature importance: {out_fig}")
+    # HistGradientBoosting has no built-in importances; permutation importance
+    # on a held-out sample works for either estimator.
+    sample = X_test.sample(min(5000, len(X_test)), random_state=42)
+    pi = permutation_importance(best, sample, y_test.loc[sample.index], n_repeats=5, random_state=42, n_jobs=4)
+    fi_df = pd.DataFrame({"feature": feature_cols, "importance": pi.importances_mean})
+    fi_df = fi_df.sort_values("importance", ascending=False)
+    fi_df.to_csv(os.path.join(EXPORTS_DIR, "edge_feature_importance.csv"), index=False)
+    fig, ax = plt.subplots(figsize=(8, max(4, len(feature_cols) * 0.25)))
+    ax.barh(fi_df["feature"], fi_df["importance"], color="#2563eb")
+    ax.invert_yaxis()
+    ax.set_xlabel("permutation importance (Δ R²)")
+    plt.tight_layout()
+    out_fig = os.path.join(EXPORTS_DIR, "edge_feature_importance.png")
+    fig.savefig(out_fig, dpi=150)
+    print(f"Saved feature importance: {out_fig}")
 
     return metrics, best
 
 
 def main():
     df, feature_cols = load_and_build_features()
-    metrics, model = build_and_train(df, feature_cols)
+    build_and_train(df, feature_cols)
     print("Done.")
 
 

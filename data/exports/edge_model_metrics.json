@@ -1,5 +1,8 @@
 {
-  "rmse_log": 0.542483984814097,
-  "r2": 0.6952741172506987,
-  "n_test": 787
+  "estimator": "histgb",
+  "rmse_log": 1.528899175755348,
+  "r2": 0.7253237828532139,
+  "n_train": 52988,
+  "n_test": 13183,
+  "split": "grouped by corridor"
 }

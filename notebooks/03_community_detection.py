@@ -26,6 +26,7 @@ import community as community_louvain   # python-louvain
 import igraph as ig
 import leidenalg 
 
+from scipy.optimize import linear_sum_assignment
 from sklearn.metrics import normalized_mutual_info_score, adjusted_rand_score
 from networkx.algorithms.community import girvan_newman
 from networkx.algorithms.community.quality import modularity as nx_modularity
@@ -134,13 +135,16 @@ def run_leiden(G_und: nx.Graph, year: int) -> tuple[dict, float]:
         weights="weight",
         seed=42,
     )
-    Q = partition.modularity
 
     # Build node → community mapping
     node_partition = {}
     for comm_id, comm_members in enumerate(partition):
         for member_idx in comm_members:
             node_partition[idx_map[member_idx]] = comm_id
+
+    # partition.modularity is the *unweighted* Q; score with the same weighted
+    # definition used for Louvain so the two are comparable.
+    Q = community_louvain.modularity(node_partition, G_und, weight="weight")
 
     communities = {}
     for node, comm_id in node_partition.items():
@@ -312,11 +316,51 @@ def jaccard_community_similarity(p1: dict, p2: dict) -> float:
     return float(np.mean(scores)) if scores else 0.0
 
 
+def align_partitions(partitions: dict) -> dict:
+    """
+    Relabel each year's communities so that IDs are stable over time.
+
+    Louvain assigns arbitrary integer IDs on every run, so community "3" in 1990
+    has nothing to do with community "3" in 1995. Each year is matched to the
+    previous (already aligned) year by maximum member overlap using the Hungarian
+    algorithm; unmatched communities receive fresh IDs.
+    """
+    years   = sorted(partitions.keys())
+    aligned = {years[0]: dict(partitions[years[0]])}
+    next_id = max(aligned[years[0]].values(), default=-1) + 1
+
+    for prev_year, year in zip(years, years[1:]):
+        prev, curr = aligned[prev_year], partitions[year]
+        prev_ids = sorted(set(prev.values()))
+        curr_ids = sorted(set(curr.values()))
+
+        overlap = np.zeros((len(curr_ids), len(prev_ids)))
+        prev_idx = {c: j for j, c in enumerate(prev_ids)}
+        curr_idx = {c: i for i, c in enumerate(curr_ids)}
+        for node, c in curr.items():
+            if node in prev:
+                overlap[curr_idx[c], prev_idx[prev[node]]] += 1
+
+        rows, cols = linear_sum_assignment(-overlap)
+        mapping = {curr_ids[r]: prev_ids[c] for r, c in zip(rows, cols) if overlap[r, c] > 0}
+        for c in curr_ids:
+            if c not in mapping:
+                mapping[c] = next_id
+                next_id += 1
+
+        aligned[year] = {node: mapping[c] for node, c in curr.items()}
+
+    return aligned
+
+
 def compute_temporal_drift(louvain_partitions: dict) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     For each consecutive pair of snapshot years, compute:
       - Global Jaccard similarity of Louvain communities
       - Per-node community stability (how often a node changes community)
+
+    `louvain_partitions` must already be aligned (see align_partitions) so that
+    a change in label reflects a real change in community membership.
 
     Returns:
       drift_df:    DataFrame with (year_pair, jaccard_similarity)
@@ -333,15 +377,11 @@ def compute_temporal_drift(louvain_partitions: dict) -> tuple[pd.DataFrame, pd.D
         drift_rows.append({"year_start": y1, "year_end": y2, "jaccard_similarity": jac})
         print(f"  Jaccard {y1}→{y2}: {jac:.4f}")
 
-        # Per-node: did it change community?
-        # Note: community IDs are not comparable across years; use label propagation
         shared = set(p1.keys()) & set(p2.keys())
         for n in shared:
             if n not in node_changes:
                 node_changes[n] = {"total_periods": 0, "n_changes": 0}
             node_changes[n]["total_periods"] += 1
-            # Compare community membership by checking if same nodes appear together
-            # Approximate: if community id changed, flag as change
             if p1[n] != p2[n]:
                 node_changes[n]["n_changes"] += 1
 
@@ -385,6 +425,7 @@ def main():
     all_memberships  = []
     modularity_rows  = []
     louvain_partitions = {}
+    other_partitions   = {}
 
     # ── Loop over years ───────────────────────────────────────────────────────
     for year in sorted(graphs.keys()):
@@ -433,7 +474,13 @@ def main():
                 **metrics,
             })
 
-        # Community memberships
+        other_partitions[year] = (nodes, p_leiden, p_gn)
+
+    # ── Stable community IDs across years ────────────────────────────────────
+    louvain_partitions = align_partitions(louvain_partitions)
+
+    for year, (nodes, p_leiden, p_gn) in sorted(other_partitions.items()):
+        p_louvain = louvain_partitions[year]
         for node in nodes:
             all_memberships.append({
                 "iso3":               node,

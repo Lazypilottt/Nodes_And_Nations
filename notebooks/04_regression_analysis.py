@@ -20,6 +20,7 @@ Outputs: data/exports/regression_coefficients.csv
 
 import os
 import warnings
+from typing import Optional
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
@@ -116,13 +117,18 @@ def fit_ols_model(
     y_col:    str,
     x_cols:   list,
     model_name: str,
+    cluster_col: Optional[str] = None,
 ) -> tuple[object, pd.DataFrame]:
     """
     Fit an OLS model with specified X and Y columns.
     Drops rows with NaN in any required column.
+
+    When `cluster_col` is given, standard errors are cluster-robust by that
+    column. Pooled models repeat each country across 8 snapshots, so plain OLS
+    standard errors would overstate significance.
     Returns (fitted model, coefficient DataFrame).
     """
-    required = [y_col] + x_cols
+    required = [y_col] + x_cols + ([cluster_col] if cluster_col else [])
     df_model = df[required].dropna()
 
     if len(df_model) < 30:
@@ -132,7 +138,11 @@ def fit_ols_model(
     X = sm.add_constant(df_model[x_cols])
     y = df_model[y_col]
 
-    model  = sm.OLS(y, X).fit()
+    if cluster_col:
+        groups = pd.factorize(df_model[cluster_col])[0]
+        model = sm.OLS(y, X).fit(cov_type="cluster", cov_kwds={"groups": groups})
+    else:
+        model = sm.OLS(y, X).fit()
     conf   = model.conf_int(alpha=0.05)
     conf.columns = ["ci_lower_95", "ci_upper_95"]
 
@@ -178,7 +188,9 @@ def fit_model_pair(
     raw_cultural_preds = raw_full_preds + [
         c for c in [
             "cultural_openness_index", "integration_policy_index",
-            "religious_fractionalization", "religious_diversity_index",
+            # religious_diversity_index is a linear rescale of fractionalization
+            # (frac / 0.85), so including both makes the design matrix singular.
+            "religious_fractionalization",
             "religiosity_importance_score"
         ]
         if c in df.columns
@@ -197,7 +209,7 @@ def fit_model_pair(
         (f"cultural_gravity_{direction}", cultural_preds),
     ]:
         print(f"\n  Fitting {model_label} (y={y_col}, X={preds})")
-        model, coef_df = fit_ols_model(df, y_col, preds, model_label)
+        model, coef_df = fit_ols_model(df, y_col, preds, model_label, cluster_col="iso3")
         if model is None:
             continue
         coef_dfs.append(coef_df)

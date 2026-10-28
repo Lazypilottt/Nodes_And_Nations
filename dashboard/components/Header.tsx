@@ -1,233 +1,134 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { fmtCompact, fmtInt, fmtNum } from '../lib/theme';
+import { SNAPSHOT_YEARS, type View, type Year } from '../lib/types';
+
+const TABS: { id: View; label: string }[] = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'simulator', label: 'Crisis simulator' },
+  { id: 'distributions', label: 'Distributions' },
+  { id: 'topology', label: 'Network' },
+  { id: 'comparator', label: 'Compare' },
+];
 
 interface HeaderProps {
-  currentYear: number;
-  onYearChange: (year: number) => void;
-  activeView: 'map' | 'simulator' | 'charts' | 'topology' | 'comparator';
-  onViewChange: (view: 'map' | 'simulator' | 'charts' | 'topology' | 'comparator') => void;
-  summaryStats?: any[];
-  networkSummary?: any[];
-  modularityScores?: any[];
+  year: Year;
+  onYearChange: (y: Year) => void;
+  view: View;
+  onViewChange: (v: View) => void;
+  networkSummary: Record<string, any>[];
+  modularityScores: Record<string, any>[];
 }
 
-const SNAPSHOT_YEARS = [1990, 1995, 2000, 2005, 2010, 2015, 2020, 2025];
+export default function Header({ year, onYearChange, view, onViewChange, networkSummary, modularityScores }: HeaderProps) {
+  const [playing, setPlaying] = useState(false);
 
-export default function Header({
-  currentYear,
-  onYearChange,
-  activeView,
-  onViewChange,
-  summaryStats = [],
-  networkSummary = [],
-  modularityScores = [],
-}: HeaderProps) {
-  const [isPlaying, setIsPlaying] = useState(false);
-
-  // Dynamic Pipeline Metrics for Current Year
-  const currentSummary = React.useMemo(() => {
-    return (networkSummary || []).find((s: any) => Number(s.year) === currentYear);
-  }, [networkSummary, currentYear]);
-
-  const summary1990 = React.useMemo(() => {
-    return (networkSummary || []).find((s: any) => Number(s.year) === 1990);
-  }, [networkSummary]);
-
-  const currentModularity = React.useMemo(() => {
-    return (modularityScores || []).find(
-      (m: any) => Number(m.year) === currentYear && m.algorithm === 'louvain'
-    );
-  }, [modularityScores, currentYear]);
-
-  const totalStockStr = currentSummary?.total_migrant_stock
-    ? (Number(currentSummary.total_migrant_stock) / 1000000).toFixed(1) + 'M'
-    : '245.0M';
-
-  const stockGrowthPct =
-    currentSummary?.total_migrant_stock && summary1990?.total_migrant_stock
-      ? Math.round(
-          ((Number(currentSummary.total_migrant_stock) - Number(summary1990.total_migrant_stock)) /
-            Number(summary1990.total_migrant_stock)) *
-            100
-        )
-      : 0;
-
-  const activeCorridorsStr = currentSummary?.n_edges
-    ? Number(currentSummary.n_edges).toLocaleString() + ' Pairs'
-    : '8,548 Pairs';
-
-  const modularityQ = currentModularity?.modularity_q
-    ? Number(currentModularity.modularity_q).toFixed(3)
-    : '0.589';
-
-  const modularityDesc =
-    Number(modularityQ) >= 0.58
-      ? 'Segmented'
-      : Number(modularityQ) >= 0.54
-      ? 'Transition'
-      : 'Integrated';
-
-  // Time-Machine Auto-Player Timer
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isPlaying) {
-      interval = setInterval(() => {
-        onYearChange(
-          SNAPSHOT_YEARS[
-            (SNAPSHOT_YEARS.indexOf(currentYear) + 1) % SNAPSHOT_YEARS.length
-          ]
-        );
-      }, 2600);
-    }
-    return () => clearInterval(interval);
-  }, [isPlaying, currentYear, onYearChange]);
+    if (!playing) return;
+    const id = setTimeout(() => {
+      const i = SNAPSHOT_YEARS.indexOf(year);
+      if (i === SNAPSHOT_YEARS.length - 1) setPlaying(false);
+      else onYearChange(SNAPSHOT_YEARS[i + 1]);
+    }, 1600);
+    return () => clearTimeout(id);
+  }, [playing, year, onYearChange]);
 
-  const stepYear = (direction: 'next' | 'prev') => {
-    const idx = SNAPSHOT_YEARS.indexOf(currentYear);
-    if (direction === 'next') {
-      onYearChange(SNAPSHOT_YEARS[(idx + 1) % SNAPSHOT_YEARS.length]);
-    } else {
-      onYearChange(SNAPSHOT_YEARS[(idx - 1 + SNAPSHOT_YEARS.length) % SNAPSHOT_YEARS.length]);
-    }
+  const togglePlay = () => {
+    if (!playing && year === SNAPSHOT_YEARS[SNAPSHOT_YEARS.length - 1]) onYearChange(SNAPSHOT_YEARS[0]);
+    setPlaying((p) => !p);
   };
 
+  const current = networkSummary.find((s) => Number(s.year) === year);
+  const base = networkSummary.find((s) => Number(s.year) === SNAPSHOT_YEARS[0]);
+  const q = modularityScores.find((m) => Number(m.year) === year && m.algorithm === 'louvain');
+  const growth =
+    current && base && base.total_migrant_stock
+      ? (current.total_migrant_stock - base.total_migrant_stock) / base.total_migrant_stock
+      : null;
+
   return (
-    <header className="bg-[#f4efe6] border-b border-[#ded3be] relative shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 lg:px-8 py-3.5 space-y-3.5">
-        {/* Top Branding & KPI Row */}
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-[#1e3a5f] border border-[#14253e] flex items-center justify-center text-[#fbf9f4] font-serif font-bold text-base shadow-sm">
-              NN
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="font-bold text-[#1a202c] text-base tracking-tight font-serif">
-                  NODES & NATIONS
-                </h1>
-                <span className="text-[10px] bg-[#ece4d4] text-[#6d5c46] border border-[#d8ccb8] px-2 py-0.5 rounded font-mono font-semibold uppercase tracking-wider">
-                  Global Topology Platform
-                </span>
-              </div>
-              <p className="text-[11.5px] text-[#635a4d]">
-                Topological Analysis and Crisis Displacement Simulator (1990–2025)
-              </p>
-            </div>
-          </div>
-
-          {/* Dynamic Key Metric Chips for Current Year */}
-          <div className="flex items-center gap-2 text-xs">
-            <div className="bg-[#ece5d6] border border-[#ded3be] px-3 py-1.5 rounded-lg shadow-sm">
-              <div className="text-[10px] text-[#786b59] font-mono uppercase font-semibold">Global Migrant Stock ({currentYear})</div>
-              <div className="font-bold text-[#1e293b] font-mono text-xs mt-0.5">
-                {totalStockStr}{' '}
-                <span className="text-[10px] text-[#28534b] font-semibold">
-                  ({stockGrowthPct >= 0 ? `+${stockGrowthPct}%` : `${stockGrowthPct}%`})
-                </span>
-              </div>
-            </div>
-
-            <div className="bg-[#ece5d6] border border-[#ded3be] px-3 py-1.5 rounded-lg shadow-sm">
-              <div className="text-[10px] text-[#786b59] font-mono uppercase font-semibold">Active Corridors</div>
-              <div className="font-bold text-[#1e3a5f] font-mono text-xs mt-0.5">{activeCorridorsStr}</div>
-            </div>
-
-            <div className="bg-[#ece5d6] border border-[#ded3be] px-3 py-1.5 rounded-lg shadow-sm">
-              <div className="text-[10px] text-[#786b59] font-mono uppercase font-semibold">Network Modularity Q</div>
-              <div className="font-bold text-[#945920] font-mono text-xs mt-0.5">
-                {modularityQ}{' '}
-                <span className="text-[10px] text-[#786b59] font-normal">({modularityDesc})</span>
-              </div>
-            </div>
+    <header className="sticky top-0 z-30 border-b border-zinc-200 bg-white/90 backdrop-blur">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 pt-3 sm:px-6 lg:px-8">
+        <div className="flex items-center gap-2.5">
+          <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden className="text-blue-600">
+            <circle cx="5" cy="6" r="2.5" fill="currentColor" />
+            <circle cx="19" cy="8" r="2.5" fill="currentColor" />
+            <circle cx="11" cy="18" r="2.5" fill="currentColor" />
+            <path d="M5 6 19 8 11 18 5 6" fill="none" stroke="currentColor" strokeWidth="1.5" strokeOpacity=".4" />
+          </svg>
+          <div className="leading-tight">
+            <div className="text-sm font-semibold text-zinc-900">Nodes &amp; Nations</div>
+            <div className="text-[11px] text-zinc-500">Global migration network, 1990–2025</div>
           </div>
         </div>
 
-        {/* Navigation Tabs & Time-Travel Scrubber */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-2.5 border-t border-[#ded3be]">
-          {/* Main Navigation Tabs */}
-          <nav className="flex items-center gap-1 bg-[#e8e0cf] border border-[#d8ccb8] p-1 rounded-lg text-xs">
-            {[
-              { id: 'map', label: 'Overview & Corridors' },
-              { id: 'simulator', label: 'Crisis Simulator', badge: 'Active' },
-              { id: 'charts', label: 'Distribution Analytics' },
-              { id: 'topology', label: 'Centralities & Topology' },
-              { id: 'comparator', label: 'Bilateral Comparator' },
-            ].map((tab) => {
-              const isActive = activeView === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => onViewChange(tab.id as any)}
-                  className={`px-3 py-1.5 rounded-md font-medium text-xs transition flex items-center gap-1.5 ${
-                    isActive
-                      ? 'bg-[#1e3a5f] text-white font-semibold shadow-sm'
-                      : 'text-[#5a5043] hover:text-[#1a202c] hover:bg-[#dfd5c2]'
-                  }`}
-                >
-                  <span>{tab.label}</span>
-                  {tab.badge && (
-                    <span
-                      className={`text-[9px] px-1 py-0.2 rounded font-mono ${
-                        isActive ? 'bg-[#2d5282] text-white' : 'bg-[#f4dede] text-[#8b2626] border border-[#e6b8b8]'
-                      }`}
-                    >
-                      {tab.badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </nav>
+        <dl className="flex items-center gap-5 text-xs sm:gap-7">
+          <div>
+            <dt className="text-zinc-500">Migrant stock</dt>
+            <dd className="font-semibold tabular-nums text-zinc-900">
+              {fmtCompact(current?.total_migrant_stock)}
+              {growth !== null && year !== SNAPSHOT_YEARS[0] && (
+                <span className="ml-1 font-normal text-emerald-600">+{Math.round(growth * 100)}%</span>
+              )}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-zinc-500">Corridors</dt>
+            <dd className="font-semibold tabular-nums text-zinc-900">{fmtInt(current?.n_edges)}</dd>
+          </div>
+          <div>
+            <dt className="text-zinc-500">Modularity Q</dt>
+            <dd className="font-semibold tabular-nums text-zinc-900">{fmtNum(q?.modularity_q, 3)}</dd>
+          </div>
+        </dl>
+      </div>
 
-          {/* Timeline Player (1990 - 2025) */}
-          <div className="flex items-center gap-2 bg-[#e8e0cf] border border-[#d8ccb8] px-3 py-1 rounded-lg text-xs">
-            <span className="text-[10px] text-[#786b59] font-mono uppercase font-semibold mr-1">Period:</span>
-
+      <div className="mx-auto flex max-w-7xl flex-wrap items-end justify-between gap-x-6 gap-y-2 px-4 sm:px-6 lg:px-8">
+        <nav className="-mb-px flex gap-5 overflow-x-auto" aria-label="Sections">
+          {TABS.map((t) => (
             <button
-              onClick={() => stepYear('prev')}
-              className="px-1.5 py-0.5 hover:bg-[#dfd5c2] rounded text-[#5a5043] hover:text-[#1a202c] transition"
-              title="Previous Snapshot"
-            >
-              ◀
-            </button>
-
-            <button
-              onClick={() => setIsPlaying(!isPlaying)}
-              className={`px-2.5 py-1 rounded font-medium text-xs transition shadow-sm ${
-                isPlaying
-                  ? 'bg-[#945920] text-white'
-                  : 'bg-[#f4efe6] text-[#4a3d2e] border border-[#d8ccb8] hover:bg-[#eae1cf]'
+              key={t.id}
+              onClick={() => onViewChange(t.id)}
+              aria-current={view === t.id ? 'page' : undefined}
+              className={`whitespace-nowrap border-b-2 pb-2.5 pt-3 text-sm transition-colors ${
+                view === t.id
+                  ? 'border-blue-600 font-medium text-zinc-900'
+                  : 'border-transparent text-zinc-500 hover:text-zinc-800'
               }`}
             >
-              {isPlaying ? 'Pause' : 'Play Timeline'}
+              {t.label}
             </button>
+          ))}
+        </nav>
 
-            <button
-              onClick={() => stepYear('next')}
-              className="px-1.5 py-0.5 hover:bg-[#dfd5c2] rounded text-[#5a5043] hover:text-[#1a202c] transition"
-              title="Next Snapshot"
-            >
-              ▶
-            </button>
-
-            {/* Year Selector Buttons */}
-            <div className="flex gap-1 ml-1.5">
-              {SNAPSHOT_YEARS.map((yr) => (
-                <button
-                  key={yr}
-                  onClick={() => {
-                    setIsPlaying(false);
-                    onYearChange(yr);
-                  }}
-                  className={`px-2 py-0.5 rounded text-[11px] font-mono transition ${
-                    currentYear === yr
-                      ? 'bg-[#1e3a5f] text-white font-bold shadow-sm'
-                      : 'text-[#5a5043] hover:text-[#1a202c] hover:bg-[#dfd5c2]'
-                  }`}
-                >
-                  {yr}
-                </button>
-              ))}
-            </div>
+        <div className="flex items-center gap-2 pb-2">
+          <button
+            onClick={togglePlay}
+            aria-label={playing ? 'Pause timeline' : 'Play timeline'}
+            className="flex h-7 w-7 items-center justify-center rounded-full border border-zinc-200 text-zinc-700 hover:bg-zinc-50"
+          >
+            {playing ? (
+              <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden><rect x="1" y="1" width="3" height="8" fill="currentColor" /><rect x="6" y="1" width="3" height="8" fill="currentColor" /></svg>
+            ) : (
+              <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden><path d="M2 1 9 5 2 9Z" fill="currentColor" /></svg>
+            )}
+          </button>
+          <div className="flex overflow-x-auto rounded-lg bg-zinc-100 p-0.5" role="tablist" aria-label="Snapshot year">
+            {SNAPSHOT_YEARS.map((y) => (
+              <button
+                key={y}
+                role="tab"
+                aria-selected={y === year}
+                onClick={() => {
+                  setPlaying(false);
+                  onYearChange(y);
+                }}
+                className={`rounded-md px-2 py-0.5 text-xs tabular-nums transition-colors ${
+                  y === year ? 'bg-white font-semibold text-zinc-900 shadow-sm' : 'text-zinc-500 hover:text-zinc-800'
+                }`}
+              >
+                {y}
+              </button>
+            ))}
           </div>
         </div>
       </div>

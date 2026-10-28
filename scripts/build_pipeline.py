@@ -2,15 +2,18 @@
 build_pipeline.py
 Run the full Nodes_and_Nations ETL + training pipeline end-to-end.
 
-Steps (default):
-  1. Phase 1 data collection & cleaning  -> notebooks/01_data_collection_cleaning.py
-  2. Phase 2 network construction         -> notebooks/02_network_construction_centrality.py
-  3. Phase 3 train edge-weight predictor  -> notebooks/06_edge_weight_predictor.py
+Runs every numbered script in notebooks/ in order:
+  01 data collection & cleaning
+  02 network construction & centrality
+  03 community detection
+  04 regression analysis
+  05 export finalization
+  06 edge-weight predictor training
 
 Usage:
     python scripts/build_pipeline.py         # run full pipeline
-    python scripts/build_pipeline.py --skip-train
-    python scripts/build_pipeline.py --skip-graph
+    python scripts/build_pipeline.py --skip-train   # skip 06
+    python scripts/build_pipeline.py --skip-graph   # skip 02
 
 The script sets PYTHONPATH so the `data` package is importable when running notebooks as scripts.
 It stops on the first failing step and prints helpful diagnostics.

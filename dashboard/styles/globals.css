@@ -3,77 +3,38 @@
 @tailwind utilities;
 
 @layer base {
-  html, body, #__next {
-    min-height: 100%;
-    margin: 0;
-    padding: 0;
-    background-color: #f8f5ee;
-    color: #1e293b;
-    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-zinc-50 text-zinc-900;
+    font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Inter, Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-blue-500/40 ring-offset-1;
   }
 }
 
-/* Old Money / Executive Editorial Design System Tokens */
-.parchment-card {
-  background: #fbf9f4;
-  border: 1px solid #e2d8c5;
-  box-shadow: 0 2px 10px -2px rgba(44, 34, 20, 0.05);
+/* Thin, unobtrusive scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #d4d4d8 transparent;
 }
-
-.parchment-card-hover {
-  transition: all 0.2s ease-in-out;
-}
-.parchment-card-hover:hover {
-  border-color: #b89868;
-  box-shadow: 0 4px 16px -3px rgba(44, 34, 20, 0.09);
-}
-
-.parchment-inset {
-  background: #f3ede2;
-  border: 1px solid #ddd2be;
-}
-
-/* Custom Scrollbar in Warm Linen / Sand Tone */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: #f4efe6;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cfc4b2;
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #b5a894;
-}
-
-/* Map Canvas & SVG Animation */
-@keyframes flowDash {
-  to {
-    stroke-dashoffset: -40;
-  }
+  background: #d4d4d8;
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
 }
 
-.animate-flow-arc {
-  stroke-dasharray: 6, 6;
-  animation: flowDash 1.2s linear infinite;
-}
-
-@keyframes shockPulse {
-  0% {
-    r: 8px;
-    opacity: 0.9;
-    stroke-width: 3px;
-  }
-  100% {
-    r: 65px;
-    opacity: 0;
-    stroke-width: 0.5px;
-  }
-}
-
-.shock-wave-ring {
-  animation: shockPulse 2.2s cubic-bezier(0.1, 0.8, 0.3, 1) infinite;
+input[type='range'] {
+  height: 4px;
 }

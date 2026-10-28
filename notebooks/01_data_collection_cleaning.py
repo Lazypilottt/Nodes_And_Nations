@@ -45,6 +45,9 @@ os.makedirs(PROCESSED,   exist_ok=True)
 UNDESA_FILE    = os.path.join(RAW_DIR, "undesa_pd_2024_ims_stock_by_sex_destination_and_origin.xlsx")
 OFFICIAL_YEARS = [1990, 1995, 2000, 2005, 2010, 2015, 2020]
 SNAPSHOT_YEARS = OFFICIAL_YEARS + [2025]
+# Latest UN DESA estimate; parsed only to anchor the 2025 extrapolation
+LATEST_OBSERVED_YEAR = 2024
+PARSE_YEARS = OFFICIAL_YEARS + [LATEST_OBSERVED_YEAR]
 
 API_TIMEOUT = 20   # seconds per request
 WB_INDICATORS = {
@@ -96,8 +99,9 @@ def parse_undesa_fast(filepath: str) -> pd.DataFrame:
     cache_path = os.path.join(CACHE_DIR, "undesa_parsed.csv")
     if os.path.exists(cache_path):
         df_cached = pd.read_csv(cache_path)
-        # Validate that cache has complete country coverage
-        if df_cached["dest_iso3"].nunique() >= 220:
+        # Validate coverage, and that the cache was built with the both-sexes
+        # columns including the latest observed year (older caches were not).
+        if df_cached["dest_iso3"].nunique() >= 220 and str(LATEST_OBSERVED_YEAR) in df_cached.columns:
             print(f"  [cache] Loading undesa_parsed.csv ({len(df_cached):,} rows, {df_cached['dest_iso3'].nunique()} countries)")
             return df_cached
 
@@ -112,9 +116,11 @@ def parse_undesa_fast(filepath: str) -> pd.DataFrame:
         next(rows_iter)
     header = next(rows_iter)
 
+    # Table 1 repeats the year headers three times: both sexes, males, females.
+    # Keep the first occurrence of each year so we read the both-sexes totals.
     year_col_indices = {}
     for col_idx, val in enumerate(header):
-        if isinstance(val, int) and val in OFFICIAL_YEARS:
+        if isinstance(val, int) and val in PARSE_YEARS and val not in year_col_indices:
             year_col_indices[val] = col_idx
 
     NAME_DEST = 1
@@ -165,7 +171,7 @@ def parse_undesa_fast(filepath: str) -> pd.DataFrame:
 def melt_to_long(df: pd.DataFrame) -> pd.DataFrame:
     """Pivot bilateral stocks from wide to long format."""
     id_cols = ["dest_iso3", "origin_iso3"]
-    str_years = [str(y) for y in OFFICIAL_YEARS]
+    str_years = [str(y) for y in PARSE_YEARS]
     df_wide = df[id_cols + str_years].copy()
 
     df_long = df_wide.melt(
@@ -183,27 +189,33 @@ def melt_to_long(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def extrapolate_2025(df_long: pd.DataFrame) -> pd.DataFrame:
-    """Log-linear (geometric) extrapolation of 2025 migration stock from 2015→2020 trend."""
-    print("  Extrapolating 2025 migration stocks...")
-    s2015 = df_long[df_long["year"] == 2015].set_index(["dest_iso3", "origin_iso3"])["migrant_stock"]
+    """
+    Geometric extrapolation of 2025 migration stock.
+
+    Uses the observed 2024 stock grown by one year at the corridor's annualised
+    2020→2024 rate. Corridors first observed in 2024 carry their 2024 value.
+    The 2024 rows are then dropped so the output keeps the 5-year snapshot grid.
+    """
+    print("  Extrapolating 2025 migration stocks from 2020→2024 trend...")
+    base = LATEST_OBSERVED_YEAR
     s2020 = df_long[df_long["year"] == 2020].set_index(["dest_iso3", "origin_iso3"])["migrant_stock"]
+    s_base = df_long[df_long["year"] == base].set_index(["dest_iso3", "origin_iso3"])["migrant_stock"]
 
-    common = s2015.index.intersection(s2020.index)
-    v2015  = s2015.loc[common].values
-    v2020  = s2020.loc[common].values
-
+    v_base = s_base.values
+    v2020 = s2020.reindex(s_base.index).values
     with np.errstate(divide="ignore", invalid="ignore"):
-        ratio = np.where(v2015 > 0, v2020 / v2015, 1.0)
-        stock25 = np.where(np.isfinite(ratio) & (ratio > 0), v2020 * ratio, v2020)
-    stock25 = np.maximum(stock25, 1.0)
+        annual = np.where(v2020 > 0, (v_base / v2020) ** (1 / (base - 2020)), 1.0)
+    annual = np.where(np.isfinite(annual) & (annual > 0), annual, 1.0)
+    stock25 = np.maximum(v_base * annual ** (2025 - base), 1.0)
 
     df_2025 = pd.DataFrame({
-        "dest_iso3": [idx[0] for idx in common],
-        "origin_iso3": [idx[1] for idx in common],
+        "dest_iso3": s_base.index.get_level_values(0),
+        "origin_iso3": s_base.index.get_level_values(1),
         "year": 2025,
         "migrant_stock": stock25,
         "is_extrapolated": True,
     })
+    df_long = df_long[df_long["year"] != base].copy()
     df_long["is_extrapolated"] = False
     result = pd.concat([df_long, df_2025], ignore_index=True)
     print(f"  Total rows after extrapolation: {len(result):,}")

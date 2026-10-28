@@ -298,7 +298,10 @@ def build_unified_tables(meta_df: pd.DataFrame, comm_labeled: pd.DataFrame) -> t
         if not bnd_df.empty and "boundary_score" in bnd_df.columns:
             node_df = node_df.merge(bnd_df[["iso3", "boundary_score", "is_boundary_node"]], on="iso3", how="left")
         if not fac_df.empty:
-            node_df = node_df.merge(fac_df, on=["iso3", "year"], how="left")
+            # country_name already comes from meta_df; merging it twice produces
+            # country_name_x / country_name_y and breaks downstream consumers.
+            fac_cols = [c for c in fac_df.columns if c == "iso3" or c == "year" or c not in node_df.columns]
+            node_df = node_df.merge(fac_df[fac_cols], on=["iso3", "year"], how="left")
 
         out_node = os.path.join(EXPORTS_DIR, "nodes_master.csv")
         node_df.to_csv(out_node, index=False)
