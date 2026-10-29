@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import { lineGrid } from '../lib/charts';
+import { useChartKey } from '../lib/themeContext';
 import { getCountryGeo } from '../lib/countryGeo';
 import { ACCENT, categorical, fmtCompact, fmtInt, fmtNum } from '../lib/theme';
 import { SNAPSHOT_YEARS, type Dataset, type NodeRow, type Year } from '../lib/types';
@@ -29,6 +30,12 @@ const PREDICTOR_LABELS: Record<string, string> = {
   integration_policy_index: 'Integration policy',
   religious_fractionalization: 'Religious fractionalisation',
   religiosity_importance_score: 'Religiosity',
+  youth_share: 'Population under 15 (%)',
+  urban_pct: 'Urban population (%)',
+  internet_users: 'Internet users (%)',
+  political_stability: 'Political stability',
+  resource_rents: 'Natural-resource rents (% GDP)',
+  landlocked: 'Landlocked',
 };
 
 function stars(p: number) {
@@ -40,7 +47,8 @@ function stars(p: number) {
 
 function modelLabel(m: string) {
   const [kind, dir] = [m.replace(/_(inflows|outflows)$/, ''), m.endsWith('inflows') ? 'inflows' : 'outflows'];
-  const k = kind === 'cultural_gravity' ? 'Cultural gravity' : kind === 'full' ? 'Full' : 'Baseline';
+  const k =
+    kind === 'cultural_gravity' ? 'Cultural gravity' : kind === 'development' ? 'Development' : kind === 'full' ? 'Full' : 'Baseline';
   return `${k} · ${dir}`;
 }
 
@@ -117,6 +125,7 @@ function Centrality({ nodes, year }: { nodes: NodeRow[]; year: Year }) {
 }
 
 function Communities({ data, year }: { data: Dataset; year: Year }) {
+  const chartKey = useChartKey();
   const q = (algo: string, y: number) => {
     const m = data.modularity_scores.find((r) => r.algorithm === algo && Number(r.year) === y);
     return m ? Number(m.modularity_q) : null;
@@ -173,7 +182,7 @@ function Communities({ data, year }: { data: Dataset; year: Year }) {
           <Stat label="Communities" value={nComms ?? '—'} hint={`Louvain, ${year}`} />
         </div>
         <div className="h-60">
-          <Line data={chart} options={options} />
+          <Line key={chartKey} data={chart} options={options} />
         </div>
       </Card>
 

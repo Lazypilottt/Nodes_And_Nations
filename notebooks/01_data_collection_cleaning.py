@@ -5,7 +5,8 @@ Nodes and Nations: A Complex Network Study of Global Migration
 
 Steps:
   1. Parse UN DESA bilateral migration stock Excel → long format (covering all 235 countries/territories)
-  2. Download/cache supplementary factor data (World Bank API, UNDP Education, UCDP Conflict)
+  2. Download/cache supplementary factor data (26 World Bank indicators incl. governance,
+     UNHCR displacement, UNDP Education, UCDP Conflict, CEPII geography)
   3. Merge and harmonize Henley Passport Index and ND-GAIN Climate Vulnerability
   4. Extrapolate snapshots for complete 1990-2025 panel series
   5. Export migration_long.csv and factors_panel.csv
@@ -33,7 +34,10 @@ if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
-from data.loader import paths, load_ndgain, load_henley, load_conflict_long, load_religions, load_cultural_integration
+from data.loader import (
+    paths, load_ndgain, load_henley, load_conflict_long, load_religions,
+    load_cultural_integration, load_geography_country,
+)
 
 ROOT        = paths["ROOT"]
 RAW_DIR     = paths["RAW_DIR"]
@@ -49,12 +53,45 @@ SNAPSHOT_YEARS = OFFICIAL_YEARS + [2025]
 LATEST_OBSERVED_YEAR = 2024
 PARSE_YEARS = OFFICIAL_YEARS + [LATEST_OBSERVED_YEAR]
 
-API_TIMEOUT = 20   # seconds per request
+API_TIMEOUT = 60   # seconds per request
 WB_INDICATORS = {
-    "gdp_per_capita":  "NY.GDP.PCAP.CD",
-    "population":      "SP.POP.TOTL",
-    "unemployment":    "SL.UEM.TOTL.ZS",
+    # Economy
+    "gdp_per_capita":              "NY.GDP.PCAP.CD",
+    "gdp_pc_ppp":                  "NY.GDP.PCAP.PP.KD",   # constant 2021 international $
+    "gdp_growth":                  "NY.GDP.MKTP.KD.ZG",
+    "inflation":                   "FP.CPI.TOTL.ZG",
+    "unemployment":                "SL.UEM.TOTL.ZS",
+    "remittances_gdp":             "BX.TRF.PWKR.DT.GD.ZS",
+    "trade_openness":              "NE.TRD.GNFS.ZS",
+    "resource_rents":              "NY.GDP.TOTL.RT.ZS",
+    "agri_employment":             "SL.AGR.EMPL.ZS",
+    "female_labour_participation": "SL.TLF.CACT.FE.ZS",
+    "gini":                        "SI.POV.GINI",
+    # Demography
+    "population":                  "SP.POP.TOTL",
+    "pop_density":                 "EN.POP.DNST",
+    "urban_pct":                   "SP.URB.TOTL.IN.ZS",
+    "youth_share":                 "SP.POP.0014.TO.ZS",
+    "elderly_share":               "SP.POP.65UP.TO.ZS",
+    "fertility_rate":              "SP.DYN.TFRT.IN",
+    "life_expectancy":             "SP.DYN.LE00.IN",
+    # Connectivity
+    "internet_users":              "IT.NET.USER.ZS",
+    "mobile_subscriptions":        "IT.CEL.SETS.P2",
+    "tourism_arrivals":            "ST.INT.ARVL",
+    # Safety & governance (Worldwide Governance Indicators, 1996+)
+    "homicide_rate":               "VC.IHR.PSRC.P5",
+    "political_stability":         "GOV_WGI_PV.EST",
+    "government_effectiveness":    "GOV_WGI_GE.EST",
+    "voice_accountability":        "GOV_WGI_VA.EST",
+    "rule_of_law":                 "GOV_WGI_RL.EST",
 }
+# Stock-like levels: extrapolated to 2025 from recent growth when not yet published
+WB_LEVELS = {"gdp_per_capita", "gdp_pc_ppp", "population"}
+# Slow-moving institutional scores that start in 1996: back-filled to 1990/1995
+WB_BACKFILL = {"political_stability", "government_effectiveness", "voice_accountability", "rule_of_law"}
+# Annual values within ±SNAPSHOT_WINDOW years of a snapshot fill gaps in sparse series
+SNAPSHOT_WINDOW = 2
 
 # ══════════════════════════════════════════════════════════════════════════════
 # 1. PARSE UN DESA (Full 235 Country Entities)
@@ -235,13 +272,19 @@ def fetch_wb_indicator(indicator_code: str, indicator_name: str) -> pd.DataFrame
             f"https://api.worldbank.org/v2/country/all/indicator/{indicator_code}"
             f"?format=json&date=1985:2025&per_page=5000&page={page}"
         )
-        try:
-            r = requests.get(url, timeout=API_TIMEOUT)
-            r.raise_for_status()
-            data = r.json()
-        except Exception as e:
-            print(f"    WB API note (page {page}): {e}")
-            break
+        data = None
+        for attempt in range(3):
+            try:
+                r = requests.get(url, timeout=API_TIMEOUT)
+                r.raise_for_status()
+                data = r.json()
+                break
+            except Exception as e:
+                print(f"    WB API note ({indicator_code} page {page}, attempt {attempt + 1}): {e}")
+                time.sleep(2 * (attempt + 1))
+        if data is None:
+            # A partial download would silently bias the panel; fail loudly instead.
+            raise RuntimeError(f"World Bank download failed for {indicator_code}")
 
         if len(data) < 2 or not data[1]:
             break
@@ -261,47 +304,117 @@ def fetch_wb_indicator(indicator_code: str, indicator_name: str) -> pd.DataFrame
     return df
 
 
+def to_snapshots(annual: pd.DataFrame, col: str, level: bool = False) -> pd.DataFrame:
+    """
+    Collapse an annual (iso3, year, col) series onto the snapshot years.
+
+    Each snapshot takes the exact-year value when published, otherwise the mean
+    of values within ±SNAPSHOT_WINDOW years, which fills gaps in sparse series
+    (household surveys, homicide statistics) without inventing trends. For 2025
+    the most recent value since 2021 is used; stock-like levels (`level=True`)
+    are grown from that value at the country's latest 3-year growth rate.
+    """
+    s = annual[["iso3", "year", col]].dropna()
+    out = []
+    for snap in SNAPSHOT_YEARS:
+        if snap == SNAPSHOT_YEARS[-1]:
+            recent = s[s["year"].between(snap - 4, snap)].sort_values("year")
+            latest = recent.groupby("iso3").tail(1).set_index("iso3")
+            vals = latest[col].copy()
+            if level:
+                base = s.set_index(["iso3", "year"])[col]
+                prior = pd.Series(
+                    [base.get((iso, yr - 3), np.nan) for iso, yr in zip(latest.index, latest["year"])],
+                    index=latest.index,
+                )
+                growth = (latest[col] / prior) ** (1 / 3)
+                growth = growth.where(np.isfinite(growth) & (growth > 0), 1.0)
+                vals = latest[col] * growth ** (snap - latest["year"])
+        else:
+            exact = s[s["year"] == snap].set_index("iso3")[col]
+            window = s[s["year"].between(snap - SNAPSHOT_WINDOW, snap + SNAPSHOT_WINDOW)]
+            vals = window.groupby("iso3")[col].mean()
+            vals.update(exact)
+        out.append(pd.DataFrame({"iso3": vals.index, "year": snap, col: vals.values}))
+    return pd.concat(out, ignore_index=True)
+
+
 def fetch_all_worldbank() -> pd.DataFrame:
-    cache_path = os.path.join(CACHE_DIR, "worldbank_factors.csv")
+    """
+    Download every indicator in WB_INDICATORS (cached one file per indicator in
+    data/raw/cache/worldbank/) and return a snapshot-year panel.
+    """
+    wb_cache = os.path.join(CACHE_DIR, "worldbank")
+    os.makedirs(wb_cache, exist_ok=True)
+
+    panel = None
+    for name, code in WB_INDICATORS.items():
+        path = os.path.join(wb_cache, f"{name}.csv")
+        if os.path.exists(path):
+            annual = pd.read_csv(path)
+        else:
+            print(f"  Downloading {name} ({code})...")
+            annual = fetch_wb_indicator(code, name)
+            if annual.empty:
+                print(f"    WARNING: no data for {code}; skipping")
+                continue
+            annual.to_csv(path, index=False)
+
+        snap = to_snapshots(annual, name, level=name in WB_LEVELS)
+        if name in WB_BACKFILL:
+            grid = pd.MultiIndex.from_product([snap["iso3"].unique(), SNAPSHOT_YEARS], names=["iso3", "year"])
+            snap = snap.set_index(["iso3", "year"]).reindex(grid).reset_index()
+            snap[name] = snap.groupby("iso3")[name].bfill()
+        panel = snap if panel is None else panel.merge(snap, on=["iso3", "year"], how="outer")
+
+    print(f"  World Bank factors complete ({len(panel):,} rows, {panel['iso3'].nunique()} countries, "
+          f"{len(WB_INDICATORS)} indicators)")
+    return panel
+
+
+def fetch_unhcr() -> pd.DataFrame:
+    """
+    UNHCR forced-displacement stocks per country and year (1990–latest):
+    refugees and asylum seekers originating from a country, those hosted by it,
+    and internally displaced people. Cached in data/raw/cache/unhcr_population.csv.
+    """
+    cache_path = os.path.join(CACHE_DIR, "unhcr_population.csv")
     if os.path.exists(cache_path):
-        print(f"  [cache] Loading worldbank_factors.csv")
-        panel = pd.read_csv(cache_path)
+        print("  [cache] Loading unhcr_population.csv")
+        annual = pd.read_csv(cache_path)
     else:
-        print("  Downloading World Bank indicators (gdp, population, unemployment)...")
-        dfs = [fetch_wb_indicator(code, name) for name, code in WB_INDICATORS.items()]
-        panel = dfs[0]
-        for df in dfs[1:]:
-            panel = panel.merge(df, on=["iso3", "year"], how="outer")
+        print("  Downloading UNHCR population statistics...")
+        base = "https://api.unhcr.org/population/v1/population/?yearFrom=1990&yearTo=2025&limit=20000"
+        frames = {}
+        for side, flag, key in (("origin", "coo_all", "coo_iso"), ("asylum", "coa_all", "coa_iso")):
+            try:
+                r = requests.get(f"{base}&{flag}=true", timeout=API_TIMEOUT * 2)
+                r.raise_for_status()
+                items = pd.DataFrame(r.json().get("items", []))
+            except Exception as e:
+                print(f"    UNHCR API note ({side}): {e}")
+                return pd.DataFrame(columns=["iso3", "year"])
+            for c in ("refugees", "asylum_seekers", "idps"):
+                items[c] = pd.to_numeric(items[c], errors="coerce").fillna(0)
+            items = items.rename(columns={key: "iso3"})
+            items = items[items["iso3"].str.len() == 3]
+            frames[side] = items
+        o, a = frames["origin"], frames["asylum"]
+        annual = (
+            o.assign(refugees_abroad=o["refugees"] + o["asylum_seekers"])[["iso3", "year", "refugees_abroad", "idps"]]
+            .merge(a.assign(refugees_hosted=a["refugees"] + a["asylum_seekers"])[["iso3", "year", "refugees_hosted"]],
+                   on=["iso3", "year"], how="outer")
+        )
+        annual.to_csv(cache_path, index=False)
 
-    # Harmonize 1990 unemployment from 1991 baseline
-    for iso3, grp in panel.groupby("iso3"):
-        u91 = grp[grp["year"] == 1991]["unemployment"].values
-        if len(u91) > 0 and pd.notna(u91[0]):
-            panel.loc[(panel["iso3"] == iso3) & (panel["year"] == 1990) & (panel["unemployment"].isna()), "unemployment"] = u91[0]
-
-    # Harmonize 2025 indicators from 2020 trend
-    for iso3, grp in panel.groupby("iso3"):
-        # GDP per capita
-        g20 = grp[grp["year"] == 2020]["gdp_per_capita"].values
-        g15 = grp[grp["year"] == 2015]["gdp_per_capita"].values
-        if len(g20) > 0 and pd.notna(g20[0]):
-            growth = (g20[0] / g15[0]) if (len(g15) > 0 and pd.notna(g15[0]) and g15[0] > 0) else 1.05
-            panel.loc[(panel["iso3"] == iso3) & (panel["year"] == 2025) & (panel["gdp_per_capita"].isna()), "gdp_per_capita"] = g20[0] * (growth ** 0.5)
-
-        # Population
-        p20 = grp[grp["year"] == 2020]["population"].values
-        p15 = grp[grp["year"] == 2015]["population"].values
-        if len(p20) > 0 and pd.notna(p20[0]):
-            growth = (p20[0] / p15[0]) if (len(p15) > 0 and pd.notna(p15[0]) and p15[0] > 0) else 1.03
-            panel.loc[(panel["iso3"] == iso3) & (panel["year"] == 2025) & (panel["population"].isna()), "population"] = p20[0] * (growth ** 0.5)
-
-        # Unemployment
-        u20 = grp[grp["year"] == 2020]["unemployment"].values
-        if len(u20) > 0 and pd.notna(u20[0]):
-            panel.loc[(panel["iso3"] == iso3) & (panel["year"] == 2025) & (panel["unemployment"].isna()), "unemployment"] = u20[0]
-
-    panel.to_csv(cache_path, index=False)
-    print(f"  World Bank factors complete ({len(panel):,} rows, {panel['iso3'].nunique()} countries)")
+    panel = None
+    for col in ("refugees_abroad", "refugees_hosted", "idps"):
+        snap = to_snapshots(annual, col)
+        panel = snap if panel is None else panel.merge(snap, on=["iso3", "year"], how="outer")
+    # UNHCR lists every country it reports on, so a missing value means none recorded
+    panel[["refugees_abroad", "refugees_hosted", "idps"]] = panel[
+        ["refugees_abroad", "refugees_hosted", "idps"]].fillna(0.0)
+    print(f"  UNHCR displacement complete ({len(panel):,} rows)")
     return panel
 
 
@@ -384,6 +497,8 @@ def build_factors_panel(
     ndgain: pd.DataFrame,
     religions: pd.DataFrame = None,
     cult_integration: pd.DataFrame = None,
+    unhcr: pd.DataFrame = None,
+    geography: pd.DataFrame = None,
 ) -> pd.DataFrame:
     """Merge all supplementary datasets including religion & cultural integration into one cohesive country-year panel for 1990-2025."""
     panel = wb[wb["year"].isin(SNAPSHOT_YEARS)].copy()
@@ -394,6 +509,7 @@ def build_factors_panel(
         (henley, "visa_openness_index"),
         (ndgain, "climate_vulnerability"),
         (cult_integration, "cultural_integration"),
+        (unhcr, "unhcr_displacement"),
     ]:
         if df is None or df.empty:
             continue
@@ -410,6 +526,18 @@ def build_factors_panel(
         present_rel_cols = [c for c in rel_cols if c in religions.columns]
         panel = panel.merge(religions[present_rel_cols], on="iso3", how="left")
 
+    # Static geography (CEPII): landlocked flag and land area
+    if geography is not None and not geography.empty:
+        panel = panel.merge(geography[["iso3", "landlocked", "area_km2"]], on="iso3", how="left")
+
+    # Displacement and tourism as rates, so they compare across country sizes
+    pop = panel["population"].where(panel["population"] > 0)
+    for col in ("refugees_abroad", "refugees_hosted", "idps"):
+        if col in panel.columns:
+            panel[f"{col}_per_1k"] = panel[col] / pop * 1000
+    if "tourism_arrivals" in panel.columns:
+        panel["tourism_per_capita"] = panel["tourism_arrivals"] / pop
+
     # Conflict intensity defaults to 0 for peaceful country-years
     if "conflict_intensity" in panel.columns:
         panel["conflict_intensity"] = panel["conflict_intensity"].fillna(0.0)
@@ -425,6 +553,8 @@ def build_factors_panel(
         "anti_discrimination_score", "naturalization_access_score",
         "religious_fractionalization", "religious_diversity_index", "religiosity_importance_score"
     ]
+    # World Bank series are already gap-filled within each snapshot window
+    numeric_smooth_cols = [c for c in numeric_smooth_cols if c not in WB_INDICATORS]
     for col in numeric_smooth_cols:
         if col in panel.columns:
             panel[col] = panel.groupby("iso3")[col].transform(lambda s: s.ffill().bfill())
@@ -438,7 +568,11 @@ def build_factors_panel(
         "conflict_intensity", "education_index", "climate_vulnerability", "visa_openness_index",
         "dominant_religion", "religious_fractionalization", "religious_diversity_index", "religiosity_importance_score",
         "integration_policy_index", "cultural_openness_index", "labour_market_integration",
-        "anti_discrimination_score", "naturalization_access_score"
+        "anti_discrimination_score", "naturalization_access_score",
+    ] + [c for c in WB_INDICATORS if c not in ("gdp_per_capita", "population", "unemployment")] + [
+        "tourism_per_capita", "refugees_abroad", "refugees_hosted", "idps",
+        "refugees_abroad_per_1k", "refugees_hosted_per_1k", "idps_per_1k",
+        "landlocked", "area_km2",
     ]
     cols_present = [c for c in cols_order if c in panel.columns] + [c for c in panel.columns if c not in cols_order]
     panel = panel[cols_present]
@@ -458,7 +592,7 @@ def main():
 
     t_start = time.time()
 
-    print("\n[1/7] Parsing UN DESA bilateral migration data...")
+    print("\n[1/8] Parsing UN DESA bilateral migration data...")
     df_wide = parse_undesa_fast(UNDESA_FILE)
     df_long = melt_to_long(df_wide)
     df_long = extrapolate_2025(df_long)
@@ -467,25 +601,32 @@ def main():
     df_long.to_csv(out_mig, index=False)
     print(f"  ✓ migration_long.csv: {len(df_long):,} rows")
 
-    print("\n[2/7] World Bank data...")
+    print("\n[2/8] World Bank data...")
     wb = fetch_all_worldbank()
 
-    print("\n[3/7] UCDP conflict data...")
+    print("\n[3/8] UCDP conflict data...")
     conflict = fetch_ucdp_conflict()
 
-    print("\n[4/7] UNDP Education Index...")
+    print("\n[4/8] UNDP Education Index...")
     edu = fetch_undp_education()
 
-    print("\n[5/7] Henley Passport + ND-GAIN climate...")
+    print("\n[5/8] Henley Passport + ND-GAIN climate...")
     henley = load_henley()
     ndgain = load_ndgain()
 
-    print("\n[6/7] Loading World Religion Demographics & Cultural Integration Index...")
+    print("\n[6/8] Loading World Religion Demographics & Cultural Integration Index...")
     religions = load_religions()
     cult_integration = load_cultural_integration()
 
-    print("\n[7/7] Building unified multi-dimensional factors panel...")
-    factors = build_factors_panel(wb, conflict, edu, henley, ndgain, religions, cult_integration)
+    print("\n[7/8] UNHCR displacement + CEPII geography...")
+    unhcr = fetch_unhcr()
+    geography = load_geography_country()
+    if geography.empty:
+        print("  WARNING: data/raw/cepii_country.csv missing; run data/raw/build_geography.py")
+
+    print("\n[8/8] Building unified multi-dimensional factors panel...")
+    factors = build_factors_panel(wb, conflict, edu, henley, ndgain, religions, cult_integration,
+                                  unhcr, geography)
     
     out_fac = os.path.join(PROCESSED, "factors_panel.csv")
     out_fac_enrich = os.path.join(PROCESSED, "factors_panel_enriched.csv")

@@ -4,7 +4,8 @@ Full pipeline for predicting edge migrant stock (edge weight) using gradient-boo
 
 Produces:
  - data/exports/edge_model_metrics.json
- - data/exports/edge_feature_importance.png
+ - data/exports/edge_model_ablation.csv      (R² as each feature group is added)
+ - data/exports/edge_feature_importance.csv / .png
  - models/edge_weight_predictor.joblib
 
 Usage:
@@ -17,6 +18,9 @@ Notes:
  - Train/test and CV splits are grouped by corridor (origin, dest). A random row
    split would put the same corridor in both sets for different years and
    overstate accuracy.
+ - The served model uses measured data only (see data/features.py): the
+   synthetic religion / integration indices are left out. The ablation table
+   shows what each feature group adds on the same held-out corridors.
  - If xgboost is not installed, falls back to sklearn's HistGradientBoostingRegressor
 """
 
@@ -44,8 +48,13 @@ ROOT_DIR = str(Path(__file__).resolve().parents[1])
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
-from data.loader import paths, load_factors, load_migration_long, load_country_metadata
-from data.features import FEATURE_COLUMNS, build_dyad_features
+from data.loader import (
+    paths, load_factors, load_migration_long, load_country_metadata, load_geography_dyadic,
+)
+from data.features import (
+    FEATURE_COLUMNS, ORIGINAL_FEATURES, GEOGRAPHY_FEATURES, DEVELOPMENT_FEATURES,
+    NETWORK_FEATURES, build_dyad_features, network_lags,
+)
 
 EXPORTS_DIR = paths["EXPORTS_DIR"]
 MODELS_DIR = paths["MODELS_DIR"]
@@ -72,7 +81,10 @@ def load_and_build_features():
     )
     edges = edges[edges["weight"] > 0]
 
-    df = build_dyad_features(edges, factors, country_meta)
+    df = build_dyad_features(
+        edges, factors, country_meta,
+        geography=load_geography_dyadic(), lags=network_lags(migration),
+    )
     df["log_weight"] = np.log1p(df["weight"].astype(float))
     df["corridor"] = df["origin_iso3"] + "->" + df["dest_iso3"]
 
@@ -84,13 +96,67 @@ def load_and_build_features():
     return df, list(FEATURE_COLUMNS)
 
 
-def build_and_train(df, feature_cols):
+GRAVITY_CORE = ["origin_log_pop", "dest_log_pop", "origin_log_gdp", "dest_log_gdp",
+                "log_dist", "contig", "comlang_ethno", "colony"]
+
+ABLATION = [
+    ("Classic gravity (size, income, distance, ties)", GRAVITY_CORE),
+    ("Original 31 features", ORIGINAL_FEATURES),
+    ("+ CEPII geography", ORIGINAL_FEATURES + GEOGRAPHY_FEATURES),
+    ("+ development, governance, displacement",
+     ORIGINAL_FEATURES + GEOGRAPHY_FEATURES + DEVELOPMENT_FEATURES),
+    ("+ diaspora network lags",
+     ORIGINAL_FEATURES + GEOGRAPHY_FEATURES + DEVELOPMENT_FEATURES + NETWORK_FEATURES),
+    ("Served model: measured data only", FEATURE_COLUMNS),
+]
+ABLATION_PARAMS = dict(learning_rate=0.1, max_iter=400, max_leaf_nodes=63,
+                       min_samples_leaf=20, l2_regularization=0.1, random_state=42)
+
+
+def grouped_split(df):
+    splitter = GroupShuffleSplit(n_splits=1, test_size=0.2, random_state=42)
+    return next(splitter.split(df, groups=df["corridor"]))
+
+
+def run_ablation(df, train_idx, test_idx):
+    """Fit one fixed-parameter model per feature set on the same corridor split."""
+    rows = []
+    y_train, y_test = df["log_weight"].iloc[train_idx], df["log_weight"].iloc[test_idx]
+    for label, cols in ABLATION:
+        model = HistGradientBoostingRegressor(**ABLATION_PARAMS)
+        model.fit(df[cols].iloc[train_idx], y_train)
+        pred = model.predict(df[cols].iloc[test_idx])
+        rows.append({
+            "feature_set": label,
+            "n_features": len(cols),
+            "r2": r2_score(y_test, pred),
+            "rmse_log": mean_squared_error(y_test, pred) ** 0.5,
+        })
+        print(f"  {label:<52} {len(cols):>3} features  R² = {rows[-1]['r2']:.3f}")
+    out = pd.DataFrame(rows)
+    out.to_csv(os.path.join(EXPORTS_DIR, "edge_model_ablation.csv"), index=False)
+    return out
+
+
+def temporal_check(df, feature_cols):
+    """
+    Train on 1990–2015 and score the observed 2020 snapshot: how well the model
+    forecasts a future period rather than unseen corridors.
+    """
+    train = df[df["year"] <= 2015]
+    test = df[df["year"] == 2020]
+    model = HistGradientBoostingRegressor(**ABLATION_PARAMS).fit(train[feature_cols], train["log_weight"])
+    pred = model.predict(test[feature_cols])
+    return {"r2": float(r2_score(test["log_weight"], pred)),
+            "rmse_log": float(mean_squared_error(test["log_weight"], pred) ** 0.5),
+            "train_years": "1990–2015", "test_year": 2020}
+
+
+def build_and_train(df, feature_cols, train_idx, test_idx):
     X = df[feature_cols]
     y = df["log_weight"]
     groups = df["corridor"]
 
-    splitter = GroupShuffleSplit(n_splits=1, test_size=0.2, random_state=42)
-    train_idx, test_idx = next(splitter.split(X, y, groups))
     X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
     y_train, y_test = y.iloc[train_idx], y.iloc[test_idx]
 
@@ -119,7 +185,7 @@ def build_and_train(df, feature_cols):
     pipe = Pipeline([("estimator", estimator)])
 
     search = RandomizedSearchCV(
-        pipe, param_distributions=param_dist, n_iter=12, cv=GroupKFold(n_splits=3),
+        pipe, param_distributions=param_dist, n_iter=8, cv=GroupKFold(n_splits=3),
         scoring="neg_root_mean_squared_error", random_state=42, n_jobs=4, verbose=1,
     )
 
@@ -146,7 +212,9 @@ def build_and_train(df, feature_cols):
         "r2": float(r2),
         "n_train": int(len(y_train)),
         "n_test": int(len(y_test)),
+        "n_features": len(feature_cols),
         "split": "grouped by corridor",
+        "temporal": temporal_check(df, feature_cols),
     }
     metrics_path = os.path.join(EXPORTS_DIR, "edge_model_metrics.json")
     with open(metrics_path, "w") as f:
@@ -155,12 +223,13 @@ def build_and_train(df, feature_cols):
     # HistGradientBoosting has no built-in importances; permutation importance
     # on a held-out sample works for either estimator.
     sample = X_test.sample(min(5000, len(X_test)), random_state=42)
-    pi = permutation_importance(best, sample, y_test.loc[sample.index], n_repeats=5, random_state=42, n_jobs=4)
+    pi = permutation_importance(best, sample, y_test.loc[sample.index], n_repeats=3, random_state=42, n_jobs=4)
     fi_df = pd.DataFrame({"feature": feature_cols, "importance": pi.importances_mean})
     fi_df = fi_df.sort_values("importance", ascending=False)
     fi_df.to_csv(os.path.join(EXPORTS_DIR, "edge_feature_importance.csv"), index=False)
-    fig, ax = plt.subplots(figsize=(8, max(4, len(feature_cols) * 0.25)))
-    ax.barh(fi_df["feature"], fi_df["importance"], color="#2563eb")
+    top = fi_df.head(25)
+    fig, ax = plt.subplots(figsize=(8, max(4, len(top) * 0.28)))
+    ax.barh(top["feature"], top["importance"], color="#2563eb")
     ax.invert_yaxis()
     ax.set_xlabel("permutation importance (Δ R²)")
     plt.tight_layout()
@@ -173,7 +242,11 @@ def build_and_train(df, feature_cols):
 
 def main():
     df, feature_cols = load_and_build_features()
-    build_and_train(df, feature_cols)
+    train_idx, test_idx = grouped_split(df)
+    print("\nAblation (fixed parameters, same held-out corridors):")
+    run_ablation(df, train_idx, test_idx)
+    print("\nFinal model:")
+    build_and_train(df, feature_cols, train_idx, test_idx)
     print("Done.")
 
 

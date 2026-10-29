@@ -40,6 +40,17 @@ from data.loader import paths, COUNTRY_METADATA_TABLE
 ROOT        = paths["ROOT"]
 PROCESSED   = paths["PROCESSED_DIR"]
 EXPORTS_DIR = paths["EXPORTS_DIR"]
+
+# Country-year indicators kept out of migration_full_flat.csv (they remain in nodes_master.csv)
+FLAT_EXCLUDE = {
+    "gdp_pc_ppp", "gdp_growth", "inflation", "remittances_gdp", "trade_openness", "resource_rents",
+    "agri_employment", "female_labour_participation", "gini", "pop_density", "urban_pct", "youth_share",
+    "elderly_share", "fertility_rate", "life_expectancy", "internet_users", "mobile_subscriptions",
+    "tourism_arrivals", "tourism_per_capita", "homicide_rate", "political_stability",
+    "government_effectiveness", "voice_accountability", "rule_of_law", "refugees_abroad",
+    "refugees_hosted", "idps", "refugees_abroad_per_1k", "refugees_hosted_per_1k", "idps_per_1k",
+    "landlocked", "area_km2",
+}
 os.makedirs(EXPORTS_DIR, exist_ok=True)
 
 SNAPSHOT_YEARS = [1990, 1995, 2000, 2005, 2010, 2015, 2020, 2025]
@@ -309,11 +320,18 @@ def build_unified_tables(meta_df: pd.DataFrame, comm_labeled: pd.DataFrame) -> t
 
     # 2. Migration Full Flat Table (Bilateral Corridors with Origin & Dest Attributes)
     if not edges_df.empty and not node_df.empty:
-        origin_nodes = node_df.rename(columns=lambda c: f"origin_{c}" if c not in ["year"] else c)
-        dest_nodes = node_df.rename(columns=lambda c: f"dest_{c}" if c not in ["year"] else c)
+        # The development indicators stay in nodes_master.csv; repeating ~30 of
+        # them for both ends of every corridor would double this file's size.
+        flat_nodes = node_df[[c for c in node_df.columns if c not in FLAT_EXCLUDE]]
+        origin_nodes = flat_nodes.rename(columns=lambda c: f"origin_{c}" if c not in ["year"] else c)
+        dest_nodes = flat_nodes.rename(columns=lambda c: f"dest_{c}" if c not in ["year"] else c)
 
         flat_df = edges_df.merge(origin_nodes, on=["origin_iso3", "year"], how="left")
         flat_df = flat_df.merge(dest_nodes, on=["dest_iso3", "year"], how="left")
+
+        geo_path = os.path.join(ROOT, "data", "raw", "cepii_dyadic.csv")
+        if os.path.exists(geo_path):
+            flat_df = flat_df.merge(pd.read_csv(geo_path), on=["origin_iso3", "dest_iso3"], how="left")
 
         flat_df["log_weight"] = np.log1p(flat_df["weight"])
         if "origin_continent" in flat_df.columns and "dest_continent" in flat_df.columns:

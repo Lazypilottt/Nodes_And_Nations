@@ -397,7 +397,7 @@ def compute_temporal_drift(louvain_partitions: dict) -> tuple[pd.DataFrame, pd.D
         })
 
     boundary_df = pd.DataFrame(boundary_rows)
-    boundary_df = boundary_df.sort_values("boundary_score", ascending=False)
+    boundary_df = boundary_df.sort_values(["boundary_score", "iso3"], ascending=[False, True])
     return drift_df, boundary_df
 
 

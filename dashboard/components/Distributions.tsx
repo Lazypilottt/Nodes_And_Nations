@@ -1,6 +1,7 @@
 import React from 'react';
 import { Line } from 'react-chartjs-2';
 import { lineGrid } from '../lib/charts';
+import { useChartKey } from '../lib/themeContext';
 import {
   ACCENT, INCOME_COLORS, MIPEX_COLORS, MIPEX_TIERS, RELIGION_COLORS, categorical, fmtCompact, fmtPct,
 } from '../lib/theme';
@@ -8,6 +9,7 @@ import { SNAPSHOT_YEARS, type Dataset, type Year } from '../lib/types';
 import { Card, ShareBars, Stat } from './ui';
 
 export default function Distributions({ data, year }: { data: Dataset; year: Year }) {
+  const chartKey = useChartKey();
   const dist = data.distributions[year];
   if (!dist) return <Card><p className="text-sm text-zinc-500">No distribution data for {year}.</p></Card>;
 
@@ -42,9 +44,9 @@ export default function Distributions({ data, year }: { data: Dataset; year: Yea
   };
 
   const byContinent = (label: string, i: number) => categorical(i);
-  const byIncome = (label: string) => INCOME_COLORS[label] ?? '#e4e4e7';
-  const byReligion = (label: string) => RELIGION_COLORS[label] ?? '#e4e4e7';
-  const byMipex = (label: string) => MIPEX_COLORS[MIPEX_TIERS.indexOf(label)] ?? '#e4e4e7';
+  const byIncome = (label: string) => INCOME_COLORS[label] ?? '#a1a1aa';
+  const byReligion = (label: string) => RELIGION_COLORS[label] ?? '#a1a1aa';
+  const byMipex = (label: string) => MIPEX_COLORS[MIPEX_TIERS.indexOf(label)] ?? '#a1a1aa';
   // Match the community colours used on the map (keyed by community ID, not list position)
   const byCommunity = (label: string, i: number) => {
     const id = /^Cluster (\d+)/.exec(label)?.[1];
@@ -56,7 +58,7 @@ export default function Distributions({ data, year }: { data: Dataset; year: Yea
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2" title="Global migrant stock" subtitle="Sum over all bilateral corridors, 1990–2025 (2025 is extrapolated)">
           <div className="h-56">
-            <Line data={trend} options={trendOptions} />
+            <Line key={chartKey} data={trend} options={trendOptions} />
           </div>
         </Card>
         <Card title={`Snapshot ${year}`}>

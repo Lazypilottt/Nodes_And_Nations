@@ -452,7 +452,16 @@ def fig_feature_importance():
     pretty = {"log_pop": "log population", "log_gdp": "log GDP per capita",
               "gdp_log_diff": "log GDP gap (origin − dest)", "pop_log_diff": "log population gap",
               "same_continent": "same continent", "same_income_group": "same income group",
-              "same_dominant_religion": "same dominant religion", "cultural_openness_diff": "cultural openness gap"}
+              "same_dominant_religion": "same dominant religion", "cultural_openness_diff": "cultural openness gap",
+              "log_dist": "distance (log)", "contig": "shared border", "comlang_off": "common official language",
+              "comlang_ethno": "common spoken language", "colony": "colonial link", "comcol": "same former coloniser",
+              "col45": "colonial link after 1945", "smctry": "were one country",
+              "gdp_ppp_log_diff": "log GDP (PPP) gap", "political_stability_diff": "political stability gap",
+              "life_expectancy_diff": "life expectancy gap", "youth_share_diff": "under-15 share gap",
+              "emigrants_lag": "diaspora abroad, last snapshot", "immigrants_lag": "immigrants, last snapshot",
+              "log_gdp_ppp": "log GDP per capita (PPP)", "log_pop_density": "log population density",
+              "log_area": "log land area", "refugees_abroad_per_1k": "refugees abroad per 1,000",
+              "refugees_hosted_per_1k": "refugees hosted per 1,000", "idps_per_1k": "internally displaced per 1,000"}
 
     def label(f):
         if f in pretty:
@@ -469,8 +478,220 @@ def fig_feature_importance():
     ax.tick_params(axis="y", length=0)
     ax.set_xlabel("Drop in R² when the feature is shuffled")
     ax.set_title("What drives the corridor-size model")
-    subtitle(ax, "Permutation importance on held-out corridors (top 15 of 31 features)")
+    n_total = len(pd.read_csv(p))
+    subtitle(ax, f"Permutation importance on held-out corridors (top 15 of {n_total} features)")
     save(fig, "12_model_feature_importance.png")
+
+
+# ── 13. Drivers: what high-migration countries share ─────────────────────────
+def fig_drivers():
+    p = EXPORTS / "drivers_correlations.csv"
+    if not p.exists():
+        print("  - skipped drivers (run notebooks/07 first)")
+        return
+    c = pd.read_csv(p)
+    piv = {o: c[c["outcome"] == o].set_index("factor") for o in ("immigrant_share", "emigrant_rate")}
+    imm, emi = piv["immigrant_share"], piv["emigrant_rate"]
+    # Keep factors significant for at least one outcome, ordered by the immigration correlation
+    keep = imm.index[(imm["p_partial"] < 0.05) | (emi.reindex(imm.index)["p_partial"] < 0.05)]
+    order = imm.loc[keep, "rho_partial"].sort_values().index
+    y = np.arange(len(order))
+
+    fig, ax = plt.subplots(figsize=(8.4, 0.34 * len(order) + 1.6))
+    ax.axvline(0, color=INK_2, lw=0.8)
+    for df, color, off, lab in [(imm, SERIES[0], 0.15, "Immigrants as % of population"),
+                                (emi, SERIES[1], -0.15, "Emigrants as % of native-born")]:
+        d = df.reindex(order)
+        sig = d["p_partial"] < 0.05
+        ax.hlines(y + off, d["ci_low"], d["ci_high"], color=color, lw=1.2, alpha=0.6)
+        ax.scatter(d["rho_partial"][sig], (y + off)[sig.to_numpy()], s=40, color=color, edgecolor=SURFACE,
+                   linewidth=1.5, zorder=3, label=lab)
+        ax.scatter(d["rho_partial"][~sig], (y + off)[~sig.to_numpy()], s=36, facecolor=SURFACE,
+                   edgecolor=color, linewidth=1.3, zorder=3)
+    labels = [imm.loc[f, "label"] + (" †" if isinstance(imm.loc[f, "note"], str) and imm.loc[f, "note"] else "")
+              for f in order]
+    ax.set_yticks(y, labels)
+    ax.tick_params(axis="y", length=0)
+    ax.grid(axis="y", visible=False)
+    ax.set_xlim(-0.85, 0.85)
+    ax.set_xlabel("Partial Spearman correlation (income and population held fixed), 95% bootstrap CI")
+    ax.legend(loc="lower right")
+    ax.set_title("What high-immigration and high-emigration countries have in common")
+    subtitle(ax, "2020, countries with ≥ 1 million residents. Hollow = not significant at 5%")
+    footnote(fig, "† Partly a mechanical consequence of migration. Correlation, not causation.")
+    save(fig, "13_migration_drivers.png")
+
+
+# ── 14. Migration hump ────────────────────────────────────────────────────────
+def fig_hump():
+    p = EXPORTS / "country_migration_profile.csv"
+    if not p.exists():
+        print("  - skipped migration hump (run notebooks/07 first)")
+        return
+    prof = pd.read_csv(p)
+    pts = prof[(prof["year"] == 2020) & (prof["emigrant_rate"] > 0)].dropna(subset=["gdp_pc_ppp"])
+    curve = pd.read_csv(EXPORTS / "migration_hump_curve.csv")
+    hump = pd.read_csv(EXPORTS / "migration_hump.csv").set_index("spec")
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    ax.scatter(pts["gdp_pc_ppp"], pts["emigrant_rate"], s=22, color=SERIES[0], alpha=0.45,
+               edgecolor=SURFACE, linewidth=0.6, label="Countries, 2020")
+    bins = curve[curve["kind"] == "bin_median"]
+    ax.plot(bins["gdp_pc_ppp"], bins["emigrant_rate"], color=SERIES[1], lw=2, marker="o", ms=5,
+            label="Median by income band, 1990–2020")
+    fit = curve[curve["kind"] == "fit"]
+    ax.plot(fit["gdp_pc_ppp"], fit["emigrant_rate"], color=INK, lw=1.3, ls=(0, (4, 3)), label="Quadratic fit")
+    for iso in ("SYR", "ALB", "MEX", "IND", "USA", "PHL", "NER", "DEU"):
+        r = pts[pts["iso3"] == iso]
+        if len(r):
+            ax.annotate(name(iso), (r["gdp_pc_ppp"].iloc[0], r["emigrant_rate"].iloc[0]), xytext=(5, 3),
+                        textcoords="offset points", fontsize=8, color=INK_2)
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"${v / 1000:.0f}k" if v >= 1000 else f"${v:.0f}"))
+    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:g}%"))
+    ax.set_xlabel("GDP per capita, PPP (constant 2021 $, log scale)")
+    ax.set_ylabel("Emigrants, % of native-born (log scale)")
+    ax.legend(loc="lower right")
+    pooled, within = hump.loc["pooled"], hump.loc["within_country"]
+    ax.set_title("Does development reduce emigration?")
+    subtitle(ax, f"Hump term p = {pooled['p_log_gdp_sq']:.2f} across countries; "
+                 f"within countries the curve is {'U-shaped' if within['b_log_gdp_sq'] > 0 else 'humped'} "
+                 f"(p = {within['p_log_gdp_sq']:.2f})")
+    save(fig, "14_migration_hump.png")
+
+
+# ── 15–16. Structural gravity ────────────────────────────────────────────────
+def fig_gravity():
+    p = EXPORTS / "gravity_ppml.csv"
+    if not p.exists():
+        print("  - skipped gravity (run notebooks/07 first)")
+        return
+    g = pd.read_csv(p)
+    x = np.arange(len(YEARS))
+    ppml = g[g["estimator"] == "ppml"]
+
+    fig, ax = plt.subplots(figsize=(8, 4.6))
+    terms = ["colony", "comcol", "contig", "comlang_ethno", "smctry"]
+    for term, color in zip(terms, SERIES):
+        d = ppml[ppml["term"] == term].set_index("year").reindex(YEARS)
+        ax.plot(x, d["pct_effect"], color=color, lw=2, marker="o", ms=4.5, label=d["label"].dropna().iloc[0])
+    ax.set_xticks(x, YEAR_LABELS)
+    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"+{v:.0f}%"))
+    ax.set_ylabel("Extra migrant stock when the tie exists")
+    ax.grid(axis="x", visible=False)
+    ax.legend(loc="upper left", bbox_to_anchor=(1.0, 1.0))
+    ax.set_title("Colonial ties are fading; language and borders are not")
+    subtitle(ax, "PPML gravity with origin and destination fixed effects, all country pairs incl. zeros")
+    footnote(fig, FOOT_EXTRAP)
+    save(fig, "15_gravity_ties.png")
+
+    fig, ax = plt.subplots(figsize=(8, 4.2))
+    for est, color, ls, lab in [("ppml", SERIES[0], "-", "PPML (zero corridors kept)"),
+                                ("ols_log", SERIES[1], (0, (4, 3)), "OLS on log stock (zeros dropped)")]:
+        d = g[(g["estimator"] == est) & (g["term"] == "log_dist")].set_index("year").reindex(YEARS)
+        ax.fill_between(x, d["ci_lower_95"], d["ci_upper_95"], color=color, alpha=0.12, lw=0)
+        ax.plot(x, d["coefficient"], color=color, lw=2, ls=ls, marker="o", ms=4.5, label=lab)
+    ax.set_xticks(x, YEAR_LABELS)
+    ax.set_ylabel("Distance elasticity")
+    ax.grid(axis="x", visible=False)
+    ax.legend(loc="lower left")
+    ax.set_title("Distance deters migration at least as much as in 1990")
+    subtitle(ax, "% change in migrant stock for a 1% increase in distance, 95% CI clustered by country pair")
+    footnote(fig, FOOT_EXTRAP)
+    save(fig, "16_distance_elasticity.png")
+
+
+# ── 17. Model ablation ────────────────────────────────────────────────────────
+def fig_ablation():
+    p = EXPORTS / "edge_model_ablation.csv"
+    if not p.exists():
+        print("  - skipped ablation (run notebooks/06 first)")
+        return
+    a = pd.read_csv(p).iloc[::-1]
+    colors = [SERIES[0] if s.startswith("Served") else BLUE_RAMP[1] for s in a["feature_set"]]
+    fig, ax = plt.subplots(figsize=(8, 3.6))
+    bars = ax.barh(a["feature_set"], a["r2"], color=colors, height=0.62, edgecolor=SURFACE, linewidth=1.5)
+    for b, v, n in zip(bars, a["r2"], a["n_features"]):
+        ax.text(v + 0.005, b.get_y() + b.get_height() / 2, f"{v:.3f}  ({n} features)", va="center", fontsize=8.5)
+    ax.set_xlim(0.6, max(a["r2"]) + 0.08)
+    ax.grid(axis="y", visible=False)
+    ax.tick_params(axis="y", length=0)
+    ax.set_xlabel("Held-out R² on log migrant stock (corridors never seen in training)")
+    ax.set_title("Geography is the biggest single gain in accuracy")
+    subtitle(ax, "Same corridor split and model settings for every feature set")
+    save(fig, "17_model_ablation.png")
+
+
+# ── 18. Displacement forecast back-tests ─────────────────────────────────────
+def fig_displacement_backtest():
+    p = EXPORTS / "displacement_backtest.csv"
+    if not p.exists():
+        print("  - skipped displacement back-test (run notebooks/08 first)")
+        return
+    bt = pd.read_csv(p)
+    crises = bt[bt["method"] == "model"].sort_values("onset")["crisis"].tolist()
+    methods = [("model", "This model", SERIES[0]), ("diaspora_only", "Follow the diaspora", SERIES[1]),
+               ("distance_only", "Nearest countries", BLUE_RAMP[1])]
+    y = np.arange(len(crises))
+    h = 0.26
+    fig, ax = plt.subplots(figsize=(8.4, 5.2))
+    for k, (m, label, color) in enumerate(methods):
+        vals = bt[bt["method"] == m].set_index("crisis").reindex(crises)["overlap"]
+        ax.barh(y + (1 - k) * h, vals, height=h, color=color, edgecolor=SURFACE, linewidth=1.2,
+                label=f"{label} (mean {vals.mean():.0%})")
+    ax.set_yticks(y, crises)
+    ax.invert_yaxis()
+    ax.set_xlim(0, 1)
+    ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
+    ax.set_xlabel("Share of displaced people forecast to the right country")
+    ax.grid(axis="y", visible=False)
+    ax.tick_params(axis="y", length=0)
+    ax.legend(loc="lower right")
+    ax.set_title("Forecasting where refugees go, before each crisis began")
+    subtitle(ax, "Trained only on UNHCR data from years before onset; compared with actual destinations 1–4 years later")
+    save(fig, "18_displacement_backtest.png")
+
+
+# ── 19. Corridor gaps ─────────────────────────────────────────────────────────
+def fig_corridor_gaps():
+    p = EXPORTS / "corridor_potential.csv"
+    if not p.exists():
+        print("  - skipped corridor gaps (run notebooks/09 first)")
+        return
+    cp = pd.read_csv(p)
+    cp = cp[np.maximum(cp["migrant_stock"], cp["expected"]) >= 20_000]
+    fig, ax = plt.subplots(figsize=(8, 6))
+    for status, color, label in [("as_expected", GRID, "Within 4× of expected"),
+                                 ("under", SERIES[1], "At least 4× smaller"),
+                                 ("over", SERIES[0], "At least 4× larger")]:
+        d = cp[cp["status"] == status]
+        ax.scatter(d["expected"].clip(lower=50), d["migrant_stock"].clip(lower=50), s=12, color=color,
+                   alpha=0.9 if status != "as_expected" else 0.6, edgecolor="none", label=label)
+    lim = (50, 2e7)
+    ax.plot(lim, lim, color=INK_2, lw=0.8, ls=(0, (3, 3)))
+    # The largest excesses sit close together, so label them in a column with leader lines
+    over = cp[cp["status"] == "over"].nlargest(6, "gap").sort_values("migrant_stock", ascending=False)
+    for k, r in enumerate(over.itertuples()):
+        ax.annotate(f"{name(r.origin_iso3)} → {name(r.dest_iso3)}", (r.expected, r.migrant_stock),
+                    xytext=(1.5e3, 9e6 / 1.5 ** k), textcoords="data", fontsize=7.5, color=INK_2, va="center",
+                    arrowprops=dict(arrowstyle="-", color=INK_2, lw=0.5, alpha=0.6))
+    for r in cp[cp["status"] == "under"].nsmallest(5, "gap").itertuples():
+        ax.annotate(f"{name(r.origin_iso3)} → {name(r.dest_iso3)}", (max(r.expected, 50), max(r.migrant_stock, 50)),
+                    xytext=(5, 2), textcoords="offset points", fontsize=7.5, color=INK_2)
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlim(*lim)
+    ax.set_ylim(*lim)
+    fmt = plt.FuncFormatter(lambda v, _: f"{v / 1e6:g}M" if v >= 1e6 else f"{v / 1e3:g}k" if v >= 1e3 else f"{v:g}")
+    ax.xaxis.set_major_formatter(fmt)
+    ax.yaxis.set_major_formatter(fmt)
+    ax.set_xlabel("Expected migrant stock (gravity model)")
+    ax.set_ylabel("Actual migrant stock, 2020")
+    ax.legend(loc="lower right", bbox_to_anchor=(1, 0.07))
+    ax.set_title("Corridors far larger or smaller than geography predicts")
+    subtitle(ax, "PPML gravity with origin and destination fixed effects; corridors with ≥ 20k actual or expected")
+    save(fig, "19_corridor_gaps.png")
 
 
 def main():
@@ -488,6 +709,12 @@ def main():
     fig_regression()
     fig_model_fit()
     fig_feature_importance()
+    fig_drivers()
+    fig_hump()
+    fig_gravity()
+    fig_ablation()
+    fig_displacement_backtest()
+    fig_corridor_gaps()
 
 
 if __name__ == "__main__":

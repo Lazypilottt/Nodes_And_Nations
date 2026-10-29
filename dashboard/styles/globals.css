@@ -2,6 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Neutral palette as RGB channels (see tailwind.config.js). Dark mode is its
+   own set of steps, not an inversion: surfaces sit a little above the page,
+   and text keeps at least 4.5:1 contrast on cards. */
+:root {
+  --white: 255 255 255;
+  --zinc-50: 250 250 250;
+  --zinc-100: 244 244 245;
+  --zinc-200: 228 228 231;
+  --zinc-300: 212 212 216;
+  --zinc-400: 161 161 170;
+  --zinc-500: 113 113 122;
+  --zinc-600: 82 82 91;
+  --zinc-700: 63 63 70;
+  --zinc-800: 39 39 42;
+  --zinc-900: 24 24 27;
+  --zinc-950: 9 9 11;
+  color-scheme: light;
+}
+
+.dark {
+  --white: 24 24 28;
+  --zinc-50: 11 11 14;
+  --zinc-100: 34 34 39;
+  --zinc-200: 46 46 53;
+  --zinc-300: 70 70 78;
+  --zinc-400: 120 120 130;
+  --zinc-500: 156 156 166;
+  --zinc-600: 184 184 192;
+  --zinc-700: 206 206 212;
+  --zinc-800: 226 226 230;
+  --zinc-900: 244 244 246;
+  --zinc-950: 250 250 250;
+  color-scheme: dark;
+}
+
 @layer base {
   html {
     -webkit-font-smoothing: antialiased;
@@ -12,24 +47,32 @@
   body {
     @apply bg-zinc-50 text-zinc-900;
     font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Inter, Roboto, 'Helvetica Neue', Arial, sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   :focus-visible {
-    @apply outline-none ring-2 ring-blue-500/40 ring-offset-1;
+    @apply outline-none ring-2 ring-blue-500/40 ring-offset-1 ring-offset-white;
   }
+}
+
+/* Soft glow behind the page in dark mode */
+.dark body {
+  background-image: radial-gradient(1200px 500px at 15% -10%, rgb(37 99 235 / 0.10), transparent 60%),
+    radial-gradient(900px 400px at 100% 0%, rgb(13 148 136 / 0.07), transparent 60%);
+  background-attachment: fixed;
 }
 
 /* Thin, unobtrusive scrollbars */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #d4d4d8 transparent;
+  scrollbar-color: rgb(var(--zinc-300)) transparent;
 }
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #d4d4d8;
+  background: rgb(var(--zinc-300));
   border-radius: 9999px;
   border: 2px solid transparent;
   background-clip: content-box;
@@ -37,4 +80,45 @@
 
 input[type='range'] {
   height: 4px;
+}
+
+/* Corridors on the map: dashes drift from origin to destination */
+.flow-line {
+  stroke-dasharray: 6 6;
+  animation: flow-dash 1.2s linear infinite;
+}
+@keyframes flow-dash {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flow-line {
+    animation: none;
+    stroke-dasharray: none;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* Country brief: print / save as PDF */
+@media print {
+  header,
+  footer,
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: white !important;
+  }
+  section {
+    break-inside: avoid;
+    box-shadow: none !important;
+  }
 }

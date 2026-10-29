@@ -9,6 +9,9 @@ Runs every numbered script in notebooks/ in order:
   04 regression analysis
   05 export finalization
   06 edge-weight predictor training
+  07 migration drivers (correlates, migration hump, PPML gravity)
+  08 displacement forecast (UNHCR destination model and crisis back-tests)
+  09 corridor potential (corridors far larger or smaller than gravity predicts)
 
 Usage:
     python scripts/build_pipeline.py         # run full pipeline
@@ -26,12 +29,6 @@ import argparse
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-NB01 = ROOT / 'notebooks' / '01_data_collection_cleaning.py'
-NB02 = ROOT / 'notebooks' / '02_network_construction_centrality.py'
-NB03 = ROOT / 'notebooks' / '03_community_detection.py'
-NB04 = ROOT / 'notebooks' / '04_regression_analysis.py'
-NB05 = ROOT / 'notebooks' / '05_export_finalization.py'
-NB06 = ROOT / 'notebooks' / '06_edge_weight_predictor.py'
 
 DEFAULT_ENV = os.environ.copy()
 # Ensure project root is on PYTHONPATH so 'data' package can be imported by notebooks
@@ -73,6 +70,11 @@ def summarize_outputs():
         (exports / 'migration_full_flat.csv', 'migration_full_flat.csv'),
         (models / 'edge_weight_predictor.joblib', 'models/edge_weight_predictor.joblib'),
         (exports / 'edge_model_metrics.json', 'edge_model_metrics.json'),
+        (exports / 'edge_model_ablation.csv', 'edge_model_ablation.csv'),
+        (exports / 'drivers_correlations.csv', 'drivers_correlations.csv'),
+        (exports / 'gravity_ppml.csv', 'gravity_ppml.csv'),
+        (exports / 'displacement_shares.csv', 'displacement_shares.csv'),
+        (exports / 'corridor_potential.csv', 'corridor_potential.csv'),
     ]
 
     for path, label in items:

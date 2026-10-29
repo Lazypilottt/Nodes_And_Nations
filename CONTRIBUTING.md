@@ -27,6 +27,7 @@ source venv/bin/activate          # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
 python scripts/build_pipeline.py  # regenerate data/processed and data/exports
+python -m pytest -q tests         # unit tests
 python -m uvicorn api.predict:app --reload --port 8001
 ```
 
@@ -46,8 +47,8 @@ regenerate those with the pipeline if you change how they are produced.
 ## Pull request checklist
 
 - [ ] The change is focused; unrelated refactors go in a separate PR.
-- [ ] Python files compile (`python -m py_compile <file>`), and any pipeline
-      step you touched runs end to end.
+- [ ] Python files compile (`python -m py_compile <file>`), `python -m pytest -q tests`
+      passes, and any pipeline step you touched runs end to end.
 - [ ] `npm run typecheck` and `npm run build` pass in `dashboard/`.
 - [ ] If outputs in `data/exports/` changed, the PR description summarises how
       (e.g. "modularity Q for 2025 moves from 0.589 to 0.571").

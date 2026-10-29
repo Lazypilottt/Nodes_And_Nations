@@ -36,8 +36,10 @@ ROOT_DIR = str(Path(__file__).resolve().parents[1])
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
-from data.features import build_dyad_features
-from data.loader import MODELS_DIR, load_country_metadata, load_factors
+from data.features import build_dyad_features, network_lags
+from data.loader import (
+    MODELS_DIR, load_country_metadata, load_factors, load_geography_dyadic, load_migration_long,
+)
 
 MODEL_PATH = MODELS_DIR / "edge_weight_predictor.joblib"
 
@@ -64,7 +66,7 @@ def _model():
 
 @lru_cache(maxsize=1)
 def _lookups():
-    return load_factors(), load_country_metadata()
+    return load_factors(), load_country_metadata(), load_geography_dyadic(), network_lags(load_migration_long())
 
 
 @app.get("/health")
@@ -88,14 +90,14 @@ def predict(req: PredictRequest):
         if origin == dest:
             raise HTTPException(status_code=422, detail="origin_iso3 and dest_iso3 must differ")
 
-        factors, meta = _lookups()
+        factors, meta, geography, lags = _lookups()
         known = set(factors.loc[factors["year"] == req.year, "iso3"])
         unknown = [iso for iso in (origin, dest) if iso not in known]
         if unknown:
             raise HTTPException(status_code=404, detail=f"No factor data for {', '.join(unknown)} in {req.year}")
 
         pair = pd.DataFrame([{"origin_iso3": origin, "dest_iso3": dest, "year": req.year}])
-        X = build_dyad_features(pair, factors, meta)[features]
+        X = build_dyad_features(pair, factors, meta, geography=geography, lags=lags)[features]
 
     # Gradient boosting handles NaN natively, but report which inputs were absent.
     missing_inputs = [c for c in features if pd.isna(X.iloc[0][c])]

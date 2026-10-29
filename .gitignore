@@ -26,6 +26,9 @@ npm-debug.log*
 .idea/
 *.swp
 
+# Third-party downloads that data/raw/build_geography.py converts to CSV
+data/raw/cache/cepii/
+
 # Local environment & logs
 .env
 .env.*

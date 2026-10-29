@@ -6,7 +6,9 @@ Nodes and Nations: A Complex Network Study of Global Migration
 Steps:
   1. Merge centrality metrics with supplementary factors panel
   2. Fit Baseline (3-factor) OLS model: Log(Pop), Log(GDP), Conflict
-  3. Fit Full (7-factor) OLS model: all seven predictors
+  3. Fit Full (7-factor) OLS model: all seven predictors, then the
+     cultural-gravity (modelled indices) and development (measured World Bank,
+     WGI and CEPII factors) extensions
   4. Run VIF analysis on all predictors
   5. Fit separate origin-side and destination-side models
   6. Export coefficient tables, model comparison, VIF results
@@ -172,7 +174,7 @@ def fit_model_pair(
     direction: str,
 ) -> tuple[list, list]:
     """
-    Fit baseline, full, and extended cultural gravity OLS models for a given
+    Fit baseline, full, cultural gravity and development OLS models for a given
     dependent variable.
     Returns (list of coef DataFrames, list of summary dicts).
     """
@@ -196,9 +198,21 @@ def fit_model_pair(
         if c in df.columns
     ]
     
+    # Development set: the full model plus measured demographic, connectivity,
+    # governance and geographic factors (World Bank, WGI, CEPII), with no
+    # modelled indices
+    raw_development_preds = raw_full_preds + [
+        c for c in [
+            "youth_share", "urban_pct", "internet_users", "political_stability",
+            "resource_rents", "landlocked",
+        ]
+        if c in df.columns
+    ]
+
     # Filter out predictors that have insufficient data
     full_preds = [c for c in raw_full_preds if df[c].notna().sum() > 30]
     cultural_preds = [c for c in raw_cultural_preds if df[c].notna().sum() > 30]
+    development_preds = [c for c in raw_development_preds if df[c].notna().sum() > 30]
 
     coef_dfs = []
     summary_rows = []
@@ -207,6 +221,7 @@ def fit_model_pair(
         (f"baseline_{direction}", baseline_preds),
         (f"full_{direction}",     full_preds),
         (f"cultural_gravity_{direction}", cultural_preds),
+        (f"development_{direction}", development_preds),
     ]:
         print(f"\n  Fitting {model_label} (y={y_col}, X={preds})")
         model, coef_df = fit_ols_model(df, y_col, preds, model_label, cluster_col="iso3")

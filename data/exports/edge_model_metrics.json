@@ -1,8 +1,15 @@
 {
   "estimator": "histgb",
-  "rmse_log": 1.528899175755348,
-  "r2": 0.7253237828532139,
-  "n_train": 52988,
-  "n_test": 13183,
-  "split": "grouped by corridor"
+  "rmse_log": 1.2026811802055446,
+  "r2": 0.8327091283244534,
+  "n_train": 51545,
+  "n_test": 12942,
+  "n_features": 83,
+  "split": "grouped by corridor",
+  "temporal": {
+    "r2": 0.8576044344766169,
+    "rmse_log": 1.1182128764175754,
+    "train_years": "1990\u20132015",
+    "test_year": 2020
+  }
 }

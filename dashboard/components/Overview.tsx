@@ -29,10 +29,12 @@ export default function Overview({
   data,
   year,
   nodesByIso,
+  onOpenBrief,
 }: {
   data: Dataset;
   year: Year;
   nodesByIso: Record<string, NodeRow>;
+  onOpenBrief: (iso3: string) => void;
 }) {
   const [mode, setMode] = useState<MapMode>('corridors');
   const [selected, setSelected] = useState<string | null>(null);
@@ -106,6 +108,7 @@ export default function Overview({
             node={nodesByIso[selected]}
             country={country?.iso3 === selected ? country : undefined}
             onClose={() => setSelected(null)}
+            onOpenBrief={() => onOpenBrief(selected)}
             rank={
               ranked
                 .slice()
@@ -186,12 +189,14 @@ function CountryProfile({
   country,
   rank,
   onClose,
+  onOpenBrief,
 }: {
   iso3: string;
   node?: NodeRow;
   country?: CountryResponse;
   rank: number;
   onClose: () => void;
+  onOpenBrief: () => void;
 }) {
   const geo = getCountryGeo(iso3);
   const list = (rows: { iso3: string; stock: number }[] | undefined, color: string) => (
@@ -220,9 +225,14 @@ function CountryProfile({
       }
       subtitle={[node?.un_region, node?.income_group, node?.community_label].filter(Boolean).join(' · ')}
       actions={
-        <button onClick={onClose} className="rounded-md px-2 py-1 text-xs text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800">
-          Clear selection
-        </button>
+        <div className="flex items-center gap-1">
+          <button onClick={onOpenBrief} className="rounded-md bg-blue-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-blue-700">
+            Open country brief →
+          </button>
+          <button onClick={onClose} className="rounded-md px-2 py-1 text-xs text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800">
+            Clear
+          </button>
+        </div>
       }
     >
       <div className="grid grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-4">

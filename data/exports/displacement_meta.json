@@ -1,0 +1,42 @@
+{
+  "train_years": "2000\u20132024",
+  "n_obs": 311024,
+  "pseudo_r2": {
+    "network": 0.7962729644909602,
+    "network_prior": 0.9259798069971776
+  },
+  "features": {
+    "log_dist": "Distance (log km)",
+    "log_dist2": "Distance squared (log km\u00b2)",
+    "contig": "Shared border",
+    "comlang_ethno": "Common language",
+    "colony": "Colonial link",
+    "log_diaspora": "Existing diaspora (log)",
+    "dest_log_gdp_ppp": "Destination GDP per capita, PPP (log)",
+    "dest_log_pop": "Destination population (log)",
+    "dest_stability": "Destination political stability",
+    "dest_log_conflict": "Destination armed conflict (log)",
+    "dest_log_hosted": "Refugees already hosted per 1,000 (log)",
+    "log_prior": "Own refugees there last year (log)"
+  },
+  "models": "average of 'network' and 'network_prior' PPML models",
+  "diaspora_snapshot": 2020,
+  "backtest_mean": [
+    {
+      "method": "diaspora_only",
+      "overlap": 0.45193101995648455,
+      "top5_hits": 3.0
+    },
+    {
+      "method": "distance_only",
+      "overlap": 0.23317306403467503,
+      "top5_hits": 1.4285714285714286
+    },
+    {
+      "method": "model",
+      "overlap": 0.5207653390340642,
+      "top5_hits": 3.7142857142857144
+    }
+  ],
+  "displaced_definition": "UNHCR refugees + asylum seekers + other people in need of international protection"
+}

@@ -478,3 +478,15 @@ def load_nodes_master() -> pd.DataFrame:
     if not p.exists():
         raise FileNotFoundError(f"nodes_master.csv not found at {p}. Run pipeline first.")
     return pd.read_csv(p)
+
+def load_geography_dyadic() -> pd.DataFrame:
+    """CEPII GeoDist pair attributes (distance, contiguity, language, colonial ties).
+
+    Built by data/raw/build_geography.py. Returns an empty frame if missing.
+    """
+    return _read_safe_csv(RAW_DIR / "cepii_dyadic.csv")
+
+
+def load_geography_country() -> pd.DataFrame:
+    """CEPII country attributes: coordinates, landlocked flag and land area."""
+    return _read_safe_csv(RAW_DIR / "cepii_country.csv")

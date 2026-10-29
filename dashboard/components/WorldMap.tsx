@@ -1,10 +1,12 @@
+import { motion } from 'framer-motion';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { COUNTRY_GEO_MAP, getCountryGeo, projectLatLng } from '../lib/countryGeo';
 import { WORLD_COUNTRIES_SVG } from '../lib/worldGeoSvg';
 import {
-  ACCENT, LAND, RELIGION_COLORS, STRAIN_COLORS, categorical, fmtCompact, fmtNum, sequential,
+  ACCENT, RELIGION_COLORS, STRAIN_COLORS, categorical, fmtCompact, fmtNum, sequential,
   type StrainLevel,
 } from '../lib/theme';
+import { usePalette } from '../lib/themeContext';
 import type { MapMode, NodeRow } from '../lib/types';
 import { Dot } from './ui';
 
@@ -27,13 +29,16 @@ interface Props {
   selected?: string | null;
   onSelect?: (iso3: string | null) => void;
   simulation?: SimulationOverlay | null;
+  /** Countries shown as closed (displacement planner) */
+  closed?: string[];
   className?: string;
 }
 
 const W = 1000;
 const H = 500;
 const MIN_W = W / 10;
-const EPICENTER = '#7f1d1d';
+const EPICENTER = '#dc2626';
+const CLOSED = '#52525b';
 
 type ViewBox = { x: number; y: number; w: number; h: number };
 const FULL: ViewBox = { x: 0, y: 0, w: W, h: H };
@@ -52,9 +57,15 @@ function clampView(v: ViewBox): ViewBox {
 const CountryLayer = React.memo(function CountryLayer({
   fills,
   selected,
+  land,
+  stroke,
+  selectedStroke,
 }: {
   fills: Record<string, { fill: string; opacity?: number }>;
   selected?: string | null;
+  land: string;
+  stroke: string;
+  selectedStroke: string;
 }) {
   return (
     <g>
@@ -66,12 +77,13 @@ const CountryLayer = React.memo(function CountryLayer({
             key={c.iso3 + c.name}
             d={c.d}
             data-iso={c.iso3}
-            fill={f?.fill ?? LAND}
+            fill={f?.fill ?? land}
             fillOpacity={f?.opacity ?? 1}
-            stroke={isSelected ? '#18181b' : '#ffffff'}
+            stroke={isSelected ? selectedStroke : stroke}
             strokeWidth={isSelected ? 1.4 : 0.5}
             vectorEffect="non-scaling-stroke"
-            className="cursor-pointer transition-opacity hover:opacity-75"
+            style={{ transition: 'fill 0.5s ease, fill-opacity 0.5s ease' }}
+            className="cursor-pointer hover:opacity-75"
           />
         );
       })}
@@ -79,7 +91,8 @@ const CountryLayer = React.memo(function CountryLayer({
   );
 });
 
-export default function WorldMap({ mode, nodes, arcs, selected, onSelect, simulation, className = 'h-[460px]' }: Props) {
+export default function WorldMap({ mode, nodes, arcs, selected, onSelect, simulation, closed, className = 'h-[460px]' }: Props) {
+  const palette = usePalette();
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const [view, setView] = useState<ViewBox>(FULL);
@@ -188,9 +201,10 @@ export default function WorldMap({ mode, nodes, arcs, selected, onSelect, simula
       }
       out[simulation.epicenter] = { fill: EPICENTER };
     }
+    for (const iso of closed ?? []) out[iso] = { fill: CLOSED, opacity: 0.85 };
     if (selected && mode === 'corridors') out[selected] = { fill: ACCENT };
     return out;
-  }, [mode, nodes, simulation, selected]);
+  }, [mode, nodes, simulation, selected, closed]);
 
   // ── Arcs ──────────────────────────────────────────────────────────────────
   const arcPaths = useMemo(() => {
@@ -231,7 +245,7 @@ export default function WorldMap({ mode, nodes, arcs, selected, onSelect, simula
   return (
     <div
       ref={containerRef}
-      className={`relative w-full select-none overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50 ${className}`}
+      className={`relative w-full select-none overflow-hidden rounded-xl border border-zinc-200 bg-gradient-to-b from-zinc-50 to-zinc-100/60 ${className}`}
     >
       <svg
         ref={svgRef}
@@ -249,21 +263,70 @@ export default function WorldMap({ mode, nodes, arcs, selected, onSelect, simula
         role="img"
         aria-label="World map of migration"
       >
-        <CountryLayer fills={fills} selected={selected} />
+        <CountryLayer
+          fills={fills}
+          selected={selected}
+          land={palette.land}
+          stroke={palette.landStroke}
+          selectedStroke={palette.ink}
+        />
 
         <g fill="none" pointerEvents="none">
-          {arcPaths.map((a) => (
+          {arcPaths.map((a, i) => (
             <g key={a.key}>
-              <path d={a.d} stroke={a.color} strokeWidth={a.width} strokeOpacity={0.7} strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-              <circle cx={a.end.x} cy={a.end.y} r={markerR} fill={a.color} />
+              {/* Arc draws in from the origin, then dashes drift along it to show direction */}
+              <motion.path
+                d={a.d}
+                stroke={a.color}
+                strokeWidth={a.width}
+                strokeOpacity={0.35}
+                strokeLinecap="round"
+                vectorEffect="non-scaling-stroke"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 0.9, ease: 'easeOut', delay: Math.min(i * 0.02, 0.6) }}
+              />
+              <path
+                d={a.d}
+                stroke={a.color}
+                strokeWidth={a.width}
+                strokeOpacity={0.9}
+                strokeLinecap="round"
+                vectorEffect="non-scaling-stroke"
+                className="flow-line"
+              />
+              <motion.circle
+                cx={a.end.x}
+                cy={a.end.y}
+                fill={a.color}
+                stroke={palette.surface}
+                strokeWidth={0.6}
+                vectorEffect="non-scaling-stroke"
+                initial={{ r: 0 }}
+                animate={{ r: markerR }}
+                transition={{ duration: 0.3, delay: Math.min(i * 0.02, 0.6) + 0.7 }}
+              />
             </g>
           ))}
         </g>
 
         {epicenterPt && (
           <g pointerEvents="none">
-            <circle cx={epicenterPt.x} cy={epicenterPt.y} r={markerR * 4} fill={EPICENTER} fillOpacity={0.15} />
-            <circle cx={epicenterPt.x} cy={epicenterPt.y} r={markerR * 1.4} fill={EPICENTER} stroke="#fff" strokeWidth={1} vectorEffect="non-scaling-stroke" />
+            {[0, 1].map((k) => (
+              <motion.circle
+                key={k}
+                cx={epicenterPt.x}
+                cy={epicenterPt.y}
+                fill="none"
+                stroke={EPICENTER}
+                strokeWidth={1.2}
+                vectorEffect="non-scaling-stroke"
+                initial={{ r: markerR, opacity: 0.7 }}
+                animate={{ r: markerR * 7, opacity: 0 }}
+                transition={{ duration: 2.2, repeat: Infinity, ease: 'easeOut', delay: k * 1.1 }}
+              />
+            ))}
+            <circle cx={epicenterPt.x} cy={epicenterPt.y} r={markerR * 1.5} fill={EPICENTER} stroke={palette.surface} strokeWidth={1} vectorEffect="non-scaling-stroke" />
           </g>
         )}
       </svg>
@@ -300,7 +363,11 @@ export default function WorldMap({ mode, nodes, arcs, selected, onSelect, simula
             <span>{hoverInfo.geo.flag}</span>
             <span>{hoverInfo.node?.country_name ?? hoverInfo.geo.name}</span>
           </div>
-          <TooltipBody mode={mode} iso3={hover!.iso3} node={hoverInfo.node} simulation={simulation} />
+          {closed?.includes(hover!.iso3) ? (
+            <div className="text-zinc-500">Border closed in this scenario</div>
+          ) : (
+            <TooltipBody mode={mode} iso3={hover!.iso3} node={hoverInfo.node} simulation={simulation} />
+          )}
         </div>
       )}
     </div>
@@ -328,7 +395,7 @@ function TooltipBody({
   simulation?: SimulationOverlay | null;
 }) {
   if (mode === 'simulation' && simulation) {
-    if (iso3 === simulation.epicenter) return <div className="text-red-700">Shock epicenter</div>;
+    if (iso3 === simulation.epicenter) return <div className="text-red-600 dark:text-red-400">Crisis epicentre</div>;
     const r = simulation.recipients[iso3];
     if (!r) return <div className="text-zinc-500">Outside top recipients</div>;
     return (
@@ -407,7 +474,8 @@ function Legend({ mode, nodes }: { mode: MapMode; nodes: Record<string, NodeRow>
   } else if (mode === 'simulation') {
     body = (
       <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-        <span className="flex items-center gap-1.5 text-zinc-600"><Dot color={EPICENTER} />Epicenter</span>
+        <span className="flex items-center gap-1.5 text-zinc-600"><Dot color={EPICENTER} />Epicentre</span>
+        <span className="flex items-center gap-1.5 text-zinc-600"><Dot color={CLOSED} />Border closed</span>
         {(Object.keys(STRAIN_COLORS) as StrainLevel[]).map((k) => (
           <span key={k} className="flex items-center gap-1.5 text-zinc-600"><Dot color={STRAIN_COLORS[k]} />{k} strain</span>
         ))}

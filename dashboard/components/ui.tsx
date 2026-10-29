@@ -1,4 +1,7 @@
-import React from 'react';
+import { animate, motion, useInView } from 'framer-motion';
+import React, { useEffect, useId, useRef, useState } from 'react';
+
+const EASE = [0.22, 1, 0.36, 1] as const;
 
 export function Card({
   title,
@@ -7,6 +10,7 @@ export function Card({
   children,
   className = '',
   bodyClassName = 'p-5',
+  delay = 0,
 }: {
   title?: React.ReactNode;
   subtitle?: React.ReactNode;
@@ -14,9 +18,15 @@ export function Card({
   children: React.ReactNode;
   className?: string;
   bodyClassName?: string;
+  delay?: number;
 }) {
   return (
-    <section className={`rounded-xl border border-zinc-200 bg-white ${className}`}>
+    <motion.section
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, ease: EASE, delay }}
+      className={`rounded-xl border border-zinc-200 bg-white shadow-[0_1px_2px_rgb(0_0_0/0.03)] transition-shadow hover:shadow-[0_4px_24px_-8px_rgb(0_0_0/0.10)] dark:shadow-none dark:hover:shadow-[0_0_0_1px_rgb(96_165_250/0.12)] ${className}`}
+    >
       {(title || actions) && (
         <header className="flex flex-wrap items-start justify-between gap-3 border-b border-zinc-100 px-5 py-4">
           <div className="min-w-0">
@@ -27,7 +37,7 @@ export function Card({
         </header>
       )}
       <div className={bodyClassName}>{children}</div>
-    </section>
+    </motion.section>
   );
 }
 
@@ -45,6 +55,7 @@ export function Segmented<T extends string | number>({
   ariaLabel?: string;
 }) {
   const pad = size === 'xs' ? 'px-2 py-0.5 text-[11px]' : 'px-2.5 py-1 text-xs';
+  const id = useId();
   return (
     <div role="tablist" aria-label={ariaLabel} className="inline-flex flex-wrap rounded-lg bg-zinc-100 p-0.5">
       {options.map((o) => {
@@ -55,16 +66,48 @@ export function Segmented<T extends string | number>({
             role="tab"
             aria-selected={active}
             onClick={() => onChange(o.value)}
-            className={`${pad} rounded-md font-medium transition-colors ${
-              active ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-500 hover:text-zinc-800'
+            className={`${pad} relative rounded-md font-medium transition-colors ${
+              active ? 'text-zinc-900' : 'text-zinc-500 hover:text-zinc-800'
             }`}
           >
-            {o.label}
+            {active && (
+              <motion.span
+                layoutId={`seg-${id}`}
+                className="absolute inset-0 rounded-md bg-white shadow-sm dark:bg-zinc-300/30"
+                transition={{ type: 'spring', stiffness: 500, damping: 38 }}
+              />
+            )}
+            <span className="relative">{o.label}</span>
           </button>
         );
       })}
     </div>
   );
+}
+
+/** Tweens from the previous value to the new one; renders the final value with no motion preference. */
+export function CountUp({ value, format }: { value: number | null | undefined; format: (n: number) => string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const prev = useRef<number>(0);
+  const inView = useInView(ref, { once: true });
+  const [display, setDisplay] = useState<number | null>(value ?? null);
+
+  useEffect(() => {
+    if (value == null || !Number.isFinite(value)) {
+      setDisplay(null);
+      return;
+    }
+    if (!inView) return;
+    const controls = animate(prev.current, value, {
+      duration: 0.9,
+      ease: EASE,
+      onUpdate: (v) => setDisplay(v),
+    });
+    prev.current = value;
+    return () => controls.stop();
+  }, [value, inView]);
+
+  return <span ref={ref}>{display == null ? '—' : format(display)}</span>;
 }
 
 export function Stat({
@@ -78,7 +121,8 @@ export function Stat({
   hint?: React.ReactNode;
   tone?: 'default' | 'accent' | 'danger';
 }) {
-  const color = tone === 'accent' ? 'text-blue-600' : tone === 'danger' ? 'text-red-600' : 'text-zinc-900';
+  const color =
+    tone === 'accent' ? 'text-blue-600 dark:text-blue-400' : tone === 'danger' ? 'text-red-600 dark:text-red-400' : 'text-zinc-900';
   return (
     <div className="min-w-0">
       <div className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">{label}</div>
@@ -92,7 +136,7 @@ export function Badge({ children, color }: { children: React.ReactNode; color?: 
   return (
     <span
       className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium"
-      style={color ? { backgroundColor: `${color}14`, color } : undefined}
+      style={color ? { backgroundColor: `${color}1f`, color } : undefined}
     >
       {!color ? <span className="text-zinc-600">{children}</span> : children}
     </span>
@@ -148,10 +192,13 @@ export function ShareBars({
               {format(d.value)} <span className="ml-1 font-medium text-zinc-900">{((d.value / total) * 100).toFixed(1)}%</span>
             </span>
           </div>
-          <div className="h-1.5 rounded-full bg-zinc-100">
-            <div
-              className="h-1.5 rounded-full transition-[width] duration-500"
-              style={{ width: `${(d.value / max) * 100}%`, backgroundColor: colorFor(d.label, i) }}
+          <div className="h-1.5 overflow-hidden rounded-full bg-zinc-100">
+            <motion.div
+              className="h-1.5 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${(d.value / max) * 100}%` }}
+              transition={{ duration: 0.7, ease: EASE, delay: i * 0.04 }}
+              style={{ backgroundColor: colorFor(d.label, i) }}
             />
           </div>
         </li>
@@ -162,6 +209,15 @@ export function ShareBars({
 
 export function Empty({ children }: { children: React.ReactNode }) {
   return <div className="py-10 text-center text-sm text-zinc-500">{children}</div>;
+}
+
+/** Loading placeholder with a moving sheen. */
+export function Skeleton({ className = '' }: { className?: string }) {
+  return (
+    <div className={`relative overflow-hidden rounded-xl bg-zinc-100 ${className}`}>
+      <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/40 to-transparent dark:via-white/5" />
+    </div>
+  );
 }
 
 export function Table({ children }: { children: React.ReactNode }) {

@@ -117,6 +117,7 @@ def compute_centralities(G: nx.DiGraph, year: int) -> pd.DataFrame:
         normalized=True,
         weight="inv_weight",
         k=min(n, 200),  # Sample k nodes for speed if large graph
+        seed=42,        # fixed sample so reruns reproduce the same values
     )
 
     # ── PageRank (weight-aware, alpha=0.85) ───────────────────────────────

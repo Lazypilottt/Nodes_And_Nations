@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { DATA_ROOT, Row, readDataCSV } from '../csv';
 import { INCOME_ORDER, MIPEX_TIERS, mipexTier } from '../theme';
-import type { Dataset, EdgeRow, NodeRow, Share, YearDistribution } from '../types';
+import type { Dataset, Displacement, Drivers, EdgeRow, NodeRow, RegionFlows, Share, YearDistribution } from '../types';
 
 const NODE_FIELDS: (keyof NodeRow)[] = [
   'iso3', 'year', 'country_name', 'continent', 'un_region', 'income_group',
@@ -11,6 +11,8 @@ const NODE_FIELDS: (keyof NodeRow)[] = [
   'gdp_per_capita', 'population', 'unemployment', 'conflict_intensity',
   'climate_vulnerability', 'visa_openness_index', 'dominant_religion',
   'integration_policy_index', 'cultural_openness_index',
+  'gdp_pc_ppp', 'political_stability', 'urban_pct', 'youth_share', 'internet_users', 'remittances_gdp',
+  'life_expectancy', 'homicide_rate', 'refugees_hosted_per_1k', 'refugees_abroad_per_1k',
 ];
 
 const num = (v: unknown): number | null => (typeof v === 'number' && Number.isFinite(v) ? v : null);
@@ -124,6 +126,69 @@ function readJSON(rel: string): Record<string, any> | null {
   }
 }
 
+function drivers(): Drivers {
+  const rows = (f: string) => readDataCSV(`exports/${f}`) as any[];
+  return {
+    correlations: rows('drivers_correlations.csv'),
+    profile: rows('drivers_profile.csv').map((r) => ({
+      outcome: r.outcome, factor: r.factor, label: r.label, category: r.category,
+      median_top: num(r.median_top), median_bottom: num(r.median_bottom), median_all: num(r.median_all),
+    })),
+    countries: rows('country_migration_profile.csv').map((r) => ({
+      iso3: r.iso3, country_name: str(r.country_name), continent: str(r.continent), year: Number(r.year),
+      immigrant_share: num(r.immigrant_share), emigrant_rate: num(r.emigrant_rate), gdp_pc_ppp: num(r.gdp_pc_ppp),
+    })),
+    hump: rows('migration_hump.csv'),
+    hump_curve: rows('migration_hump_curve.csv'),
+    gravity: rows('gravity_ppml.csv'),
+    gravity_fit: rows('gravity_fit.csv'),
+    model_ablation: rows('edge_model_ablation.csv'),
+  };
+}
+
+/** Origin-region × destination-region migrant stock for each snapshot year (for the chord diagram). */
+function regionFlows(): Dataset['region_flows'] {
+  const meta = countryMeta();
+  const levels = { continent: 'continent', region: 'un_region' } as const;
+  const acc: Record<number, Record<keyof typeof levels, Map<string, number>>> = {};
+  for (const m of migrationLong()) {
+    const o = meta.get(m.origin);
+    const d = meta.get(m.dest);
+    if (!o || !d) continue;
+    const y = (acc[m.year] ??= { continent: new Map(), region: new Map() });
+    for (const [level, col] of Object.entries(levels) as [keyof typeof levels, string][]) {
+      const k = `${o[col]}|${d[col]}`;
+      y[level].set(k, (y[level].get(k) ?? 0) + m.stock);
+    }
+  }
+  const toMatrix = (pairs: Map<string, number>): RegionFlows => {
+    const totals = new Map<string, number>();
+    for (const [k, v] of pairs) for (const part of k.split('|')) totals.set(part, (totals.get(part) ?? 0) + v);
+    const labels = Array.from(totals.keys()).filter((l) => l && l !== 'null').sort();
+    const idx = new Map(labels.map((l, i) => [l, i]));
+    const matrix = labels.map(() => labels.map(() => 0));
+    for (const [k, v] of pairs) {
+      const [a, b] = k.split('|');
+      if (idx.has(a) && idx.has(b)) matrix[idx.get(a)!][idx.get(b)!] += v;
+    }
+    return { labels, matrix };
+  };
+  const out: Dataset['region_flows'] = {};
+  for (const [year, y] of Object.entries(acc)) {
+    out[Number(year)] = { continent: toMatrix(y.continent), region: toMatrix(y.region) };
+  }
+  return out;
+}
+
+function displacement(): Displacement {
+  return {
+    backtest: readDataCSV('exports/displacement_backtest.csv') as any[],
+    backtest_shares: readDataCSV('exports/displacement_backtest_shares.csv') as any[],
+    model: readDataCSV('exports/displacement_model.csv'),
+    meta: readJSON('exports/displacement_meta.json'),
+  };
+}
+
 let datasetCache: { key: string; value: Dataset } | null = null;
 
 export function buildDataset(): Dataset {
@@ -131,6 +196,9 @@ export function buildDataset(): Dataset {
     'exports/nodes_master.csv', 'exports/network_edges.csv', 'exports/network_summary.csv',
     'exports/modularity_scores.csv', 'exports/boundary_nodes.csv', 'exports/regression_coefficients.csv',
     'exports/regression_model_comparison.csv', 'exports/country_metadata.csv', 'processed/migration_long.csv',
+    'exports/drivers_correlations.csv', 'exports/country_migration_profile.csv', 'exports/gravity_ppml.csv',
+    'exports/edge_model_ablation.csv', 'exports/edge_model_metrics.json',
+    'exports/displacement_backtest.csv', 'exports/displacement_meta.json',
   ];
   const key = files
     .map((f) => {
@@ -173,6 +241,9 @@ export function buildDataset(): Dataset {
     regression_comparison: readDataCSV('exports/regression_model_comparison.csv'),
     distributions: distributions(nodeRows),
     model_metrics: readJSON('exports/edge_model_metrics.json'),
+    drivers: drivers(),
+    region_flows: regionFlows(),
+    displacement: displacement(),
   };
   datasetCache = { key, value };
   return value;

@@ -21,6 +21,12 @@ matplotlib>=3.7
 # Optional: faster gradient boosting for notebooks/06 (falls back to scikit-learn)
 # xgboost>=2.0
 
+# Only needed to rebuild data/raw/cepii_*.csv (python data/raw/build_geography.py)
+xlrd>=2.0
+
+# Tests
+pytest>=8.0
+
 # Prediction API
 fastapi>=0.110
 uvicorn[standard]>=0.29

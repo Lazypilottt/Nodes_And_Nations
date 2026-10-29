@@ -22,7 +22,9 @@ jobs:
       - name: Compile all Python sources
         run: python -m compileall -q api data notebooks scripts
       - name: Import shared modules and API
-        run: python -c "import data.loader, data.features, api.predict"
+        run: python -c "import data.loader, data.features, data.gravity, api.predict"
+      - name: Unit tests
+        run: python -m pytest -q tests
 
   dashboard:
     name: Dashboard

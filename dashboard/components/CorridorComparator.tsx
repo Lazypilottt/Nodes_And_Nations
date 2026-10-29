@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import useSWR from 'swr';
 import { lineGrid } from '../lib/charts';
+import { useChartKey } from '../lib/themeContext';
 import { COUNTRY_LIST, getCountryGeo } from '../lib/countryGeo';
 import { fetcher } from '../lib/fetcher';
 import { ACCENT, fmtCompact, fmtInt, fmtNum } from '../lib/theme';
@@ -31,6 +32,7 @@ const ROWS: { label: string; get: (n?: NodeRow) => React.ReactNode }[] = [
 ];
 
 export default function CorridorComparator({ nodesByIso, year }: { nodesByIso: Record<string, NodeRow>; year: Year }) {
+  const chartKey = useChartKey();
   const [a, setA] = useState('IND');
   const [b, setB] = useState('ARE');
   const { data, error } = useSWR<CorridorResponse>(a !== b ? `/api/corridor?a=${a}&b=${b}` : null, fetcher, {
@@ -118,7 +120,7 @@ export default function CorridorComparator({ nodesByIso, year }: { nodesByIso: R
             />
           </div>
           <div className="h-64">
-            <Line data={chart} options={options} />
+            <Line key={chartKey} data={chart} options={options} />
           </div>
         </Card>
 

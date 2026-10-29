@@ -1,9 +1,9 @@
 model,predictor,vif,multicollinearity_flag
 full_model_pooled,const,1.0,False
-full_model_pooled,log_population,1.1510681918699102,False
-full_model_pooled,log_gdp_per_capita,4.461659228653832,False
-full_model_pooled,conflict_intensity,1.0245201294328055,False
-full_model_pooled,unemployment,1.1123748374714668,False
-full_model_pooled,education_index,1.5774065449111054,False
-full_model_pooled,visa_openness_index,2.6661372296448347,False
-full_model_pooled,climate_vulnerability,3.4954790394609963,False
+full_model_pooled,log_population,1.1554886822423744,False
+full_model_pooled,log_gdp_per_capita,4.462669667346617,False
+full_model_pooled,conflict_intensity,1.0238662716421953,False
+full_model_pooled,unemployment,1.1165144084310232,False
+full_model_pooled,education_index,1.5694502885655537,False
+full_model_pooled,visa_openness_index,2.669063343280329,False
+full_model_pooled,climate_vulnerability,3.495787415132288,False
